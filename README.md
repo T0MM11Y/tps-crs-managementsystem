@@ -17,7 +17,7 @@
 
 ## 🌟 System Overview
 
-The **TPS CRS Management System** is a comprehensive Spring Boot-based backend application that manages customer reward systems and regional reward alliances for Taiwan Mobile (TWM).
+The **TPS CRS Management System** is a comprehensive Spring Boot-based backend application that manages customer reward systems and regional reward alliances.
 
 ### Key Features
 
@@ -174,12 +174,6 @@ spring.modb.min-idle=3
 3. Configure permissions
 4. Send activation email
 5. Monitor account activity
-
-## 🔐 SSO Integration
-
-### Authentication Flow
-
-The system integrates with Taiwan Mobile's NT SSO service for secure authentication.
 
 #### SSO Configuration
 
