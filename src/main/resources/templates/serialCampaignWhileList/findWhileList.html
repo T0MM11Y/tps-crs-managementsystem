@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+
+	<style>
+.container-fluid--c .table {
+	background-color: white; /* White background for tables */
+	border-collapse: collapse; /* Remove gaps in the table */
+}
+
+.container-fluid--c .table th, .container-fluid--c .table td {
+	border: 1px solid #ddd; /* Light borders for table cells */
+	padding: 8px; /* Padding for table cells */
+}
+
+.container-fluid--c .table th {
+	color: white; /* White text */
+}
+
+.container-fluid--c .table thead {
+	position: sticky;
+	top: 0;
+}
+
+.container-fluid--c .fixed-table-container {
+	overflow-y: auto;
+}
+
+.container-fluid--c .fixed-table-pagination {
+	zoom: 1.3;
+}
+
+#page2 h1 {
+	padding-bottom: 10px; /* 標題下方間距 */
+	margin-bottom: 20px; /* 標題下方外間距 */
+}
+
+#page2 .row {
+	margin-bottom: 15px !important; /* 行間距 */
+}
+
+#page2 label {
+	font-weight: bold; /* 加粗標籤文字 */
+	margin-bottom: 5px; /* 標籤與其他元素的間距 */
+}
+
+#page2 .form-group {
+	display: flex;
+	align-items: center !important;
+	margin-bottom: 15px !important;
+}
+
+#page2 .card-header {
+	padding: 10px; /* 卡片頭部間距 */
+}
+</style>
+
+
+
+
+
+
+	<div class="container-fluid px-3 py-3">
+		<!-- Bootstrap 分页组件 -->
+		<ul class="nav nav-tabs" id="myTab" role="tablist"
+			style="display: none;">
+			<li class="nav-item"><a class="nav-link active" id="page1-tab"
+				data-toggle="tab" href="#page1" role="tab" aria-controls="page1"
+				aria-selected="true">第一頁</a></li>
+			<li class="nav-item"><a class="nav-link" id="page2-tab"
+				data-toggle="tab" href="#page2" role="tab" aria-controls="page2"
+				aria-selected="false">第二頁</a></li>
+
+		</ul>
+		<div class="tab-content" id="myTabContent">
+			<div class="tab-pane fade show active" id="page1" role="tabpanel"
+				aria-labelledby="page1-tab">
+				<div class="text-left">
+					<h1 class="font-size-22 font-weight-bold"
+						style="color: rgb(89, 89, 89);">序號簡訊白名單查詢</h1>
+				</div>
+				<form>
+					<div class="pl-5">
+						<div class="form-group row">
+							<label class="col-auto col-form-label font-weight-bold">部門別&emsp;</label>
+							<div class="col-2">
+								<input type="text" class="form-control" readonly
+									th:value="${session.userInfo.departmentName}" />
+							</div>
+							<label class="col-auto col-form-label font-weight-bold">申請人</label>
+							<div class="col-2">
+								<select class="form-control" name="applyId" id="applyId">
+									<option value="">請選擇</option>
+									<option th:each="applyId : ${applyIds}"
+										th:value="${applyId[1]}" th:text="${applyId[0]}"></option>
+
+								</select>
+							</div>
+							<label
+								class=" col-form-label form-control-label font-weight-bold">發幣活動名稱
+							</label>
+							<div class="col-3">
+								<input class="form-control " type="text" name="campaignName"
+									id="campaignName">
+							</div>
+
+						</div>
+
+						<div class="form-group row">
+
+							<label class="col-auto col-form-label font-weight-bold ">簡訊發送</label>
+							<div class="col-2">
+								<input type="date" class="form-control"
+									name="submitSendStartDate" id="submitSendStartDate" />
+							</div>
+							<label class="col-auto col-form-label font-weight-bold">&emsp;&#126;&emsp;</label>
+							<div class="col-2">
+								<input type="date" class="form-control" name="submitSendEndDate"
+									id="submitSendEndDate" />
+							</div>
+							<label class="col-auto col-form-label font-weight-bold">狀態&emsp;&emsp;&emsp;&emsp;</label>
+							<div class="col-2">
+								<select class="form-control" name="status" id="status">
+									<option value="">請選擇</option>
+									<option value="WAIT_APPROVAL">未簽核</option>
+									<option value="AGREE">同意</option>
+									<option value="REJECT">否決</option>
+									<option value="ROLLBACK">撤回</option>
+									<option value="EXPIRED">逾期(請更新後送簽)</option>
+								</select>
+							</div>
+
+
+						</div>
+						<div class="row mt-2">
+							<div class="col-lg-12 text-center">
+								<button type="button" class="btn btn-primary-blue btnrow-a"
+									onclick="findWhileList()">查詢</button>
+							</div>
+						</div>
+					</div>
+					<div class="table--c my-4 table--findWhileListDiv">
+						<table class="table--findWhileList" data-resizable="true"></table>
+					</div>
+				</form>
+				<div class="modal fade" id="approvalBatchId" tabindex="-1"
+					role="dialog" aria-labelledby="approvalBatchIdModalTitle"
+					aria-hidden="true" data-backdrop="static" data-keyboard="false">
+					<div class="modal-dialog modal-dialog-centered modal-xl"
+						role="document">
+						<div class="modal-content"
+							style="border-radius: 50px; border: solid #172B4D; font-weight: bold;">
+
+
+							<div class="modal-header border-bottom-0 py-3">
+								<div class="container-fluid">
+									<div class="row">
+										<div class="col-lg-6 d-flex align-items-center"></div>
+										<div class="col-lg-6 text-right">
+											<button type="button" class="close" data-dismiss="modal"
+												aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+									</div>
+									<div class="row mt-3">
+										<div class="col-6" style="display: flex; align-items: center;">
+											<label class="col-auto col-form-label font-weight-bold"
+												for="">部門別</label> <input type="text" class="form-control "
+												disabled style="border: 0px !important;"
+												th:value="${session.userInfo.departmentName}">
+										</div>
+										<div class="col-6 "
+											style="display: flex; align-items: center;">
+											<label class="col-auto col-form-label font-weight-bold"
+												for="">申請人</label> <input type="text" class="form-control"
+												disabled id="approvalBatchUserName"
+												style="border: 0px !important;">
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="modal-body">
+								<div class="container-fluid">
+									<div class="table--c my-4  table-responsive">
+										<table class="table--approvalBatchIdList table text-nowrap"></table>
+									</div>
+
+								</div>
+							</div>
+							<div class="modal-footer" style="border-top: 0px;">
+								<div class="container-fluid">
+									<div class="row mb-3">
+										<div class="col-12 d-flex">
+											<div class="d-flex justify-content-start align-items-center"
+												style="flex: 0.4;">
+												<span class=" font-weight-bold">簽核意見為 <input
+													type="radio" class="btn-check" name=opinion id="opinion1"
+													value="1" style="visibility: hidden;"> <label
+													class="btn btn-primary--r ml-2 btn-sm  font-size-16"
+													for="opinion1">同意</label> <input type="radio"
+													class="btn-check" name=opinion id="opinion2" value="2"
+													style="visibility: hidden;"> <label
+													class="btn btn-primary--c ml-2 btn-sm font-size-16"
+													id="opinion2-label" for="opinion2">否決</label>
+												</span>
+											</div>
+
+											<div class="flex-grow-1" style="flex: 1;">
+												<textarea class="form-control" rows="5"
+													style="resize: none;"
+													placeholder="請在 20 字內 說明《 否決 》原因（非必填）" name="commentInfo"
+													id="commentInfo"></textarea>
+											</div>
+											<div class="row  align-items-end">
+												<div class="col-12 text-right">
+													<div class="d-inline-block">
+														<input type="checkbox" class="ccheckbox" checked="checked"
+															id="commentInfoCheckBox" name="commentInfoCheckBox">
+														<label for="commentInfoCheckBox" class="ccheckbox-label">
+															<span class="ccheckbox-span"> <svg
+																	class="ccheckbox-svg" viewBox="0 0 512 512"
+																	title="check">
+				                                               <path
+																		d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+				                                           </svg>
+														</span>無簽核意見
+														</label>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-12 text-center">
+											<button type="submit" class="btn btn-primary-blue btnrow-a "
+												id="approvalButton2" disabled>確定</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<div class="tab-pane fade" id="page2" role="tabpanel"
+				aria-labelledby="page2-tab">
+				<div class="text-left">
+					<h1 class="font-size-22 font-weight-bold"
+						style="color: rgb(89, 89, 89); font-size: 24px; text-align: left;">序號發幣白名單查閱</h1>
+
+				</div>
+				<div class="row  d-flex justify-content-center font-size-18">
+					<div class="col-sm-auto">
+						<label class="">部門別</label> <input
+							class="input-width-color w300px" type="text"
+							th:value="*{session.userInfo.departmentName}" disabled>
+					</div>
+					<div class="col-sm-auto">
+						<label class="">送簽人員姓名</label> <input class="input-width-color "
+							type="text" id="applyUserName" disabled>
+					</div>
+				</div>
+				<div class="container-fluid px-3 py-3" style="background: #d6d6d6;">
+					<div class="col-lg-12  row">
+						<div class="form-group row col-lg-4" style="align-items: center;">
+							<label class="col-auto col-form-label form-control-label">系統單號&emsp;&emsp;</label>
+							<div class="col">
+								<input type="text" class="form-control reportId" readonly />
+							</div>
+						</div>
+						<div class="form-group row col-lg-3" style="align-items: center;">
+							<label class="col-auto col-form-label form-control-label">送簽日期</label>
+							<div class="col">
+								<input type="text" class="form-control sendApprovalDate "
+									readonly />
+							</div>
+						</div>
+						<div class="form-group row col-lg-4" style="align-items: center;">
+							<label class="col-auto col-form-label form-control-label">序號發送時間</label>
+							<div class="col">
+								<input type="text" class="form-control rewardDate" readonly />
+							</div>
+						</div>
+
+
+
+					</div>
+					<div class="col-lg-12  row">
+						<div class="form-group row col-lg-4" style="align-items: center;">
+							<label class="col-auto col-form-label form-control-label">發幣活動代碼</label>
+							<div class="col">
+								<input type="text" class="form-control momoEventNo" readonly />
+							</div>
+						</div>
+						<div class="form-group row col-lg-3" style="align-items: center;">
+							<label class="col-auto col-form-label form-control-label">PO
+								單號&ensp;</label>
+							<div class="col">
+								<input type="text" class="form-control orderNumber " readonly />
+							</div>
+						</div>
+						<div class="form-group row col-lg-4" style="align-items: center;">
+							<label class="col-auto col-form-label form-control-label">戶頭代碼&emsp;&emsp;</label>
+							<div class="col">
+								<input type="text" class="form-control payAccount" readonly />
+							</div>
+						</div>
+
+
+
+
+					</div>
+
+					<div class="col-lg-12  row">
+						<div class="form-group row col-lg-4" style="align-items: center;">
+							<label class="col-auto col-form-label form-control-label">請購單位&emsp;&emsp;</label>
+							<div class="col">
+								<input type="text" class="form-control requisitionUnit" readonly />
+							</div>
+						</div>
+						<div class="form-group row col-lg-3" style="align-items: center;">
+							<label class="col-auto col-form-label form-control-label">請購人&emsp;</label>
+							<div class="col">
+								<input type="text" class="form-control requisitioner" readonly />
+							</div>
+						</div>
+						<div class="form-group row col-lg-4" style="align-items: center;">
+							<label class="col-auto col-form-label form-control-label">發幣用戶總數</label>
+							<div class="col">
+								<input type="text" class="form-control totalRewardUsers"
+									readonly />
+							</div>
+						</div>
+						<div class="form-group row col-lg-2" style="align-items: center;">
+							<button type="button" class="btn  btn-primary-blue mr-2 btnrow-a"
+								id="downloadCampaignFile">名單下載</button>
+						</div>
+
+					</div>
+					<div class="col-lg-12  row">
+						<div class="form-group row col-lg-4" style="align-items: center;">
+							<label class="col-auto col-form-label form-control-label">發幣總額&emsp;&emsp;</label>
+							<div class="col">
+								<input type="text" class="form-control totalRewardAmount"
+									readonly />
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-12 row">
+						<div class="form-group row col-lg-12" style="align-items: center;">
+							<h4 class="card-header div-h4-span text-center"
+								style="background-color: #282424; width: 100%;">
+								<b class="text-white">白名單設定明細</b>
+							</h4>
+						</div>
+
+					</div>
+					<div class="col-lg-12 row ">
+						<div class="col-2">
+							<h6>
+								<span class="mark__required font-weight-bold">發幣活動名稱</span>
+							</h6>
+						</div>
+						<div class="col-10">
+							<h6>
+								<span class="campaignName"></span>
+							</h6>
+						</div>
+					</div>
+					<div class="col-lg-12 row ">
+						<div class="col-2">
+							<h6>
+								<span class="mark__required font-weight-bold">發幣活動說明</span>
+							</h6>
+						</div>
+						<div class="col-10">
+							<h6>
+								<span class="campaignInfo"></span>
+							</h6>
+						</div>
+					</div>
+					<div class="col-lg-12 row ">
+						<div
+							class="form-group row col-lg-12 d-flex justify-content-center"
+							style="align-items: center;">
+							<button type="button" class="btn  btn-primary-blue mr-2 btnrow-a"
+								id="btn--pre">返回</button>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+
+
+		</div>
+
+
+
+	</div>
+
+
+
+	<script th:inline="javascript">
+	$(function() {
+		
+	    let previousState = JSON.parse(sessionStorage.getItem('tableState'));
+	    if (previousState) {
+	        setFormData(previousState.searchParams); // Restore form data
+	         // Call your function to refresh the table
+	        
+	    }
+	    findWhileList();
+	    
+		$('#btn--pre').click(function(e) {
+			
+			document.getElementById("page1-tab").click();
+		});
+		$('#downloadCampaignFile').click(function(e) {
+			
+			var campaignDetailId = $('#downloadCampaignFile').data('campaignDetailId');
+			let formData = new FormData();
+			formData.append('campaignDetailId', campaignDetailId);
+			downloadCampaignFile(formData);
+		});
+	    $('input:radio[name="opinion"]').off("click");
+	    
+	    $('input:radio[name="opinion"]').click(function(){
+	    	var checkValue = $('input:radio[name="opinion"]:checked').val();
+	    	
+	    	
+	    	$("#approvalButton2").removeAttr('disabled');
+	    	
+	    	
+	    	if (checkValue == '1') {
+	    		$("#opinion2").next().removeClass("btn-primary--c");
+	    		$("#opinion2").next().addClass("btn-secondary");	    		
+	    		$("#opinion1").next().removeClass("btn-secondary");
+	    		$("#opinion1").next().addClass("btn-primary--r");		           
+	            $('#commentInfo').val('');
+	            $('#commentInfo').attr("placeholder", "請在 20 字內 說明《 否決 》原因（非必填）");
+	            $('#commentInfo').prop('disabled', true);
+	    	} else if (checkValue == '2') {
+	    		$("#opinion1").next().removeClass("btn-primary--r");
+	    		$("#opinion1").next().addClass("btn-secondary");	    		
+	    		$("#opinion2").next().removeClass("btn-secondary");
+	    		$("#opinion2").next().addClass("btn-primary--c");
+	    		$('#commentInfo').prop('disabled', false);
+	    	}
+	    	
+
+	    });
+ 		$("#commentInfo").on("input propertychange",function(){
+ 			var $this = $(this),
+ 				_val = $this.val();
+ 			var checkValue = $('input:radio[name="opinion"]:checked').val();
+ 			
+ 			if(_val.length > 0){
+ 				$("input[type='checkbox'][name='commentInfoCheckBox']").prop("checked",false);
+ 				
+ 			} else if (_val.length == 0) {
+ 				$("input[type='checkbox'][name='commentInfoCheckBox']").prop("checked",true);
+ 				
+ 			}
+ 			
+ 			var isChecked = $("#commentInfoCheckBox").prop("checked");
+ 			
+ 			
+ 			if (_val.length > 0 && isChecked==false && checkValue.length > 0) {
+ 				$("#approvalButton2").removeAttr('disabled');
+ 			} else if (_val.length == 0 && isChecked==true && checkValue.length > 0) {
+ 				$("#approvalButton2").removeAttr('disabled');
+ 			}
+ 			
+ 			
+ 			
+ 			
+ 		});
+	    $("#commentInfoCheckBox").change(function(){
+	    	var checkValue = $('input:radio[name="opinion"]:checked').val();
+				var isChecked = $("#commentInfoCheckBox").prop("checked");
+	 			var $this = $("#commentInfo"),
+					_val = $this.val();
+	 			
+	 			if (isChecked==true && _val.length > 0 ) {
+	 				$this.val('');
+	 			}
+	 			
+	 			if (isChecked==true && _val.length > 0 && checkValue.length > 0) {
+	 				
+	 				$("#approvalButton2").removeAttr('disabled');
+	 			}
+	 			
+	 			else if (isChecked==false && _val.length == 0 ) {
+	 				$("#approvalButton2").attr('disabled',true);
+	 			}
+	 			
+	 			else if (isChecked==true && _val.length == 0 && checkValue.length > 0) {
+	 				$("#approvalButton2").removeAttr('disabled');
+	 			}
+	 			
+	 			
+	    	
+	    });
+	    $('#approvalBatchId').on('hidden.bs.modal',function(event){
+	    	$("#opinion1").next().removeClass("btn-primary--r");
+	    	$("#opinion1").next().removeClass("btn-secondary");
+	    	$("#opinion2").next().removeClass("btn-primary--r");
+	    	$("#opinion2").next().removeClass("btn-secondary");
+	    	$("#opinion1").next().addClass("btn-primary--r");
+	    	$("#opinion2").next().addClass("btn-primary--c");
+		    $('input[type=radio][name="opinion"]:checked').prop("checked",false);
+		    $('.table--approvalBatchIdList').bootstrapTable('destroy');
+		    $('#commentInfo').val('');
+            $('#commentInfo').attr("placeholder", "請在 20 字內 說明《 否決 》原因（非必填）");
+            $('#commentInfo').prop('disabled', false);
+		    $('#commentInfoCheckBox').prop("checked",true);
+		    $("#approvalButton2").attr('disabled',true);
+		    
+
+		    
+	    });
+	    $('#approvalButton2').on('click', function(){
+	    	
+	    	
+	    	var LEVEL_NO = $('#approvalButton2').data('LEVEL_NO');
+	    	var BATCH_ID = $('#approvalButton2').data('BATCH_ID');
+	    	var opinion = $("input[name='opinion']:checked").val();
+	    	
+	    	if("2" == opinion){
+				$.confirm({
+					title : '系統訊息',
+					titleClass : 'text-center d-block font-weight-bold text-warning2',
+					content :'請確認是否仍不執行本梯次發幣作業？<br>' +
+					          '- 按《 確定 》代表《 不執行發幣 》。<br>' +
+					          '- 按《 取消 》則可重新調整《 簽核意見 》。<br>',
+
+					buttons : {
+						取消 : {
+							text : '取消',
+							btnClass : 'btn-outline-warning2 mr-3',
+						},
+						確定 : {
+							text : '確定',
+							btnClass : 'btn-warning3 ml-3',
+							action : function() {
+
+								sendApproval();
+							},
+
+						}
+
+
+					},
+					onContentReady:function(){
+
+						
+						$(document).on('mouseover','.btn-outline-warning2',function(){
+							$(this).removeClass('btn-outline-warning2').addClass('btn-warning3');
+							$('.btn-warning3').not(this).removeClass('btn-warning3').addClass('btn-outline-warning2');
+						})
+
+					}
+
+				});
+	    		
+	    	} else if("1" == opinion) {
+	    		sendApproval();
+	    	}
+	    	
+
+	    	
+	    });
+	    
+	    $(window).resize(function(){
+	    	adjustTableRowHeight();
+	    });
+	    	    
+	$('.close').click(function(){
+	   
+	   
+	    	
+			var reportId = $('#approvalButton2').data('reportId');
+			let formData = new FormData();
+			formData.append('reportId', reportId);
+			$
+			.ajax({
+				type : 'POST',
+				url : 'setApprovalIng',
+		        data: formData,
+				cache : false,
+				processData : false,
+				contentType : false,
+				beforeSend : function() {
+					openLoading();
+				},
+				success : function(
+						data) {
+
+
+
+
+				},
+				error : function(
+						response) {
+
+				},
+
+				complete : function(
+						data) {
+					closeLoading();
+				}
+			});
+	   
+	});
+	
+	
+	});
+	
+
+	
+	
+	
+    function findWhileList(obj) {
+       	
+    	obj = obj || $('form').serialize()+'&action=QUERY';
+    	callAjax([[@{findWhileList}]], obj, composeTable);
+
+    }
+    
+    function composeTable(data) {
+			
+    	
+    	$('.table--findWhileList').bootstrapTable('destroy');
+		
+    	$('.table--findWhileList').bootstrapTable({
+    		columns: [ //欄位設定
+    			{field: '', title: '',align: 'center',class:"  font-size-14",formatter: function(value, row, index){return   (index+1);}},
+    			{field: 'btn_STATUS', title: '',class:" font-size-14"  ,align: 'center',    valign: 'middle',
+    			    clickToSelect: false,
+    			    formatter: function (value, row, index) {
+    			    	
+    			        var buttons = '';
+
+    			        // 檢查每個可能的動作，並根據存在於行數據中的動作添加按鈕
+    			        if(row.btn_STATUS != null){
+        			        if (row.btn_STATUS.includes('名單下載')) {
+        			            buttons += '<button class="btn btn-primary btn-sm operateBtn" data-action="download" data-campaignDetailId="'+row.campaign_DETAIL_ID+'">名單下載</button> ';
+        			        }
+        			        if (row.btn_STATUS.includes('催簽') && row.applyid == [[${session.userInfo.accountId}]]) {
+        			            buttons += '<button class="btn btn-primary--c btn-sm operateBtn" style="background: red;" data-action="催簽">催簽</button> ';
+        			        }
+        			        if (row.btn_STATUS.includes('撤回') && row.applyid == [[${session.userInfo.accountId}]]) {
+        			            buttons += '<button class="btn btn-primary btn-sm operateBtn" data-action="rollback"">撤回</button> ';
+        			        }
+        			        if (row.btn_STATUS.includes('簽核')) {
+        			        	var ACCOUNT_ID;	
+        			        	if(row.level_NO == "1"){
+        			        		ACCOUNT_ID = row.first_ACCOUNT_ID;
+        			        		
+        			        	} else if (row.level_NO == "2"){
+        			        		ACCOUNT_ID = row.second_ACCOUNT_ID;
+        			        	}
+        			        	
+        			        	if(ACCOUNT_ID == [[${session.userInfo.accountId}]]){
+            			            buttons += '<button class="btn btn-primary--c btn-sm operateBtn" style="background: #FF6100;" data-action="approve">簽核</button> ';
+
+        			        	}
+        			        	
+        			        }
+        			        if (row.btn_STATUS.includes('編輯') && row.applyid == [[${session.userInfo.accountId}]]) {
+        			            buttons += '<button class="btn btn-primary--c btn-sm operateBtn" style="background: #FF6100;" data-action="edit">編輯</button> ';
+        			        }
+        			        if (row.btn_STATUS.includes('查看')) {
+        			            buttons += '<button class="btn btn-primary btn-sm operateBtn" data-action="view" >查看</button> ';
+        			        }
+    			        	
+    			        }
+
+
+    			        return buttons;
+    			    },
+    			    events: {
+    			        'click .operateBtn': function (e, value, row, index) {
+    			        	e.preventDefault();
+    			        	
+    			        	if(e.originalEvent.pointerType === "mouse"){
+        			            var action = $(e.currentTarget).data('action');
+        			            
+        			            if(action == '催簽'){
+        			            	
+    								let formData = new FormData();
+    								formData
+    										.append(
+    												'signName',
+    												row.signname);
+    								
+    								$
+    								.ajax({
+    									type : 'POST',
+    									url : 'urge',
+    							        data: formData,
+    									cache : false,
+    									processData : false,
+    									contentType : false,
+    									beforeSend : function() {
+    										openLoading();
+    									},
+    									success : function(
+    											data) {
+    										$
+    										.confirm({
+    											title : '系統訊息',
+    											titleClass : 'text-center d-block font-weight-bold text-warning2',
+    											content : '系統已再次發送簽核通知信予簽核主管！',
+    											buttons : {
+    												確定 : {
+    													text : '確定',
+    													btnClass : 'btn-warning2 text-white'
+    												}
+    											}
+    										});
+    	
+
+
+    									},
+    									error : function(
+    											response) {
+    										var errors = response.responseJSON;
+    										if (errors.exceptionError) {
+    											$
+    													.confirm({
+    														title : '系統訊息',
+    														titleClass : 'text-center d-block font-weight-bold text-warning2',
+    														content : errors.exceptionError,
+    														buttons : {
+    															確定 : {
+    																text : '確定',
+    																btnClass : 'btn-warning2 text-white'
+    															}
+    														}
+    													});
+    										}
+
+
+    									},
+
+    									complete : function(
+    											data) {
+    										closeLoading();
+    									}
+    								});
+        			            }
+        			            else if(action == 'edit'){
+        			            	
+        			            	let tableState = {
+        			            			searchParams: $('form').serialize(),
+        			            			pageNumber:$('.table--findWhileList').bootstrapTable('getOptions').pageNumber
+        			            			};
+        			            	
+        			            	sessionStorage.setItem('tableState',JSON.stringify(tableState));
+        			            							
+    						var formData = {campaignDetailId:row.campaign_DETAIL_ID,reportId:row.sys_ID,batchId:row.batch_ID};
+
+    								window.location.href = 'setting/step1?' + toQueryString(formData);
+        			            	
+        			            }
+        			            else if(action == 'approve'){
+        			            	
+            			        	var ACCOUNT_ID;	
+            			        	if(row.level_NO == "1"){
+            			        		ACCOUNT_ID = row.first_ACCOUNT_ID;
+            			        		
+            			        	} else if (row.level_NO == "2"){
+            			        		ACCOUNT_ID = row.second_ACCOUNT_ID;
+            			        	}
+            			        	
+            			        	if(ACCOUNT_ID == [[${session.userInfo.accountId}]]){
+        								let formData = new FormData();
+        								formData
+        										.append(
+        												'campaignDetailId',
+        												row.campaign_DETAIL_ID);
+        								formData
+        								.append(
+        										'reportId',
+        										row.sys_ID);
+        								$
+        								.ajax({
+        									type : 'POST',
+        									url : 'view',
+        							        data: formData,
+        									cache : false,
+        									processData : false,
+        									contentType : false,
+        									beforeSend : function() {
+        										openLoading();
+        									},
+        									success : function(
+        											data) {
+        										
+        										if(data.serialCampaignDetail.status == 'RECEIVED' && data.serialRewardReport.status == 'WAIT_APPROVAL'){
+            							            // Populate fields from SerialCampaignDetailEntity
+            							            
+            							            $
+            							            .ajax({
+            	    									type : 'POST',
+            	    									url : 'setApprovalIng',
+            	    							        data: formData,
+            	    									cache : false,
+            	    									processData : false,
+            	    									contentType : false,
+            	    									beforeSend : function() {
+            	    										openLoading();
+            	    									},
+            	    									success : function(
+            	    											data) {
+            	    										
+            	    									},
+            	    									error : function(
+            	    											response) {
+
+
+            	    									},
+
+            	    									complete : function(
+            	    											data) {
+            	    										closeLoading();
+            	    									}
+            							            });
+            							            
+            							            $('#approvalBatchUserName').val(row.applyname);						            
+            							            $('#approvalButton2').data('reportId',data.serialRewardReport.reportId);
+            							            $('#approvalButton2').data('campaignDetailId',data.serialCampaignDetail.campaignDetailId);
+            							            $('#approvalButton2').data('LEVEL_NO',row.level_NO);
+            							            $('#approvalButton2').data('BATCH_ID',row.batch_ID);							            
+            							            $('#approvalButton2').data('APPLYID',row.applyid);
+
+            							            var approvalTableDate = [];
+            							            approvalTableDate.push({
+            							            	reportId:data.serialRewardReport.reportId,
+            							            	campaignName:data.serialCampaignDetail.campaignName,
+            							            	totalRewardUsers:data.serialRewardReport.totalRewardUsers,
+            							            	totalRewardAmount:data.serialRewardReport.totalRewardAmount,
+            							            	sendApprovalDate:formatDate(data.serialRewardReport.sendApprovalDate)
+            							            });
+            							            
+            							        	$('.table--approvalBatchIdList').bootstrapTable('destroy');
+            							    		
+            							        	$('.table--approvalBatchIdList').bootstrapTable({
+            							        		columns: [ //欄位設定
+            							        			
+            							        			{field: 'reportId', title: '系統單號',class:"w5 font-size-14"  ,align: 'center' },   			 
+            							        			{field: 'campaignName',class:"w5 font-size-14", size: '14px',title: '發幣活動名稱'  ,align: 'center'},
+            							        			{field: 'totalRewardUsers', title: '發幣用戶總數',class:"w12 font-size-14",   align: 'center'},
+            							        			{field: 'totalRewardAmount',class:"w5 font-size-14", title: '發幣總額',   align: 'center'},
+            							        			{field: 'sendApprovalDate', title: '送簽日',class:"w9 font-size-14",   align: 'center'},
+
+            							        			
+            							        				],
+            							        		
+            							        		data:approvalTableDate,
+
+            							        	}
+            							        	
+            							        	);
+            							        	
+            							        	$('#approvalBatchId').modal('show');
+        											
+        										} else {
+        							                $.confirm({
+        							                    title: '系統訊息',
+        							                    titleClass: 'text-center d-block font-weight-bold text-warning2',
+        							                    content: '該筆送簽已被申請者撤回喔！',
+        							                    buttons: {
+        							                        確定: {
+        							                            text: '確定',
+        							                            btnClass: 'btn-warning3 ml-3',
+        							                        }
+        							                    },
+        							                });
+        										}
+        										
+
+
+
+        									},
+        									error : function(
+        											response) {
+
+
+        									},
+
+        									complete : function(
+        											data) {
+        										closeLoading();
+        									}
+        								});
+            			        	} else {
+							                $.confirm({
+							                    title: '系統訊息',
+							                    titleClass: 'text-center d-block font-weight-bold text-warning2',
+							                    content: '非指定簽核者不可做簽核！',
+							                    buttons: {
+							                        確定: {
+							                            text: '確定',
+							                            btnClass: 'btn-warning3 ml-3',
+							                        }
+							                    },
+							                });
+            			        	}
+        			            	
+        			            }
+        			            else if(action == 'view'){
+        			            	
+    								let formData = new FormData();
+    								formData
+    										.append(
+    												'campaignDetailId',
+    												row.campaign_DETAIL_ID);
+    								formData
+    								.append(
+    										'reportId',
+    										row.sys_ID);
+    								$
+    								.ajax({
+    									type : 'POST',
+    									url : 'view',
+    							        data: formData,
+    									cache : false,
+    									processData : false,
+    									contentType : false,
+    									beforeSend : function() {
+    										openLoading();
+    									},
+    									success : function(
+    											data) {
+    										
+    							            // Populate fields from SerialCampaignDetailEntity
+    							           
+    							            $('.campaignName').text(data.serialCampaignDetail.campaignName);
+    							            $('.campaignInfo').text(data.serialCampaignDetail.campaignInfo);
+    							            $('#downloadCampaignFile').data('campaignDetailId',data.serialCampaignDetail.campaignDetailId);
+
+    							            // Populate fields from SerialRewardReportEntity
+    							            $('.reportId').val(data.serialRewardReport.reportId);
+    							            $('.sendApprovalDate').val(formatDate(data.serialRewardReport.sendApprovalDate));
+    							            $('.rewardDate').val(formatDate(data.serialRewardReport.rewardDate));
+    							            $('.momoEventNo').val(data.serialRewardReport.momoEventNo);
+    							            $('.orderNumber').val(data.serialRewardReport.orderNumber);
+    							            $('.payAccount').val(data.serialRewardReport.payAccount);
+    							            $('.requisitionUnit').val(data.serialRewardReport.requisitionUnit);
+    							            $('.requisitioner').val(data.serialRewardReport.requisitioner);
+    							            $('.totalRewardUsers').val(data.serialRewardReport.totalRewardUsers);
+    							            $('.totalRewardAmount').val(data.serialRewardReport.totalRewardAmount);
+    							            
+    							            $('#applyUserName').val(row.applyname);
+    							            
+    							            document.getElementById("page2-tab").click();
+
+    									},
+    									error : function(
+    											response) {
+
+
+    									},
+
+    									complete : function(
+    											data) {
+    										closeLoading();
+    									}
+    								});
+        			            }    			            
+        			            else if(action == 'rollback') {
+        			            	
+    								$
+    								.confirm({
+    									title : '系統訊息',
+    									titleClass : 'text-center d-block font-weight-bold text-warning2',
+    									content : '該筆送簽資料撤回，如確認此操作請點按下方「確定」按鈕喔！',
+    									buttons : {
+    										取消 : {
+    											text : '取消',
+    											btnClass : 'btn-outline-warning2 mr-3',
+    										// Add any action for the 取消 button if needed
+    										},
+    										確定 : {
+    											text : '確定',
+    											btnClass : 'btn-warning3 ml-3',
+    											action : function() {
+    												let formData = new FormData();
+    												formData
+    														.append(
+    																'sys_id',
+    																row.sys_ID);
+    												$
+    												.ajax({
+    													type : 'POST',
+    													url : 'findWhileList',
+    													data : formData,
+    													cache : false,
+    													processData : false,
+    													contentType : false,
+    													beforeSend : function() {
+    														openLoading();
+    													},
+    													success : function(
+    															response) {
+    														
+    														var hasWithdraw = response.some(item => item.btn_STATUS.includes('撤回'));
+    														if(!hasWithdraw) {
+    											                $.confirm({
+    											                    title: '系統訊息',
+    											                    titleClass: 'text-center d-block font-weight-bold text-warning2',
+    											                    content: '該筆送簽已完成無法撤回喔！',
+    											                    buttons: {
+    											                        確定: {
+    											                            text: '確定',
+    											                            btnClass: 'btn-warning3 ml-3',
+    											                            action : function() {
+    	    																	var currentPageNumber = $('.table--findWhileList').bootstrapTable('getOptions').pageNumber;
+    	    																	var scrollTop = $('.table--findWhileList').scrollTop();
+    	    																	
+    	    																	$('.table--findWhileList').bootstrapTable('refreshOptions' , {
+    	    																		method: 'post',
+    	    																		url: 'findWhileList',
+    	    																		contentType : 'application/x-www-form-urlencoded',
+    	    																		queryParams: function(params){
+    	                                                                                params.applyId = $('select[name="applyId"]').val();
+    	                                                                                params.campaignName = $('input[name="campaignName"]').val();
+    	                                                                                params.status = $('select[name="status"]').val();
+    	                                                                                params.submitSendStartDate = $('input[name="submitSendStartDate"]').val();
+    	                                                                                params.submitSendEndDate = $('input[name="submitSendEndDate"]').val();
+    	    																			
+    	    																			return params;
+
+    	    																		},																																				
+    	    																	});
+    	    																	
+    	    																	$('.table--findWhileList').on('load-success.bs.table',function(){
+    	    																		$('.table--findWhileList').bootstrapTable('selectPage',currentPageNumber);
+    	    																		$('.table--findWhileList').scrollTop(scrollTop);
+    	    																	});
+    											                            	
+    											                            }
+    											                        }
+    											                    },
+    											                });
+    														} else if (hasWithdraw) {
+    															let formData = new FormData();
+    															formData
+    																	.append(
+    																			'campaignDetailId',
+    																			row.campaign_DETAIL_ID);
+    															formData
+    															.append(
+    																	'reportId',
+    																	row.sys_ID);
+    															formData
+    															.append(
+    																	'approvalBatchId',
+    																	row.batch_ID);
+    															$
+    															.ajax({
+    																type : 'POST',
+    																url : 'rollback',
+    																data : formData,
+    																cache : false,
+    																processData : false,
+    																contentType : false,
+    																beforeSend : function() {
+    																	openLoading();
+    																},
+    																success : function(
+    																		response) {
+    																	
+    																	var currentPageNumber = $('.table--findWhileList').bootstrapTable('getOptions').pageNumber;
+    																	var scrollTop = $('.table--findWhileList').scrollTop();
+    																	
+    																	$('.table--findWhileList').bootstrapTable('refreshOptions' , {
+    																		method: 'post',
+    																		url: 'findWhileList',
+    																		contentType : 'application/x-www-form-urlencoded',
+    																		queryParams: function(params){
+                                                                                params.applyId = $('select[name="applyId"]').val();
+                                                                                params.campaignName = $('input[name="campaignName"]').val();
+                                                                                params.status = $('select[name="status"]').val();
+                                                                                params.submitSendStartDate = $('input[name="submitSendStartDate"]').val();
+                                                                                params.submitSendEndDate = $('input[name="submitSendEndDate"]').val();
+    																			
+    																			return params;
+
+    																		},																																				
+    																	});
+    																	
+    																	$('.table--findWhileList').on('load-success.bs.table',function(){
+    																		$('.table--findWhileList').bootstrapTable('selectPage',currentPageNumber);
+    																		$('.table--findWhileList').scrollTop(scrollTop);
+    																	});
+
+    																},
+    																error : function(
+    																		response) {
+    																	var errors = response.responseJSON;
+    																	if (errors.exceptionError) {
+    																		$
+    																				.confirm({
+    																					title : '系統訊息',
+    																					titleClass : 'text-center d-block font-weight-bold text-warning2',
+    																					content : errors.exceptionError,
+    																					buttons : {
+    																						確定 : {
+    																							text : '確定',
+    																							btnClass : 'btn-warning2 text-white'
+    																						}
+    																					}
+    																				});
+    																	}
+
+    																},
+
+    																complete : function(
+    																		data) {
+    																	closeLoading();
+    																}
+    															});
+    														}
+
+    													},
+    													error : function(
+    															response) {
+
+
+    													},
+
+    													complete : function(
+    															data) {
+    														closeLoading();
+    													}
+    												});
+    											}
+    										}
+    									},
+    									onContentReady : function() {
+    										$(document)
+    												.on(
+    														'mouseover',
+    														'.btn-outline-warning2',
+    														function() {
+    															$(
+    																	this)
+    																	.removeClass(
+    																			'btn-outline-warning2')
+    																	.addClass(
+    																			'btn-warning3');
+    															$(
+    																	'.btn-warning3')
+    																	.not(
+    																			this)
+    																	.removeClass(
+    																			'btn-warning3')
+    																	.addClass(
+    																			'btn-outline-warning2');
+    														});
+    									}
+    								});
+        			            }
+        			            else if('download' == action){
+        			            	
+    								
+    								var campaignDetailId = $(e.currentTarget).data('campaigndetailid');
+    								let formData = new FormData();
+    								formData.append('campaignDetailId', campaignDetailId);
+    								downloadCampaignFile(formData);
+
+
+        			            }
+    			        		
+    			        	}
+    			        	
+
+
+    			        }
+    			    } },   			 
+    			{field: 'sys_ID',class:" font-size-14", size: '14px',title: '單號'  ,align: 'center'},
+    			{field: 'applyname', title: '申請人',class:" font-size-14",   align: 'center'},
+    			{field: 'campaign_NAME', title: '發幣活動名稱',class:" font-size-14",   align: 'center'},
+    			{field: 'send_DATE',class:" font-size-14", title: '簡訊發送時間',   align: 'center'},
+    			{field: 'signname', title: '簽核人',class:" font-size-14",   align: 'center'},
+    			{field: 'status', title: '狀態', class:" font-size-14", align: 'center',
+    				formatter: function (value, row, index) {
+						
+						if(value=="WAIT_APPROVAL"){
+							value = "未簽核" ;
+						} else if(value=="AGREE"){
+							value = "同意" ;
+						} else if (value=="REJECT"){
+							value = "否決" ;
+						} else if (value=="ROLLBACK"){
+							value = "撤回" ;
+						} else if (value=="EXPIRED"){
+							value = "逾期(請更新後送簽)" ;
+						}
+    					return value;
+    				}}, 			
+    				],
+
+    		sidePagination: 'client',
+    		data:data,
+    		pagination: true, //是否要分頁
+    		pageList: [10, 25, 50, 100,'All'], //一頁顯示幾筆的選項
+    		pageSize: 10,
+    		
+    		checkboxHeader: false,
+
+
+    	}
+    	
+    	);
+		let previousState = JSON.parse(sessionStorage.getItem('tableState'));
+		if(previousState){
+			
+			$('.table--findWhileList').bootstrapTable('selectPage',previousState.pageNumber);
+			sessionStorage.removeItem('tableState');
+			
+		}
+		adjustTableRowHeight();
+
+   	
+    }
+    
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        var date = new Date(dateString);
+        return date.getFullYear() + '/' + 
+               ('0' + (date.getMonth() + 1)).slice(-2) + '/' + 
+               ('0' + date.getDate()).slice(-2);
+    }
+    
+    function downloadCampaignFile(formData){
+		$
+		.ajax({
+			type : 'POST',
+			url : 'downloadCampaignFile',
+			data : formData,
+			cache : false,
+			processData : false,
+			contentType : false,
+		    xhrFields: {
+		        responseType: 'blob' // This ensures that the response is treated as a binary stream
+		    },
+			beforeSend : function() {
+				openLoading();
+			},
+            success: function(response, status, xhr) {
+            	debugger;
+                // Check for a filename in the content-disposition header
+                var filename = "";
+                var disposition = xhr.getResponseHeader('Content-Disposition');
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    var filenameRegex = /filename\*=(['"])?UTF-8''([^;\n]*)\1?/i;
+                    var matches = filenameRegex.exec(disposition);
+
+                    if (matches != null && matches[2]) {
+                        // Decode UTF-8 encoded filename
+                        filename = decodeURIComponent(matches[2]);
+                    } else {
+                        // Fallback for regular filename
+                        filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                        matches = filenameRegex.exec(disposition);
+                        if (matches != null && matches[1]) {
+                            filename = matches[1].replace(/['"]/g, '');
+                        }
+                    }
+                }
+																												
+                var blob =response;
+                var downloadUrl = URL.createObjectURL(blob);
+                var a = document.createElement("a");
+                a.href = downloadUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+
+                // Cleanup
+                setTimeout(function() {
+                    URL.revokeObjectURL(downloadUrl);
+                    $(a).remove();
+                }, 100);
+            },
+            error: function(xhr, status, error) {
+                console.error("Error occurred while downloading file: " + error);
+            },
+
+			complete : function(data) {
+				closeLoading();
+			}
+		});
+    }
+    
+    function sendApproval(){
+    	var campaignDetailId = $('#approvalButton2').data('campaignDetailId');
+    	var reportId = $('#approvalButton2').data('reportId');
+    	var LEVEL_NO = $('#approvalButton2').data('LEVEL_NO');
+    	var BATCH_ID = $('#approvalButton2').data('BATCH_ID');
+    	var opinion = $("input[name='opinion']:checked").val();
+    	var commentInfo = $('#commentInfo').val(); 	
+    	var APPLYID = $('#approvalButton2').data('APPLYID');
+    	
+		var formData = new FormData();
+		formData
+				.append(
+						'campaignDetailId',
+						campaignDetailId);
+		formData
+		.append(
+				'reportId',
+				reportId);
+		formData
+		.append(
+				'LEVEL_NO',
+				LEVEL_NO);
+		formData
+		.append(
+				'BATCH_ID',
+				BATCH_ID);
+		formData
+		.append(
+				'opinion',
+				opinion);
+		formData
+		.append(
+				'commentInfo',
+				commentInfo);				
+		formData
+		.append(
+				'APPLYID',
+				APPLYID);
+		
+		$
+		.ajax({
+			type : 'POST',
+			url : 'view',
+	        data: formData,
+			cache : false,
+			processData : false,
+			contentType : false,
+			beforeSend : function() {
+				openLoading();
+			},
+			success : function(
+					data) {
+				
+		    	var serialCampaignDetail_status = data.serialCampaignDetail.status;
+		    	var serialRewardReport_status = data.serialRewardReport.status;
+				
+		    	if(serialCampaignDetail_status == 'RECEIVED' && serialRewardReport_status == 'APPROVAL_ING'){
+		    		$
+		    		.ajax({
+		    			type : 'POST',
+		    			url : 'sendApproval',
+		    	        data: formData,
+		    			cache : false,
+		    			processData : false,
+		    			contentType : false,
+		    			beforeSend : function() {
+		    				
+		    			},
+		    			success : function(
+		    					data) {
+		    				$('#approvalBatchId').modal('hide');
+							var currentPageNumber = $('.table--findWhileList').bootstrapTable('getOptions').pageNumber;
+							var scrollTop = $('.table--findWhileList').scrollTop();
+							
+							$('.table--findWhileList').bootstrapTable('refreshOptions' , {
+								method: 'post',
+								url: 'findWhileList',
+								contentType : 'application/x-www-form-urlencoded',
+								queryParams: function(params){
+                                    params.applyId = $('select[name="applyId"]').val();
+                                    params.campaignName = $('input[name="campaignName"]').val();
+                                    params.status = $('select[name="status"]').val();
+                                    params.submitSendStartDate = $('input[name="submitSendStartDate"]').val();
+                                    params.submitSendEndDate = $('input[name="submitSendEndDate"]').val();
+									
+									return params;
+
+								},																																				
+							});
+							
+							$('.table--findWhileList').on('load-success.bs.table',function(){
+								$('.table--findWhileList').bootstrapTable('selectPage',currentPageNumber);
+								$('.table--findWhileList').scrollTop(scrollTop);
+							});
+		    			},
+		    			error : function(
+		    					response) {
+		    				
+							var errors = response.responseJSON;
+							if (errors.exceptionError) {
+								$
+										.confirm({
+											title : '系統訊息',
+											titleClass : 'text-center d-block font-weight-bold text-warning2',
+											content : errors.exceptionError,
+											buttons : {
+												確定 : {
+													text : '確定',
+													btnClass : 'btn-warning2 text-white'
+												}
+											}
+										});
+							}
+
+		    			},
+
+		    			complete : function(
+		    					data) {
+		    				closeLoading();
+		    			}
+		    		});
+		    		
+		    	} else {
+	                $.confirm({
+	                    title: '系統訊息',
+	                    titleClass: 'text-center d-block font-weight-bold text-warning2',
+	                    content: '該筆送簽已被申請者撤回喔！',
+	                    buttons: {
+	                        確定: {
+	                            text: '確定',
+	                            btnClass: 'btn-warning3 ml-3',
+	                            action : function() {
+	    		    				$('#approvalBatchId').modal('hide');
+	    							var currentPageNumber = $('.table--findWhileList').bootstrapTable('getOptions').pageNumber;
+	    							var scrollTop = $('.table--findWhileList').scrollTop();
+	    							
+	    							$('.table--findWhileList').bootstrapTable('refreshOptions' , {
+	    								method: 'post',
+	    								url: 'findWhileList',
+	    								contentType : 'application/x-www-form-urlencoded',
+	    								queryParams: function(params){
+	                                        params.applyId = $('select[name="applyId"]').val();
+	                                        params.campaignName = $('input[name="campaignName"]').val();
+	                                        params.status = $('select[name="status"]').val();
+	                                        params.submitSendStartDate = $('input[name="submitSendStartDate"]').val();
+	                                        params.submitSendEndDate = $('input[name="submitSendEndDate"]').val();
+	    									
+	    									return params;
+
+	    								},																																				
+	    							});
+	    							
+	    							$('.table--findWhileList').on('load-success.bs.table',function(){
+	    								$('.table--findWhileList').bootstrapTable('selectPage',currentPageNumber);
+	    								$('.table--findWhileList').scrollTop(scrollTop);
+	    							});
+	                            }
+	                        }
+	                    },
+	                });
+		    	}
+
+
+
+
+			},
+			error : function(
+					response) {
+				var errors = response.responseJSON;
+				if (errors.exceptionError) {
+					$
+							.confirm({
+								title : '系統訊息',
+								titleClass : 'text-center d-block font-weight-bold text-warning2',
+								content : errors.exceptionError,
+								buttons : {
+									確定 : {
+										text : '確定',
+										btnClass : 'btn-warning2 text-white'
+									}
+								}
+							});
+				}
+
+			},
+
+			complete : function(
+					data) {
+				closeLoading();
+				
+			}
+		});
+    }
+    
+    function toQueryString(params) {
+    	return Object.keys(params).map(function(key) {
+    		return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+    	}).join('&');
+    	
+    }
+    
+    function setFormData(serializedData) {
+        const formData = serializedData.split('&').reduce((obj, item) => {
+            const [key, value] = item.split('=');
+            obj[key] = decodeURIComponent(value.replace(/\+/g, ' ')); // Decode encoded data
+            return obj;
+        }, {});
+
+        Object.keys(formData).forEach(key => {
+            const input = $('[name=' + key + ']');
+            if (input.is(':checkbox') || input.is(':radio')) {
+                input.prop('checked', input.val() === formData[key]);
+            } else {
+                input.val(formData[key]);
+            }
+        });
+    }
+    
+    function adjustTableRowHeight(){
+		var windowHeight = $(window).height();
+		var tableHeight = windowHeight * 0.75 ;
+		$('.table--findWhileListDiv .fixed-table-container').css('max-height',tableHeight);
+    }
+
+	</script>
+</body>
+</html>

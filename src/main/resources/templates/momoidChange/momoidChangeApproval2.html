@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="momoidChange__Approval">
+	<style>
+.carousel-item img {
+	height: 100vh;
+	object-fit: contain;
+	object-position: center;
+}
+</style>
+
+	<div class="container-fluid px-3 py-3 font-size-18">
+		<div class="row">
+			<div class="col-lg-12">
+
+				<div class="row p-1">
+					<div class="col-6 ">
+						<span class=" font-weight-bold"
+							th:if="${momoidChangeApprovalEntity.approvalDate == null}">簽核意見為
+							<input type="radio" class="btn-check" name=opinion id="opinion1"
+							value="1" style="visibility: hidden;"> <label
+							class="btn btn-primary--r ml-2 btn-sm  font-size-16"
+							for="opinion1">同意</label> <input type="radio" class="btn-check"
+							name=opinion id="opinion2" value="2" style="visibility: hidden;">
+							<label class="btn btn-primary--c ml-2 btn-sm font-size-16"
+							for="opinion2">駁回</label>
+						</span> <span class=" font-weight-bold"
+							th:if="${momoidChangeApprovalEntity.approvalDate != null}">簽核意見為&ensp;<strong
+							class="text-danger"
+							th:text="${momoidChangeApprovalEntity.opinion == 1 ? '同意' : '駁回'}"></strong>
+
+						</span>
+					</div>
+					<div class="col-6 form-inline"
+						style="display: flex; justify-content: right;">
+						<label class="col-auto col-form-label font-weight-bold" for="">系統單號</label>
+						<input type="text" class="form-control col-6" readonly
+							style="border: 0px !important;"
+							th:value="${MOMOID_CHANGE_MAIN_ID}" name="momoidChangeMainId">
+					</div>
+				</div>
+
+
+				<div class="row p-1">
+					<div class="col-6 form-inline">
+						<label class="col-auto col-form-label font-weight-bold" for="">申請人&emsp;&emsp;</label>
+						<input type="text" class="form-control" disabled
+							style="border: 0px !important;" th:value="${USER_NAME}">
+					</div>
+					<div class="col-6 form-inline"
+						style="display: flex; justify-content: right;">
+						<label class="col-auto col-form-label font-weight-bold" for="">部門別</label>
+						<input type="text" class="form-control col-6" disabled
+							style="border: 0px !important;" th:value="${DEPARTMENT_NAME}">
+					</div>
+				</div>
+
+				<div class="row p-1">
+					<div class="col-6 form-inline"></div>
+					<div class="col-6 form-inline"
+						style="display: flex; justify-content: right;">
+						<button type="button"
+							class="btn btn-primary--c ml-2 btn-lg font-size-18 font-weight-bold "
+							style="background: #FF6100;" id="openPictureModalButton"
+							th:if="${picture1FileFormat != null}">查看附件</button>
+						<button type="button"
+							class="btn btn-secondary ml-2 btn-lg font-size-18 font-weight-bold "
+							th:if="${picture1FileFormat == null}">無附件</button>
+
+					</div>
+				</div>
+
+
+
+				<div class="row">
+					<div class="col-12">
+						<div class="table--c my-4">
+							<table class="table--momoidChangeList" data-resizable="true"></table>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-12">
+						<div class="row">
+							<div class="col-12">
+								<textarea class="form-control" rows="5" style="resize: none;"
+									th:if="${momoidChangeApprovalEntity.approvalDate == null}"
+									placeholder="請輸入你的簽核意見" name="commentInfo" id="commentInfo"></textarea>
+
+								<textarea class="form-control" rows="5" style="resize: none;"
+									th:if="${momoidChangeApprovalEntity.approvalDate != null}"
+									disabled th:text="${momoidChangeApprovalEntity.commentInfo}"></textarea>
+							</div>
+						</div>
+
+						<div class="row" style="float: right;">
+							<div class="col-12">
+								<input type="checkbox" class="ccheckbox" checked="checked"
+									th:if="${momoidChangeApprovalEntity.approvalDate == null}"
+									id="commentInfoCheckBox" name="commentInfoCheckBox"> <input
+									type="checkbox" class="ccheckbox"
+									th:checked="${momoidChangeApprovalEntity.commentInfo == null}"
+									disabled
+									th:if="${momoidChangeApprovalEntity.approvalDate != null}"><label
+									for="commentInfoCheckBox" class="ccheckbox-label"> <span
+									class="ccheckbox-span"> <svg class="ccheckbox-svg"
+											viewBox="0 0 512 512" title="check">
+				                                               <path
+												d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+				                                           </svg>
+								</span>無簽核意見
+								</label>
+							</div>
+						</div>
+
+
+
+
+
+
+
+
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-12">
+						<input type="hidden" th:value="${MOMOID_CHANGE_APPROVAL_ID}"
+							name="momoidChangeApprovalId"> <input type="hidden"
+							th:value="${index}" name="index" id="index">
+					</div>
+				</div>
+
+				<div class="row" style="display: flex; justify-content: center;"
+					th:if="${momoidChangeApprovalEntity.approvalDate == null}">
+					<div class="col-2">
+						<button type="submit" class="btn btn-primary-blue btnrow-a"
+							id="approvalButton2" disabled>確定</button>
+					</div>
+				</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			</div>
+
+		</div>
+
+
+
+
+	</div>
+
+
+
+
+	<script th:inline="javascript" id="momoidChangeApproval2JavaScript">
+	
+	
+	
+	
+    $(function() {
+    	
+
+	
+    	
+    	$("#opinion1").next().removeClass("btn-primary--r");
+    	$("#opinion1").next().removeClass("btn-secondary");
+    	$("#opinion2").next().removeClass("btn-primary--r");
+    	$("#opinion2").next().removeClass("btn-secondary");
+    	$("#opinion1").next().addClass("btn-primary--r");
+    	$("#opinion2").next().addClass("btn-primary--c");
+    	
+    	
+    	
+    	$('.table--momoidChangeList').bootstrapTable('destroy');
+		
+    	$('.table--momoidChangeList').bootstrapTable({
+    		
+    		columns: [ //欄位設定
+    			{field: '', title: '',align: 'center',formatter: function(value, row, index){return (index+1);}},
+    			{field: 'phoneNumber', title: '用戶門號',align: 'center'},
+    			{field: 'projectCode', title: '專案代碼' ,align: 'center'},
+    			{field: 'projectSeqNbr', title: '用戶續約流水號',align: 'center'},
+    			{field: 'subid', title: '用戶 SubID',align: 'center'},
+    			{field: 'sendReason', title: '簡訊發送原因',align: 'center'},
+    			],
+
+    		sidePagination: 'client',
+    		data: [[${momoidChangeList}]],//資料
+
+
+    		checkboxHeader: false,
+
+    	}
+    	
+    	);
+    	
+    	 $('form[name=approval]').off("submit");
+    	
+	    $('form[name=approval]').submit(function(e) {
+	    	
+
+	    	$("#approvalButton2").attr('disabled','disabled');
+	    	
+	    	$('#momoidChangeApprovalModal').modal('hide');       
+	        e.preventDefault();
+	        let formData = new FormData(this);
+
+	       
+	        $.ajax({
+	            type: 'POST',
+	            url: '/momoidChange/findMomoidChangeApproval/momoidChangeApproval2',
+	            data: formData,
+	            cache: false,
+	            processData: false,
+	            contentType: false,
+	            beforeSend: function() {
+	                openLoading();
+	            },
+	            success: function(data) {
+	            	
+	            	$('.table--momoidChangeApprovalList').bootstrapTable('updateRow',{
+	            		index:$("#index").val(),
+	            		row:data
+
+	            	});
+	            	
+	            },
+	            error: function(error, b, c) {
+	            	$('#messageModal').find('.modal-body').html(error.responseText);
+					$('#messageModal').modal('show');
+	            },
+
+	            complete: function(data) {
+	                closeLoading();
+	            }
+	        });
+	    	
+
+	    });	
+	    
+	    
+	    $('input[type=radio][name="opinion"]:checked').prop("checked",false);
+	    
+	    $('input:radio[name="opinion"]').off("click");
+	    
+	    $('input:radio[name="opinion"]').click(function(){
+	    	var checkValue = $('input:radio[name="opinion"]:checked').val();
+	    	
+	    	
+	    	$("#approvalButton2").removeAttr('disabled');
+	    	
+	    	
+	    	if (checkValue == '1') {
+	    		$("#opinion2").next().removeClass("btn-primary--c");
+	    		$("#opinion2").next().addClass("btn-secondary");	    		
+	    		$("#opinion1").next().removeClass("btn-secondary");
+	    		$("#opinion1").next().addClass("btn-primary--r");
+	    	} else if (checkValue == '2') {
+	    		$("#opinion1").next().removeClass("btn-primary--r");
+	    		$("#opinion1").next().addClass("btn-secondary");	    		
+	    		$("#opinion2").next().removeClass("btn-secondary");
+	    		$("#opinion2").next().addClass("btn-primary--c");
+	    	}
+	    	
+
+	    });
+	    
+	    
+ 		$("#commentInfo").on("input propertychange",function(){
+ 			var $this = $(this),
+ 				_val = $this.val();
+ 			var checkValue = $('input:radio[name="opinion"]:checked').val();
+ 			
+ 			if(_val.length > 0){
+ 				$("input[type='checkbox'][name='commentInfoCheckBox']").prop("checked",false);
+ 				
+ 			} else if (_val.length == 0) {
+ 				$("input[type='checkbox'][name='commentInfoCheckBox']").prop("checked",true);
+ 				
+ 			}
+ 			
+ 			var isChecked = $("#commentInfoCheckBox").prop("checked");
+ 			
+ 			
+ 			if (_val.length > 0 && isChecked==false && checkValue.length > 0) {
+ 				$("#approvalButton2").removeAttr('disabled');
+ 			} else if (_val.length == 0 && isChecked==true && checkValue.length > 0) {
+ 				$("#approvalButton2").removeAttr('disabled');
+ 			}
+ 			
+ 			
+ 			
+ 			
+ 		});
+    
+    $("#commentInfoCheckBox").change(function(){
+    	var checkValue = $('input:radio[name="opinion"]:checked').val();
+			var isChecked = $("#commentInfoCheckBox").prop("checked");
+ 			var $this = $("#commentInfo"),
+				_val = $this.val();
+ 			
+ 			if (isChecked==true && _val.length > 0 ) {
+ 				$this.val('');
+ 			}
+ 			
+ 			if (isChecked==true && _val.length > 0 && checkValue.length > 0) {
+ 				
+ 				$("#approvalButton2").removeAttr('disabled');
+ 			}
+ 			
+ 			else if (isChecked==false && _val.length == 0 ) {
+ 				$("#approvalButton2").attr('disabled',true);
+ 			}
+ 			
+ 			else if (isChecked==true && _val.length == 0 && checkValue.length > 0) {
+ 				$("#approvalButton2").removeAttr('disabled');
+ 			}
+ 			
+ 			
+    	
+    });
+    
+
+    
+	document.getElementById('pictureModalClose').addEventListener('click',function(e){
+		debugger;
+		e.stopPropagation();
+
+		  // 關閉內層模態框
+		  $('#pictureModal').modal('hide');
+
+		  // 等待內層模態框完全隱藏後，打開外層模態框
+		  $('#pictureModal').on('hidden.bs.modal', function() {
+			  
+		    $('#momoidChangeApprovalModal').modal('show');
+		    // 避免事件被多次觸發
+		    $('#pictureModal').off('hidden.bs.modal');
+		  });
+	});
+    
+	$('#carouselExampleControls').carousel({
+		interval:false
+	});
+	
+    $('#carouselExampleControls').on('slid.bs.carousel', function() {
+    	toggleControls(); // 在文檔準備好後立即調用，以設置初始按鈕狀態
+      });
+    
+    
+    
+ // 當你需要打開內層模態框 pictureModal 時
+    $('#openPictureModalButton').click(function() {
+      // 關閉外層模態框
+      $('#momoidChangeApprovalModal').modal('hide');
+
+      // 等待外層模態框完全隱藏後，打開內層模態框
+      $('#momoidChangeApprovalModal').on('hidden.bs.modal', function() {
+    	  
+    	  $('#pictureModal').on('show.bs.modal',function(){
+    		  $("#pictureModal .carousel-inner").empty();
+    			$("#pictureModal .carousel-inner").append('<div class=\"carousel-item active\"><img src=\"data:image/'+[[${picture1FileFormat}]]+';base64,'+[[${picture1FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			
+    			if([[${picture2FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture2FileFormat}]]+';base64,'+[[${picture2FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture3FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture3FileFormat}]]+';base64,'+[[${picture3FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture4FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture4FileFormat}]]+';base64,'+[[${picture4FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture5FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture5FileFormat}]]+';base64,'+[[${picture5FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture6FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture6FileFormat}]]+';base64,'+[[${picture6FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture7FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture7FileFormat}]]+';base64,'+[[${picture7FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture8FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture8FileFormat}]]+';base64,'+[[${picture8FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture9FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture9FileFormat}]]+';base64,'+[[${picture9FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture10FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture10FileFormat}]]+';base64,'+[[${picture10FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture11FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture11FileFormat}]]+';base64,'+[[${picture11FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture12FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture12FileFormat}]]+';base64,'+[[${picture12FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture13FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture13FileFormat}]]+';base64,'+[[${picture13FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture14FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture14FileFormat}]]+';base64,'+[[${picture14FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    			if([[${picture15FileFormat}]]!=null){
+    				$("#pictureModal .carousel-inner").append('<div class=\"carousel-item\"><img src=\"data:image/'+[[${picture15FileFormat}]]+';base64,'+[[${picture15FileImage}]]+'\" class=\"d-block w-100\" alt=\"...\"></div>');
+    			}
+    	  });
+    	  
+    	  $('#pictureModal').on('shown.bs.modal',function(){
+    		  toggleControls();
+    	  });
+    	  
+        $('#pictureModal').modal('show');
+        // 避免事件被多次觸發
+        $('#momoidChangeApprovalModal').off('hidden.bs.modal');
+      });
+    });
+    
+    });
+	
+    function toggleControls() {
+        var $carousel = $('#carouselExampleControls'),
+            $first = $carousel.find('.carousel-item:first'),
+            $last = $carousel.find('.carousel-item:last'),
+            $curr = $carousel.find('.carousel-item.active');
+
+        $carousel.find('.carousel-control-prev').toggle(!$curr.is($first));
+        $carousel.find('.carousel-control-next').toggle(!$curr.is($last));
+      }
+		
+
+    	
+    	
+
+	</script>
+
+
+</body>
+</html>

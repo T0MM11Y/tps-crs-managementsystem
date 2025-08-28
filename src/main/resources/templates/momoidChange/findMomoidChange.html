@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+	<style>
+@media ( min-width :1920px)  {
+	.fixed-table-body {
+		height: 65vh !important;
+		width: 100% !important;
+	}
+}
+
+@media screen and ( min-width :1280px) and ( max-width :1919px) {
+	.fixed-table-body {
+		width: 100% !important;
+		height: 60vh !important;
+	}
+}
+
+.fixed-table-toolbar {
+	margin-top: -10px;
+}
+
+.th-inner{
+	font-size: 14px !important;
+	font-weight: 800 !important;
+}
+ td {
+	font-size: 14px !important;
+}
+</style>
+
+
+
+
+	<div class="text-left">
+		<h1 class= "font-size-22 font-weight-bold" style="color: rgb(89, 89, 89);">簡訊發送紀錄查詢</h1>
+	</div>
+	<div class="container-fluid px-3 py-3">
+		<form name="accountForm" method="post" style="padding-left: 2rem;">
+			<div class="form-group row">
+				<label class="col-auto col-form-label font-weight-bold"
+					style="margin-right: 1rem;font-size: 16px;">部門別</label>
+				<div class="col-lg-2">
+					<select class="form-control" name="departmentId" style="font-size: 14px;">
+						<option value="">請選擇</option>
+						<option th:each="status : ${departmentEntityList}"
+							th:value="${status.departmentId}"
+							th:text="${status.departmentName}"></option>
+					</select>
+				</div>
+
+				<label class="col-auto col-form-label font-weight-bold" style="font-size: 16px;">申請人</label>
+				<div class="col-lg-2" style="margin-right: 2.4rem;">
+					<input type="text" class="form-control" name="userName" style="font-size: 14px;"/>
+				</div>
+
+				<label class="col-auto col-form-label font-weight-bold"
+					style="margin-right: 2rem;font-size: 16px;padding-left: 11px;">狀態</label>
+				<div class="col-lg-2">
+					<select class="form-control" name="status" style="font-size: 14px;">
+						<option value="">請選擇</option>
+						<option value="0">待簽核</option>
+						<option value="1">簽核駁回</option>
+						<option value="2">撤回作廢</option>
+						<option value="3">待發送</option>
+						<option value="4">已發送</option>
+						
+					</select>
+				</div>
+				<label class="col-auto col-form-label font-weight-bold" style="font-size: 16px;">系統單號</label>
+				<div class="col-lg-2">
+					<input type="text" class="form-control" name="momoidChangeMainId" style="font-size: 14px;"/>
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+
+
+
+				<label class="col-auto col-form-label font-weight-bold" style="font-size: 16px;">送簽日期</label>
+				<div class="col-lg-2">
+					<input type="date" class="form-control" name="createDateStart" style="font-size: 14px;"
+						id="createDateStart" />
+				</div>
+
+				<label class="col-auto col-form-label font-weight-bold">～</label>
+				<div class="col-lg-2" style="margin-right: 5rem;">
+					<input type="date" class="form-control" name="createDateEnd" style="font-size: 14px;"
+						id="createDateEnd" />
+				</div>
+				<label class="col-auto col-form-label font-weight-bold" style="font-size: 16px;">發送日期</label>
+				<div class="col-lg-2">
+					<input type="date" class="form-control" name="smsDateStart" style="font-size: 14px;"
+						id="smsDateStart" />
+				</div>
+				<label class="col-auto col-form-label font-weight-bold">～</label>
+				<div class="col-lg-2">
+					<input type="date" class="form-control" name="smsDateEnd" style="font-size: 14px;"
+						id="smsDateEnd" />
+				</div>
+
+
+
+
+			</div>
+			<div class="row mt-2">
+				<div class="col-lg-12 text-center">
+					<button type="button" class="btn btn-primary-blue btnrow-a font-weight-bold font-size-16"
+						onclick="findCampaignList()">查詢</button>
+				</div>
+			</div>
+		</form>
+		<div>
+			<div class="table--c my-4" style="zoom: 1.3;">
+				<table class="table--momoidChangeList" id="tableid2"
+					data-resizable="true"></table>
+			</div>
+		</div>
+
+
+		<div class="col-lg-4">
+
+
+			<div class="boxflow d-none" id="boxflow">
+				<div class="boxflow_container">
+
+					<div class="col-lg-12">
+						<div class="form-group row">
+							<label class="col-lg-7 ">
+								<h2 class="text-right font-weight-bold">簽核流程</h2>
+							</label> <label class="col-lg-5 ">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close" style="margin-top: 0px; margin-right: 0px;">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</label>
+						</div>
+
+					</div>
+
+
+					<div class="col-lg-12">
+						<div class="form-group row"
+							style="padding: 0px; margin: 0px; padding: 0px;">
+							<label class="col-lg-8 "
+								style="padding: 0px; margin: 0px; padding: 0px;"> 申請人姓名：<span
+								id="boxflow_mcm_USER_NAME"></span>
+							</label> <label class="col-lg-4 "
+								style="padding: 0px; margin: 0px; padding: 0px;"> 系統單號：<span
+								id="boxflow_momoid_CHANGE_MAIN_ID"></span>
+							</label>
+						</div>
+					</div>
+
+
+					<div class="col-lg-12">
+						<div class="form-group row"
+							style="padding: 0px; margin: 0px; padding: 0px;">
+							<label class="col-lg-8 "
+								style="padding: 0px; margin: 0px; padding: 0px;">
+								申請人部門別：<span id="boxflow_department_NAME"></span>
+							</label> <label class="col-lg-4 "
+								style="padding: 0px; margin: 0px; padding: 0px;">
+								簽核種類：簡訊簽核 <span></span>
+							</label>
+						</div>
+					</div>
+
+
+
+					<p></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+					<div class="col-lg-12 boxflow_container_child2">
+						<div class="form-group row"
+							style="margin: 0px; background-color: #172b4d; color: white; padding-left: 15px; padding-right: 15px;">
+							<label class="col-lg-8 " style="margin: 0px; padding: 0px;">
+								第一關簽核<span></span>
+							</label> <label class="col-lg-4 "
+								style="padding: 0px; margin: 0px; padding: 0px; text-align: right; color: yellow;">
+								<span id="boxflow_opinion"></span>
+							</label>
+						</div>
+						<div class="form-group row"
+							style="margin: 0px; padding-left: 20px;">
+							申請人姓名：<span id="boxflow_mcm_USER_NAME2"></span>
+						</div>
+						<div class="form-group row"
+							style="margin: 0px; padding-left: 20px;">
+							第一關簽核人員：<span id="boxflow_mca_USER_NAME"></span>
+						</div>
+						<div class="form-group row"
+							style="margin: 0px; padding-left: 20px;">
+							簽核意見：<span id="boxflow_comment_INFO"></span>
+						</div>
+
+
+
+					</div>
+
+
+
+
+
+
+				</div>
+			</div>
+
+		</div>
+
+
+
+
+
+
+
+
+	</div>
+
+
+
+	<script th:inline="javascript">
+	
+    $(function() {
+    	document.getElementById("boxflow").style.display = "none";	
+    	$('#createDateStart').attr("min", FormatDate(moment().subtract(180,"days")));
+    	$('#smsDateStart').attr("min", FormatDate(moment().subtract(180,"days")));
+    	findCampaignList();
+    	
+    	$('.table--c').on('click', '.btn--detailBtn', function() {	
+    		let arg = $(this).data('id');
+    		formSubmit([[@{find/momoidChangeSettingStep1}]], {momoidChangeMainId: arg, isReEdit:1});
+    	});
+    	
+    	
+    	$('.table--c').on('click', '.btn--withdraw', function() {
+    		
+    		let arg = $(this).data('id');
+    		let index = $(this).data('index');
+        	
+        	callAjax([[@{withdraw/momoidChangeMain}]], "momoidChangeMainId="+arg+'&index='+index,updateTable);
+
+    		
+    	});
+    	
+    	
+    	$('.table--c').on('click', '.btn--historyBtn  ', function() {
+    		$("#boxflow").removeClass('d-none');
+			$(".boxflow").modal('show');
+				
+			$.ajax({
+	            type: 'POST', 
+	            url: '/momoidChange/signOffFlowChart',
+				data: $(this).data('id'),
+				dataType:'text',			            
+	            cache: false,
+	            processData: false,
+		        contentType: "application/json; charset=utf-8",
+	            beforeSend: function() {
+	                openLoading();
+	            },
+	            success: function(data) {
+				 var dataJson = JSON.parse(data);
+				
+				 document.getElementById("boxflow_momoid_CHANGE_MAIN_ID").innerText = dataJson.momoid_CHANGE_MAIN_ID;
+				 document.getElementById("boxflow_mcm_USER_NAME").innerText = dataJson.mcm_USER_NAME;
+				 document.getElementById("boxflow_mcm_USER_NAME2").innerText = dataJson.mcm_USER_NAME;
+				 document.getElementById("boxflow_department_NAME").innerText = dataJson.department_NAME;
+				 document.getElementById("boxflow_opinion").innerText = dataJson.opinion;
+				 document.getElementById("boxflow_mca_USER_NAME").innerText = dataJson.mca_USER_NAME;
+				 document.getElementById("boxflow_comment_INFO").innerText = dataJson.comment_INFO;
+					
+	            },
+	            error: function(error) {
+	            	$('#messageModal').find('.modal-body').html('系統錯誤');
+					$('#messageModal').modal('show');
+	            },
+	            complete: function(data) {
+	                closeLoading();
+	            }
+	        });
+
+		      
+		        
+		        
+    	});
+    	
+  
+    
+    });
+	
+	
+
+	
+	
+
+	
+
+	
+    function findCampaignList(obj) {
+    	if (''!=$('#createDateStart').val() && ''!=$('#createDateEnd').val()) {
+    		if (false == moment($('#createDateStart').val()).isBefore($('#createDateEnd').val())) {
+    			
+    			if ($('#createDateStart').val() != $('#createDateEnd').val()) {        			
+					$
+					.confirm({
+						title : '錯誤訊息',
+						titleClass : 'text-center font-weight-bold text-warning2',
+						content : '訖日不可以小於起日',
+						buttons : {
+							確定 : {
+								text : '確定',
+								btnClass : 'btn-warning2 text-white'
+							}
+						}
+					});
+        			return;
+    			}
+    		}
+    	}
+    	
+    	if (''==$('#createDateStart').val() && ''!=$('#createDateEnd').val()) {
+			
+			$
+			.confirm({
+				title : '錯誤訊息',
+				titleClass : 'text-center font-weight-bold text-warning2',
+				content : '請輸入起日',
+				buttons : {
+					確定 : {
+						text : '確定',
+						btnClass : 'btn-warning2 text-white'
+					}
+				}
+			});
+			return;
+    	}
+    	
+    	if (''!=$('#createDateStart').val() && ''==$('#createDateEnd').val()) {			
+			$
+			.confirm({
+				title : '錯誤訊息',
+				titleClass : 'text-center font-weight-bold text-warning2',
+				content : '請輸入訖日',
+				buttons : {
+					確定 : {
+						text : '確定',
+						btnClass : 'btn-warning2 text-white'
+					}
+				}
+			});
+			return;
+    	}
+    	
+    	
+    	
+    	if (''!=$('#smsDateStart').val() && ''!=$('#smsDateEnd').val()) {
+    		if (false == moment($('#smsDateStart').val()).isBefore($('#smsDateEnd').val())) {
+    			
+    			if ($('#smsDateStart').val() != $('#smsDateEnd').val()) {        			
+        			$
+        			.confirm({
+        				title : '錯誤訊息',
+        				titleClass : 'text-center font-weight-bold text-warning2',
+        				content : '訖日不可以小於起日',
+        				buttons : {
+        					確定 : {
+        						text : '確定',
+        						btnClass : 'btn-warning2 text-white'
+        					}
+        				}
+        			});
+        			return;
+    			}
+
+    		}
+    	}
+    	
+    	if (''==$('#smsDateStart').val() && ''!=$('#smsDateEnd').val()) {			
+			$
+			.confirm({
+				title : '錯誤訊息',
+				titleClass : 'text-center font-weight-bold text-warning2',
+				content : '請輸入起日',
+				buttons : {
+					確定 : {
+						text : '確定',
+						btnClass : 'btn-warning2 text-white'
+					}
+				}
+			});
+			return;
+    	}
+    	
+    	if (''!=$('#smsDateStart').val() && ''==$('#smsDateEnd').val()) {			
+			$
+			.confirm({
+				title : '錯誤訊息',
+				titleClass : 'text-center font-weight-bold text-warning2',
+				content : '請輸入訖日',
+				buttons : {
+					確定 : {
+						text : '確定',
+						btnClass : 'btn-warning2 text-white'
+					}
+				}
+			});
+			return;
+    	}
+    	
+
+    	
+    	
+    	
+    	obj = obj || $('form').serialize()+'&action=QUERY';
+    	callAjax([[@{findMomoidChange}]], obj, composeTable);
+    	
+
+    	
+    	
+
+    }
+
+    function composeTable(data) {
+    	
+    	$('.table--momoidChangeList').bootstrapTable('destroy');
+		
+    	$('.table--momoidChangeList').bootstrapTable({
+    		columns: [ //欄位設定
+    			{field: '', title: '',align: 'center',class:"w3",formatter: function(value, row, index){return (data.number-1)*(data.size) + (index+1);}},
+    			{field: '', title: '',class:"w10"  ,align: 'center',formatter: buttonFormatter }, 
+    			{field: 'btn_STATUS', title: '',class:"w7"  ,align: 'center',formatter: buttonFormatter2 }, 
+    			{field: 'momoid_CHANGE_MAIN_ID',class:"w9", size: '14px',title: '系統單號'  ,align: 'center'},
+    			{field: 'momoid_CHANGE_MAIN_ID_TYPE',class:"w7", title: '類型',   align: 'center'},
+    			{field: 'department_NAME', title: '部門別',class:"w12",   align: 'center'},
+    			{field: 'user_NAME', title: '申請人', class:"w10", align: 'center'},
+    			{field: 'create_DATE', title: '送簽日期',class:"w8",align: 'center'},
+    			{field: 'approval_DATE', title: '簽核完成日',class:"w8",align: 'center'},
+    			{field: 'sms_DATE', title: '簡訊發送日',class:"w8",align: 'center'},
+    			{field: 'status', title: '狀態',class:"w7",align: 'center'},
+    				],
+
+    		sidePagination: 'client',
+    		data: data.result,//資料
+    		pagination: true, //是否要分頁
+    		pageList: [10, 25, 50, 100,'All'], //一頁顯示幾筆的選項
+    		pageSize: 10,
+    		
+    		checkboxHeader: false,
+
+    	}
+    	
+    	);
+    	
+    	
+
+    	
+    }
+    
+    function buttonFormatter(value, row, index) {
+    	let btn = '<button type="button" class="btn btn-primary--c ml-2 btn-sm  btn--historyBtn font-size-14 font-weight-bold" style="background: #6C757D;" data-id="'+row.momoid_CHANGE_MAIN_ID+'">簽核流程圖</button>';
+    	return btn;
+    }
+    
+    function buttonFormatter2(value, row, index) {
+    	
+    	let editBtn = '<button type="button" class="btn btn-primary--c ml-2 btn-sm btn--withdraw font-size-14 font-weight-bold" style="background: #FF6100;" data-id="'+row.momoid_CHANGE_MAIN_ID+'" data-index="'+index+'">撤回</button>';
+    	let detailBtn = '<button type="button" class="btn btn-primary--c ml-2 btn-sm btn--detailBtn font-size-16" data-id="'+row.momoid_CHANGE_MAIN_ID+'">查看</button>';
+    	let status = row.btn_STATUS;
+    	let showEdit = status === '撤回';
+    	let showDetail = status === '查看';
+    	return (showEdit ? editBtn : '')  + (showDetail ? detailBtn : '');
+    }
+    
+    
+    function updateTable(data) {
+    	
+    	$('.table--momoidChangeList').bootstrapTable('updateRow',{
+    		index:data.index,
+    		row:{
+    			status:'撤回作廢',
+    			btn_STATUS:'查看'
+    		}
+
+    	});
+    }
+		
+	</script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+
+	<div class="text-left">
+		<h1 class="display-5">核帳報表</h1>
+	</div>
+
+
+	<form name="Form" method="post">
+		<div class="col-lg-12 row">
+			<div class="col-lg-6" style="background-color: lightgray;">
+				<label class="col-form-label font-weight-bold">選擇繳款方式</label>
+				<div class="custom-control custom-checkbox custom-control-inline"
+					style="padding-left: 50px;">
+
+					<input type="radio" id="checkboxA" name="checkpaymethod"
+						class="cradio" value="0" /> <label for="checkboxA"
+						class="cradio-label"> <span class="cradio-span"></span>
+						一般繳費
+					</label>
+				</div>
+				<div class="custom-control custom-checkbox custom-control-inline">
+
+					<input type="radio" id="checkboxB" name="checkpaymethod"
+						class="cradio" value="1" /> <label for="checkboxB"
+						class="cradio-label"> <span class="cradio-span"></span>
+						帳單繳款
+					</label>
+
+				</div>
+			</div>
+
+
+			<div class="col-lg-6">
+				<label
+					class="ccheckbox-label col-auto col-form-label font-weight-bold">momo公司單位
+					<div class="col-lg-6" style="margin-left: 20px;">
+						<select name="departmentId" id="departmentId" class="form-control">
+							<option value="">請選擇</option>
+							<option th:each="department : ${departmentList}"
+								th:value="${department.departmentName}"
+								th:text="${department.departmentName}"></option>
+						</select>
+					</div>
+				</label>
+			</div>
+		</div>
+
+		<div class="col-lg-12 row">
+
+			<div class="col-lg-6">
+				<span class="ccheckbox-label col-auto  font-weight-bold"
+					style="padding-left: 0px;">收款日期</label>
+					<div style="padding-left: 15px;">
+						<input type="date" class="form-control" name="ReceiveStartDate"
+							id="ReceiveStartDate" />
+					</div> <label class="col-auto col-form-label font-weight-bold">~</label>
+					<div>
+						<input type="date" class="form-control" name="ReceiveEndDate"
+							id="ReceiveEndDate" />
+					</div>
+			</div>
+
+			<div class="col-lg-6">
+				<span
+					class="ccheckbox-label col-auto col-form-label font-weight-bold">銷帳日期</label>
+					<div style="padding-left: 15px;">
+						<input type="date" class="form-control" name="CancelStartDate"
+							id="CancelStartDate" />
+					</div> <label class="col-auto col-form-label font-weight-bold">~</label>
+					<div>
+						<input type="date" class="form-control" name="CancelEndDate"
+							id="CancelEndDate" />
+					</div>
+			</div>
+		</div>
+		<div class="row mt-2">
+			<div class="col-lg-12 text-center">
+				<button type="button" class="btn btn-primary--c"
+					onclick="findcheckbilList()">查詢</button>
+			</div>
+		</div>
+	</form>
+
+	<div class="findcheckbill-table">
+		<div class="table--c">
+			<span id="isshowBOMD" style="color: red;"></span><br/>
+			<span id="isshow"></span>			
+			<!--// 判斷是不是第二次編輯， 如果地有些內容無法修改-->
+			<button type="button" id="downloadDetailfile"
+				class="btn btn--download btn-primary--c mr-2" style="display: inline-block;float: right;">明細下載</button>
+				
+			<button type="button" id="downloadfile"
+				class="btn btn--download btn-primary--c mr-2" style="display: inline-block;float: right;">總表下載</button>
+				
+			<table class="table--waitApprovalList"></table>
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+   
+			document.getElementById("downloadfile").style.display = "none";
+			document.getElementById("downloadDetailfile").style.display = "none";
+			
+			$('#downloadfile').on('click', function() {
+				
+				callTotalOrDetailAjax([[@{findCheckbill2}]], $('form').serialize()+'&action=QUERY');//  產生總表檔案
+			});	
+			$('#downloadDetailfile').on('click', function() {
+				
+				callTotalOrDetailAjax([[@{createDetailFile}]], $('form').serialize()+'&action=QUERY');//  產生明細檔案
+			});
+						
+            function findcheckbilList(obj) {
+         		obj = obj || $('form').serialize()+'&action=QUERY';
+
+				var istrue = true; 
+
+   				if (document.getElementById("CancelStartDate").value != ""){
+					if(document.getElementById("CancelEndDate").value == ""){
+						alert("銷帳日期範圍需要起訖時間");
+						istrue = false;
+					}					
+				}
+				
+				if (document.getElementById("CancelEndDate").value != ""){
+					if(document.getElementById("CancelStartDate").value == ""){
+						alert("銷帳日期範圍需要起訖時間");
+						istrue = false;
+					}					
+				}       
+         
+         //alert("收款日期範圍需要起訖時間1:"+document.getElementById("ReceiveStartDate").value);
+				if (document.getElementById("ReceiveStartDate").value != ""){
+					if(document.getElementById("ReceiveEndDate").value == ""){
+						alert("收款日期範圍需要起訖時間");
+						istrue = false;
+					}					
+				}
+				
+				if (document.getElementById("ReceiveEndDate").value != ""){
+					if(document.getElementById("ReceiveStartDate").value == ""){
+						alert("收款日期範圍需要起訖時間");
+						istrue = false;
+					}					
+				}  
+				
+				//alert("請選擇繳款方式:"+document.getElementById("checkboxA").checked);
+				
+				if((!document.getElementById("checkboxA").checked) && (!document.getElementById("checkboxB").checked)){
+					alert("請選擇繳款方式");
+					istrue = false;
+				}
+				
+				if ( (document.getElementById("ReceiveStartDate").value != "") && (document.getElementById("ReceiveEndDate").value != ""))
+				{
+					
+						//alert("sendStartDate:"+document.getElementById("sendStartDate").value);
+					  var oDate1 = new Date(document.getElementById("ReceiveStartDate").value);
+					  var oDate2 = new Date(document.getElementById("ReceiveEndDate").value);
+					  var iDays = parseInt(Math.abs(oDate1 - oDate2) / 1000 / 60 / 60 / 24);
+					  //alert("iDays:"+iDays);
+					  
+					  if(iDays>90){
+						alert("查詢區間不可超過3個月");
+						istrue = false;
+					  }
+				}
+
+				if(istrue == true){
+					callQueryAjax([[@{findCheckbill}]], obj, composeTable);//  顯示頁面上的清單
+					callQueryAjax([[@{findCheckbill1}]], obj, composeTable1);//  顯示總計筆數/金額
+					
+					if($("#departmentId").val().includes("營管處")){
+						$("#isshowBOMD").show();
+						callQueryAjax([[@{findCheckbillForBOMD}]], obj, forBOMD);// 總兌幣金額:$5,101/ 總取消兌幣金額:$453/ 兌幣累計:$4,648
+					}else{
+						$("#isshowBOMD").hide();
+					}
+				}
+
+            	//alert("getfindWaitApproval")
+            }
+            
+            //這是為了BOMD想要顯示的項目, 所以只有momo公司單位選 "BOMD_營管處" 才會執行這個方法
+            function forBOMD(data) {
+				//alert("optsd1:"+data);
+				document.getElementById("isshowBOMD").innerText = data;
+			}
+            
+			function composeTable1(data) {
+				//alert("optsd1:"+data);
+				document.getElementById("isshow").innerText = data;
+			}
+			
+            function composeTable(data) {
+            	$('.table--waitApprovalList').bootstrapTable('destroy');
+
+            	$('.table--waitApprovalList').bootstrapTable({
+            		columns: [ //欄位設定 test
+            			{field: 'indexnum', title: '', class: 'w8', align: 'center', switchable: false, formatter: function(value, row, index){return (data.number-1)*(data.size) + (index+1);}},
+
+            			{field: 'departmentId', title: 'momo公司單位', class: 'w8', align: 'center'},
+            			{field: 'receivedate', title: '收款日期', class: 'w8', align: 'center'},
+            			{field: 'canceldate', title: '銷帳日期', class: 'w8', halign: 'center'},
+            			{field: 'quantity', title: '筆數', class: 'w8', halign: 'center'},
+            			{field: 'momoney', title: 'mo幣金額', class: 'w8', halign: 'center'},
+	
+            		],
+            		// classes: 'table table-striped table-bordered table-dark',
+            		sidePagination: 'server',
+            		data: data.result,//資料
+            		//pagination: true, //是否要分頁
+            		pageNumber: data.number, //初始化加載第一頁
+            		pageSize: data.size, //一頁顯示幾筆
+            		pageList: [10, 20, 50, 100, 'All'], //一頁顯示幾筆的選項
+            		totalRows: data.total,
+            		// search : true, //查詢
+            		checkboxHeader: false,
+            		sortName: data.name,
+            		sortOrder: data.order,
+            		onClickRow: function(row, $element, field) {
+            		},
+            		onSort: function(name, order) {
+            		},
+            		onPageChange: function(number, size) {
+            			// console.log('number: ' + number + ', size: ' + size);
+
+            			size = isNaN(size) ? this.totalRows : size;
+
+            			findWaitApprovalList({'number': number, 'size': size});
+            		},
+            		onLoadError: function(status, jqXHR) {
+            			// console.log('status: ' + status + ', jqXHR: ' + jqXHR);
+            		}
+            	});
+            	document.getElementById("downloadfile").style.display = "block";
+            	document.getElementById("downloadDetailfile").style.display = "block";
+            }   
+            
+            //點按總表或明細表下載
+			function callTotalOrDetailAjax(url, obj) {
+    			if (event) {
+        			event.preventDefault();
+    			}
+
+    			obj = obj || $('form').serialize();
+
+    			$.ajax({
+        			type: "POST",
+       				url: url,
+        			data: obj,
+        			xhrFields: {
+            			responseType: 'blob'  // 設置響應類型為 blob
+        			},
+        			beforeSend: function() {
+            			openLoading();
+        			},
+        			complete: function() {
+            			closeLoading();
+        			},
+        			success: function(blob, status, xhr) {
+            			var filename = xhr.getResponseHeader('Content-Disposition').split('filename=')[1];
+            				filename = filename.replace(/"/g, '');
+
+            			// 創建一個鏈接並觸發下載
+            			var link = document.createElement('a');
+            				link.href = window.URL.createObjectURL(blob);
+            				link.download = filename;
+            				link.click();
+        			},
+        			error: function(e) {
+            			errorMessagePopup(e.responseJSON ? e.responseJSON.message : '下載失敗');
+        			}
+    			});
+			}
+                       
+            //點按查詢
+            function callQueryAjax(url, obj, fn) {
+            	if (event) {
+            		event.preventDefault();
+            	}
+
+            	obj = obj || $('form').serialize();
+
+            	$.ajax({
+            		type : "POST",
+            		url : url,
+            		data : obj,
+            		beforeSend : function() {
+            			openLoading();
+            		},
+            		complete : function() {
+            			closeLoading();
+            		},
+            		success : function(data) {
+            			
+            			if (data.code === '998') {
+            				showError(data.errorMessages);
+            			} else if (data.code === '000') {
+            				messagePopup(data.message);
+
+            				if (fn) {
+            					fn();
+            				}
+            			} else if (fn) {
+            				fn(data);
+            			}
+            		},
+            		error : function(e) {
+            			errorMessagePopup(e.responseJSON.message);
+            		}
+            	});
+            }
+         </script>
+
+
+
+
+</body>
+
+
+</html>

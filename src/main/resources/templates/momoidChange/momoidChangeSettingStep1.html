@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+
+	<style>
+@media ( min-width :1920px) {
+	.div-height {
+		height: 100vh;
+	}
+}
+
+@media screen and ( min-width :1280px) and ( max-width :1919px) {
+	.div-height {
+		height: 90vh;
+	}
+}
+</style>
+
+
+	<div class="text-left">
+		<h1 class="font-size-22 font-weight-bold"
+			style="color: rgb(89, 89, 89);">簡訊發送名單設定</h1>
+	</div>
+
+	<div class="container-fluid px-3 py-3">
+		<div class="row justify-content-center pb-3 font-size-18">
+			<div class="row  d-flex">
+				<div class="col-sm-auto">
+					<label class="">部門別</label> <input class="input-width-color w300px"
+						type="text" th:value="*{session.userInfo.departmentName}" disabled>
+				</div>
+				<div class="col-sm-auto">
+					<label class="">申請人姓名</label> <input class="input-width-color"
+						type="text" th:value="*{session.userInfo.userName}" disabled>
+				</div>
+				<div class="col-sm-auto">
+					<label class="">用戶歸屬</label> <input class="input-width-color"
+						type="text" th:value="*{session.userInfo.buTag}" disabled>
+				</div>
+			</div>
+		</div>
+
+		<div class="card border-0 bg-transparent">
+			<h4 class="card-header div-h4-span">
+				<span class="text-white">momo客編異動簡訊發送名單設定</span>
+			</h4>
+
+			<div class="card-body font-size-18 pt-1">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="row">
+									<span style="font-weight: bold;">此符號&nbsp;<i
+										class="fa fa-ban fa-flip-horizontal text-danger"
+										aria-hidden="true"></i>&nbsp;的欄位，送簽後無法修改
+									</span>
+								</div>
+							</div>
+
+							<div class="col-lg-12" style="overflow-y: auto; height: 90vh;">
+								<div class="col-lg-12  pt-4 mb-5"
+									style="overflow-y: auto; overflow-x: hidden; background-color: #f8f9fa;">
+									<div class="form-group row">
+
+										<div class="col-lg-12">
+											<div class="row ml-2">
+												<strong
+													class="col-lg-4 col-form-label form-control-label  d-flex"
+													for="fileUpload">附件上傳(允許格式.jpg/.png/.jpeg) <i
+													class="fa fa-ban fa-flip-horizontal text-danger"
+													style="padding-top: 5px;" aria-hidden="true"></i></strong>
+
+
+
+												<div class="container px-4 col-lg-6"
+													style="margin-left: 0px; padding-left: 10px !important;"
+													th:styleappend="${readOnly} ? 'display: none !important;' : ''">
+													<div class="row gx-5">
+														<div class="col-lg-7">
+															<div class="fileUpload" style="justify-content: left;">
+																<input type="file" name="projectFile" id="fileUpload"
+																	class="fileUpload__input fileUpload__input--csv"
+																	multiple accept=".jpg,.png,.jpeg"
+																	>
+																<div class="fileUpload__bg"></div>
+																<div class="fileUpload__texts"
+																	style="padding-left: 10px;">
+																	<span class="fileUpload__text" style="color: darkgray">請選擇欲上傳之檔案</span>
+																</div>
+															</div>
+
+														</div>
+
+													</div>
+												</div>
+
+
+
+											</div>
+
+											<div class="row ml-2">
+												<span style="color: red;">提醒：每張圖片檔案大小限制為１MB</span>
+											</div>
+
+											<div class="row ml-3">
+												<strong id="CumulativeSelectedAccessories"
+													class="col-lg-3 col-form-label form-control-label  d-flex ">累計已選擇附件(上限15項):0</strong>
+											</div>
+
+											<div class="row ml-5" id="fileName"></div>
+
+										</div>
+									</div>
+								</div>
+
+
+								<div class="col-lg-12 div-height pt-4 "
+									style="overflow-y: auto; overflow-x: hidden; background-color: #f8f9fa;">
+									<form id="totalForm">
+
+										<div class="row row-cols-1 row-cols-md-1">
+
+											<tr th:each="momoidChangeList,status:${momoidChangeList}">
+												<div class="media"
+													style="background: gainsboro; margin-bottom: 10px; padding-left: 5px; padding-top: 16px; max-width: 41.6%;">
+
+													<div class="align-self-center mr-3">
+														<p
+															style="border-style: solid; border-color: #172B4D; color: #172B4D; font-weight: bold; padding: 3px;"
+															th:text="${'用戶' + (status.index +1)}"></p>
+													</div>
+													<div class="media-body">
+
+														<div class="col-lg-12">
+															<div class="form-group row">
+																<label
+																	class="col-lg-5 col-form-label form-control-label">用戶使用中momo客編
+																</label>
+																<div class="col-lg-7">
+																	<input class="form-control" type="text"
+																		style="border: 0px !important;" readonly
+																		name="momoMemberId"
+																		th:value="${momoidChangeList.momoMemberId}"
+																		th:disabled="${readOnly}">
+																</div>
+															</div>
+														</div>
+
+
+
+
+
+														<div class="col-lg-12">
+															<div class="form-group row">
+																<label
+																	class="col-lg-5 col-form-label form-control-label addRedStar">異動簡訊發送門號
+																	<i class="fa fa-ban fa-flip-horizontal text-danger"
+																	aria-hidden="true"></i>
+																</label>
+																<div class="col-lg-7">
+																	<input class="form-control" type="text"
+																		name="phoneNumber" style="border: 0px !important;"
+																		th:value="${momoidChangeList.phoneNumber}"
+																		th:disabled="${readOnly}"
+																		oninput="value=value.replace(/\s+/g,'')"
+																		maxlength="10">
+
+																</div>
+															</div>
+														</div>
+														<div class="col-lg-12">
+															<div class="form-group row">
+																<label
+																	class="col-lg-5 col-form-label form-control-label addRedStar">專案代碼
+																	<i class="fa fa-ban fa-flip-horizontal text-danger"
+																	aria-hidden="true"></i>
+																</label>
+																<div class="col-lg-7">
+																	<input class="form-control" type="text"
+																		name="projectCode" style="border: 0px !important;"
+																		th:value="${momoidChangeList.projectCode}"
+																		th:disabled="${readOnly}" maxlength="5"
+																		oninput="value=value.replace(/\s+/g,'')">
+																</div>
+															</div>
+														</div>
+														<div class="col-lg-12">
+															<div class="form-group row">
+																<label
+																	class="col-lg-5 col-form-label form-control-label addRedStar">續約流水號
+																	<i class="fa fa-ban fa-flip-horizontal text-danger"
+																	aria-hidden="true"></i>
+																</label>
+																<div class="col-lg-7">
+																	<input class="form-control" type="text"
+																		name="projectSeqNbr" style="border: 0px !important;"
+																		th:value="${momoidChangeList.projectSeqNbr}"
+																		th:disabled="${readOnly}"
+																		oninput="value=value.replace(/\s+/g,'')"
+																		maxlength="22">
+																</div>
+															</div>
+														</div>
+														<div class="col-lg-12">
+															<div class="form-group row">
+																<label
+																	class="col-lg-5 col-form-label form-control-label addRedStar">Sub
+																	ID <i class="fa fa-ban fa-flip-horizontal text-danger"
+																	aria-hidden="true"></i>
+																</label>
+																<div class="col-lg-7" style="display: flex;">
+																	<input class="form-control col-lg-9" type="text"
+																		name="subid" style="border: 0px !important;"
+																		th:value="${momoidChangeList.subid}"
+																		th:disabled="${readOnly}"
+																		oninput="value=value.replace(/\s+/g,'')"
+																		maxlength="20">
+																	<button type="submit"
+																		class="btn btn-primary--c ml-2 btn-sm font-size-16"
+																		name="subIdButton" th:disabled="${readOnly}">檢查</button>
+																</div>
+															</div>
+														</div>
+														<div class="col-lg-12">
+															<div class="form-group row">
+																<label
+																	class="col-lg-5 col-form-label form-control-label addRedStar">發送原因
+																	<i class="fa fa-ban fa-flip-horizontal text-danger"
+																	aria-hidden="true"></i>
+																</label>
+																<div class="col-lg-7">
+																	<textarea class="form-control" name="sendReason"
+																		style="resize: none; border: 0px !important;" rows="3"
+																		th:text="${momoidChangeList.sendReason}"
+																		th:disabled="${readOnly}" maxlength="45"></textarea>
+																</div>
+															</div>
+
+
+														</div>
+
+														<div class="col-lg-12">
+															<div class="form-group row">
+																<label
+																	class="col-lg-5 col-form-label form-control-label ">發送結果
+
+																</label>
+																<div class="col-lg-7">
+																	<input class="form-control" type="text"
+																		style="border: 0px !important;" readonly
+																		name="smsStatus"
+																		th:value="${momoidChangeList.momoidChangeSmsEntity.status == null ? '':#dates.format(momoidChangeList.momoidChangeSmsEntity.smsDate,'yyyy/MM/dd HH:mm:ss') + (momoidChangeList.momoidChangeSmsEntity.status == 4 ? '發送成功' : '發送失敗')}"
+																		th:styleappend="${momoidChangeList.momoidChangeSmsEntity.status == 5} ? 'color:red'"
+																		th:disabled="${readOnly}">
+																</div>
+															</div>
+
+
+														</div>
+
+													</div>
+
+												</div>
+												<div class="col-lg-1 d-flex align-items-end rec-1"
+													style="margin-bottom: 1rem;">
+													<button type="button"
+														style="margin-right: 1rem; background: #172B4D !important;"
+														class="btn--addItem btn btn-primary--c2 btn-primary--cwh d-flex justify-content-center align-items-center add-record"
+														data-id="0" th:styleappend="${readOnly} ? 'display: none !important;' : ''">
+														<i class="fa fa-plus font-size-8" aria-hidden="true"></i>
+													</button>
+													<button type="button" name="del"
+														style="margin-right: 1rem; background: #172B4D !important;"
+														th:styleappend="${readOnly} ? 'display: none !important;' : ''"
+														class="btn--minusItem btn btn btn-primary--c2 btn-primary--cwh d-flex justify-content-center align-items-center delete-record">
+														<i class="fa fa-minus font-size-8" aria-hidden="true"></i>
+													</button>
+												</div>
+											</tr>
+
+
+
+
+
+
+										</div>
+									</form>
+								</div>
+							</div>
+
+							<div class="col-lg-12">
+								<div class="d-flex justify-content-center">
+									<button type="submit"
+										class="btn btn--next btn-primary-blue mr-2 btnrow-a"
+										id="btn--next" th:if="${readOnly} == false">完成</button>
+									<button type="button"
+										class="btn btn--back btn-primary-blue mr-2 btnrow-a"
+										th:if="${readOnly} == true">返回簡訊發送紀錄查詢</button>
+
+								</div>
+							</div>
+
+
+
+
+
+
+
+
+
+
+
+
+						</div>
+
+					</div>
+
+
+
+				</div>
+
+
+
+			</div>
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+		$(function() {
+			
+			$(".rec-1 .delete-record").eq(0).remove();
+
+			var aBtnsIndex;
+			var aBtns = document.getElementsByName('subIdButton');			
+			for (var i = 0; i < aBtns.length; i++) {
+				aBtns[i].index = i;
+				aBtns[i].onclick = function() {
+					aBtnsIndex = this.index;
+				}
+			}
+
+			$("input[name='projectCode'],input[name='projectSeqNbr'],input[name='subid']").change(function(){
+				
+				var fieldName = $(this).attr('name');
+				var index = $("input[name="+fieldName+"]").index(this);
+				$("input[name="+"momoMemberId"+"]")[index].value= '';
+
+			});
+			
+			
+			
+			$(document)
+					.on(
+							'click',
+							'.add-record',
+							function(e) {
+
+								if ($(".media").length < 15) {
+									var markup = "";
+									markup = markup
+											+ "<div class=\"media\" style=\"background: gainsboro;margin-bottom: 10px;padding-left: 5px;padding-top: 16px;max-width: 41.6%;\">";
+									markup = markup
+											+ "		<div class=\"align-self-center mr-3\">";
+									markup = markup
+											+ "			<p style=\"border-style: solid; border-color: #172B4D; color: #172B4D; font-weight: bold;padding: 3px;\">用戶1</p>";
+									markup = markup + "		</div>";
+									markup = markup
+											+ "		<div class=\"media-body\">";
+
+									markup = markup
+											+ "			<div class=\"col-lg-12\">";
+									markup = markup
+											+ "				<div class=\"form-group row\">";
+									markup = markup
+											+ "					<label class=\"col-lg-5 col-form-label form-control-label \">用戶使用中momo客編";
+
+									markup = markup + "					</label>";
+									markup = markup
+											+ "					<div class=\"col-lg-7\">";
+									markup = markup
+											+ "						<input class=\"form-control\" type=\"text\" style=\"border: 0px !important;\" name=\"momoMemberId\" readonly>";
+									markup = markup + "					</div>";
+									markup = markup + "				</div>";
+									markup = markup + "			</div>";
+
+									markup = markup
+											+ "			<div class=\"col-lg-12\">";
+									markup = markup
+											+ "				<div class=\"form-group row\">";
+									markup = markup
+											+ "					<label class=\"col-lg-5 col-form-label form-control-label addRedStar\">異動簡訊發送門號";
+									markup = markup
+											+ "						<i class=\"fa fa-ban fa-flip-horizontal text-danger\" aria-hidden=\"true\"></i>";
+									markup = markup + "					</label>";
+									markup = markup
+											+ "					<div class=\"col-lg-7\">";
+									markup = markup
+											+ "						<input class=\"form-control\" type=\"text\" style=\"border: 0px !important;\" name=\"phoneNumber\" maxlength=\"10\" oninput=\"value=value.replace(/\\s+/g,'')\">";
+									markup = markup + "					</div>";
+									markup = markup + "				</div>";
+									markup = markup + "			</div>";
+									markup = markup
+											+ "			<div class=\"col-lg-12\">";
+									markup = markup
+											+ "				<div class=\"form-group row\">";
+									markup = markup
+											+ "					<label class=\"col-lg-5 col-form-label form-control-label addRedStar\">專案代碼";
+									markup = markup
+											+ "						<i class=\"fa fa-ban fa-flip-horizontal text-danger\" aria-hidden=\"true\"></i>";
+									markup = markup + "					</label>";
+									markup = markup
+											+ "					<div class=\"col-lg-7\">";
+									markup = markup
+											+ "						<input class=\"form-control\" type=\"text\" style=\"border: 0px !important;\" name=\"projectCode\" maxlength=\"5\" oninput=\"value=value.replace(/\\s+/g,'')\">";
+									markup = markup + "					</div>";
+									markup = markup + "				</div>";
+									markup = markup + "			</div>";
+									markup = markup
+											+ "			<div class=\"col-lg-12\">";
+									markup = markup
+											+ "				<div class=\"form-group row\">";
+									markup = markup
+											+ "					<label class=\"col-lg-5 col-form-label form-control-label addRedStar\">續約流水號";
+									markup = markup
+											+ "						<i class=\"fa fa-ban fa-flip-horizontal text-danger\" aria-hidden=\"true\"></i>";
+									markup = markup + "					</label>";
+									markup = markup
+											+ "					<div class=\"col-lg-7\">";
+									markup = markup
+											+ "						<input class=\"form-control\" type=\"text\" style=\"border: 0px !important;\" name=\"projectSeqNbr\" maxlength=\"22\" oninput=\"value=value.replace(/\\s+/g,'')\">";
+									markup = markup + "					</div>";
+									markup = markup + "				</div>";
+									markup = markup + "			</div>";
+									markup = markup
+											+ "			<div class=\"col-lg-12\">";
+									markup = markup
+											+ "				<div class=\"form-group row\">";
+									markup = markup
+											+ "					<label class=\"col-lg-5 col-form-label form-control-label addRedStar\">Sub ID";
+									markup = markup
+											+ "						<i class=\"fa fa-ban fa-flip-horizontal text-danger\" aria-hidden=\"true\"></i>";
+									markup = markup + "					</label>";
+									markup = markup
+											+ "					<div class=\"col-lg-7\" style=\"display: flex;\">";
+									markup = markup
+											+ "						<input class=\"form-control col-lg-9\" type=\"text\" style=\"border: 0px !important;\" name=\"subid\" maxlength=\"20\" oninput=\"value=value.replace(/\\s+/g,'')\"><button type = \"submit\" name=\"subIdButton\" class=\"btn btn-primary--c ml-2 btn-sm font-size-16\">檢查</buttton>";
+									markup = markup + "					</div>";
+									markup = markup + "				</div>";
+									markup = markup + "			</div>";
+									markup = markup
+											+ "			<div class=\"col-lg-12\">";
+									markup = markup
+											+ "				<div class=\"form-group row\">";
+									markup = markup
+											+ "					<label class=\"col-lg-5 col-form-label form-control-label addRedStar\">發送原因";
+									markup = markup
+											+ "						<i class=\"fa fa-ban fa-flip-horizontal text-danger\" aria-hidden=\"true\"></i>";
+									markup = markup + "					</label>";
+									markup = markup
+											+ "					<div class=\"col-lg-7\">";
+									markup = markup
+											+ "						<textarea class=\"form-control\" style=\"resize: none; border: 0px !important;\" rows=\"3\" name=\"sendReason\" maxlength=\"45\"></textarea>";
+									markup = markup + "					</div>";
+									markup = markup + "				</div>";
+									markup = markup + "			</div>";
+									+"			<div class=\"col-lg-12\">";
+									markup = markup
+											+ "				<div class=\"form-group row\">";
+									markup = markup
+											+ "					<label class=\"col-lg-5 col-form-label form-control-label\">發送結果";
+
+									markup = markup + "					</label>";
+									markup = markup
+											+ "					<div class=\"col-lg-7\" style=\"padding-right: 30px;\">";
+									markup = markup
+											+ "						<input class=\"form-control\" type=\"text\" style=\"border: 0px !important;\" name=\"smsStatus\" readonly>";
+									markup = markup + "					</div>";
+									markup = markup + "				</div>";
+									markup = markup + "			</div>";
+									markup = markup + "		</div>";
+									markup = markup + "</div>";
+									markup = markup
+											+ "<div class=\"col-lg-1 d-flex  align-items-end rec-1\" style=\"margin-bottom: 1rem;\">";
+									markup = markup
+											+ "		<button type=\"button\" style=\"margin-right: 1rem; background: #172B4D !important;\" class=\"btn--addItem btn btn-primary--c2 btn-primary--cwh d-flex justify-content-center align-items-center add-record\" data-id=\"0\">";
+									markup = markup
+											+ "			<i class=\"fa fa-plus font-size-8\" aria-hidden=\"true\"></i>";
+									markup = markup + "		</button>";
+									markup = markup
+											+ "		<button type=\"button\" name=\"del\" style=\"margin-right: 1rem; background: #172B4D !important;\" class=\"btn--minusItem btn btn btn-primary--c2 btn-primary--cwh d-flex justify-content-center align-items-center delete-record\">";
+									markup = markup
+											+ "			<i class=\"fa fa-minus font-size-8\" aria-hidden=\"true\"></i>";
+									markup = markup + "		</button>";
+									markup = markup + "</div>";
+
+									$(".media")
+											.eq($(".add-record").index(this))
+											.next().after(markup);
+									$(".media p").each(
+											function(index) {
+												$(".media p").eq(index).text(
+														"用戶" + (index + 1));
+											});
+
+
+									for (var i = 0; i < aBtns.length; i++) {
+										aBtns[i].index = i;
+										aBtns[i].onclick = function() {
+											aBtnsIndex = this.index;
+										}
+									}
+
+								}
+
+								$(".rec-1 .add-record").eq(14).remove();
+								
+								$("input[name='projectCode'],input[name='projectSeqNbr'],input[name='subid']").change(function(){
+									
+									var fieldName = $(this).attr('name');
+									var index = $("input[name="+fieldName+"]").index(this);
+									$("input[name="+"momoMemberId"+"]")[index].value= '';
+								});
+
+							});
+
+			$(document)
+					.on(
+							'click',
+							'.delete-record',
+							function(e) {
+
+								$(".media").eq(
+										$(".delete-record").index(this) + 1)
+										.remove();
+								$(".rec-1").eq(
+										$(".delete-record").index(this) + 1)
+										.remove();
+
+								$(".media p").each(
+										function(index) {
+											$(".media p").eq(index).text(
+													"用戶" + (index + 1));
+										});
+
+								if ($(".rec-1 .add-record").length == 13) {
+									$('.rec-1')
+											.eq(13)
+											.prepend(
+													'<button type=\"button\" style=\"margin-right: 1rem; background: #172B4D !important;\" class=\"btn--addItem btn btn-primary--c2 btn-primary--cwh d-flex justify-content-center align-items-center add-record\" data-id=\"0\"><i class=\"fa fa-plus font-size-8\" aria-hidden=\"true\"></i></button>');
+
+								}
+
+								for (var i = 0; i < aBtns.length; i++) {
+									aBtns[i].index = i;
+									aBtns[i].onclick = function() {
+										aBtnsIndex = this.index;
+									}
+								}
+								
+								$("input[name='projectCode'],input[name='projectSeqNbr'],input[name='subid']").change(function(){
+									
+									var fieldName = $(this).attr('name');
+									var index = $("input[name="+fieldName+"]").index(this);
+									$("input[name="+"momoMemberId"+"]")[index].value= '';
+								});
+								
+								
+							});
+			
+			
+
+		    
+
+		    
+		    // 初始设置已选择的文件数量
+		    var fileCount = 0;  //已有两个文件
+		    var maxFileCount = 15;  //设置文件上限为15	
+		    var chosenFiles = [] ; //用予保存已選擇的文件名
+		    
+		    
+		    	
+
+			    
+			    //处理文件选择
+			    $('#fileUpload').on('change', function(e) {
+			    	
+			        var files = e.target.files;
+			        
+			        if(files.length + fileCount > maxFileCount){
+						$
+						.confirm({
+							title : '欲上傳檔案數量過多',
+							titleClass : 'text-center font-weight-bold text-warning2',
+							content : '您選擇之檔案數量超過可選擇上限，請重新選擇檔案喔！',
+									
+							buttons : {
+								確定 : {
+									text : '確定',
+									btnClass : 'btn-warning2 text-white'
+								}
+							}
+						});
+			        	return;
+			        }
+			        
+
+			        
+			        for(var i = 0;i < files.length; i++){
+			        	var file = files[i];
+			        	
+			        	// 檢查檔案大小，如果超過1MB則返回錯誤
+			        	if (file.size > 1024 * 1024) {
+			        		$.confirm({
+			        			title: '上傳檔案過大',
+			        			titleClass: 'text-center font-weight-bold text-warning2',
+			        			content: '您上傳之檔案每張圖片不可超過 1 MB，請重新上傳喔！',
+			        			buttons: {
+			        				確定: {
+			        					text: '確定',
+			        					btnClass: 'btn-warning2 text-white'
+			        				}
+			        			}
+			        		});
+			        		return;
+			        	}
+			        	
+			        	var extension=file.name.split('.').pop().toLowerCase();
+			        	
+			        	if(extension != 'jpg' && extension !== 'png' && extension != 'jpeg'){
+							$
+							.confirm({
+								title : '欲上傳檔案格式錯誤',
+								titleClass : 'text-center font-weight-bold text-warning2',
+								content : '您選擇之檔案格式錯誤，請重新選擇檔案喔！',
+										
+								buttons : {
+									確定 : {
+										text : '確定',
+										btnClass : 'btn-warning2 text-white'
+									}
+								}
+							});
+			        		return;
+			        	}
+			        	
+						var isFileAlreadyChosen = chosenFiles.some(function(chosenFile){
+							return chosenFile.name === file.name;
+						});
+						
+						if(isFileAlreadyChosen){
+							$
+							.confirm({
+								title : '欲上傳檔案重複',
+								titleClass : 'text-center font-weight-bold text-warning2',
+								content : '您欲上傳之檔案有重複，請重新選擇檔案喔！',
+										
+								buttons : {
+									確定 : {
+										text : '確定',
+										btnClass : 'btn-warning2 text-white'
+									}
+								}
+							});
+							return;
+						}
+			        }
+			        		        
+			        var newFileCount = fileCount + files.length;
+
+			        if (newFileCount <= maxFileCount) {
+			        	
+			            fileCount = newFileCount;
+			            //更新文件数
+			            $("#CumulativeSelectedAccessories").text('累計已選擇附件(上限15項):' + fileCount);
+
+			            //显示选择的文件
+			            for (var i = 0; i < files.length; i++) {
+			            	
+			                var file= files[i]
+			                chosenFiles.push(file);//保存已選擇的文件名
+			                $('#fileName').append('<div class="col-lg-6"><span>'+file.name+'</span><i class="fa fa-times fa-fw text-danger" aria-hidden="true"></i></div>');
+			            }
+
+
+			        } else {
+			            alert("選擇的文件數超過上限！");
+			        }
+			        
+
+			    });
+			    
+	            //添加删除文件事件
+	            $(document).on('click','.fa-times', function() {
+	            	
+	            	var fileName = $(this).prev().text();
+	            	
+
+	            	
+	            	var index = chosenFiles.findIndex(function(chosenFile){
+	            		return chosenFile.name === fileName;
+	            	});
+	            	if(index > -1){
+	            		chosenFiles.splice(index,1);//從保存的文件名中刪除這個文件名
+	            	}
+
+	                $(this).parent().remove();
+	                fileCount--;
+	                $("#CumulativeSelectedAccessories").text('累計已選擇附件(上限15項):' + fileCount);
+
+	            });
+	            
+	            
+	            
+
+	            
+	            var readOnly = [[${readOnly}]];
+	            
+	            if (readOnly == false) {
+		            var openRequest = indexedDB.open('myDatabase',1);	            
+		            openRequest.onupgradeneeded = function(e){
+		            	var db = e.target.result;
+		            	if(!db.objectStoreNames.contains('myObjectStore')){
+		            		var store = db.createObjectStore('myObjectStore',{keyPath:'index'});
+		            	}
+		            	
+		            };
+		            
+				    openRequest.onsuccess = function(e){
+				    	var db = e.target.result;
+				        var tx = db.transaction('myObjectStore','readwrite');
+				        var store = tx.objectStore('myObjectStore');
+				        var request = store.openCursor();
+				        request.onsuccess = function(e){
+				        	
+				        	var cursor = e.target.result;
+				        	if(cursor){
+				        		
+				        		var file = cursor.value;
+				        		chosenFiles.push(cursor.value.file);
+				        		 $('#fileName').append('<div class="col-lg-6"><span>'+file.name+'</span><i class="fa fa-times fa-fw text-danger" aria-hidden="true"></i></div>');
+				        		 fileCount++;
+				        		 $("#CumulativeSelectedAccessories").text('累計已選擇附件(上限15項):' + fileCount);
+				        		 cursor.continue();
+				        	}
+				        };
+				        
+
+				    };
+	            	
+	            } else if (readOnly == true) {
+	            	
+	            	$(".fileUpload__text").text('');
+	            	var momoidChangePictureEntity = [[${momoidChangePictureEntity}]];
+	            	
+	            	if (momoidChangePictureEntity!=null){
+		            	var picture1Name = momoidChangePictureEntity.picture1Name;
+		            	var picture2Name = momoidChangePictureEntity.picture2Name;
+		            	var picture3Name = momoidChangePictureEntity.picture3Name;
+		            	var picture4Name = momoidChangePictureEntity.picture4Name;
+		            	var picture5Name = momoidChangePictureEntity.picture5Name;
+		            	var picture6Name = momoidChangePictureEntity.picture6Name;
+		            	var picture7Name = momoidChangePictureEntity.picture7Name;
+		            	var picture8Name = momoidChangePictureEntity.picture8Name;
+		            	var picture9Name = momoidChangePictureEntity.picture9Name;
+		            	var picture10Name = momoidChangePictureEntity.picture10Name;
+		            	var picture11Name = momoidChangePictureEntity.picture11Name;
+		            	var picture12Name = momoidChangePictureEntity.picture12Name;
+		            	var picture13Name = momoidChangePictureEntity.picture13Name;
+		            	var picture14Name = momoidChangePictureEntity.picture14Name;
+		            	var picture15Name = momoidChangePictureEntity.picture15Name;
+		            	if (picture1Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture1Name+'</span></div>');
+		            		fileCount++;
+		            	}	            	
+		            	if (picture2Name!=null){
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture2Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if (picture3Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture3Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if(picture4Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture4Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if(picture5Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture5Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if(picture6Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture6Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if (picture7Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture7Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if (picture8Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture8Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if (picture9Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture9Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if (picture10Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture10Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if (picture11Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture11Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if (picture12Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture12Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if (picture13Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture13Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if (picture14Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture14Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	if (picture15Name!=null) {
+		            		$('#fileName').append('<div class="col-lg-6"><span>'+picture15Name+'</span></div>');
+		            		fileCount++;
+		            	}
+		            	 $("#CumulativeSelectedAccessories").text('累計已上傳附件(上限15項):' + fileCount);
+	            	}
+	            	
+
+	            	
+	            }
+	            
+
+	            
+
+			$('.btn--next')
+					.on(
+							'click',
+							function(e) {
+
+								
+								var x = $("#totalForm").serializeArray();
+
+								var phoneNumberBoolean = false;
+								var sendReasonBoolean = false;
+								var projectCodeBoolean = false;
+								var projectSeqNbrBoolean = false;
+								var subidBoolean = false;
+								var startstr = "";
+								var index = 0;
+								var newArrayX = [];
+								while (index < x.length) {
+									newArrayX.push(x.slice(index, index += 7));
+								}
+								;
+
+								for (let i = 0; i < newArrayX.length; i++) {
+
+									const elem = newArrayX[i];
+
+									for (let j = 0; j < elem.length; j++) {
+
+										const elem2 = elem[j];
+										var name = elem2.name;
+										var value = elem2.value;
+										if ("phoneNumber" == name) {
+											if ("" == value) {
+												phoneNumberBoolean = true;
+											}
+
+											if (!isPoneAvailable(value)) {
+												phoneNumberBoolean = true;
+											}
+										}
+
+										if ("sendReason" == name) {
+											if ("" == value) {
+												sendReasonBoolean = true;
+											}
+										}
+
+										if ("projectCode" == name) {
+											if ("" == value) {
+												projectCodeBoolean = true;
+											}
+										}
+
+										if ("projectSeqNbr" == name) {
+											if ("" == value) {
+												projectSeqNbrBoolean = true;
+											}
+										}
+
+										if ("subid" == name) {
+											if ("" == value) {
+												subidBoolean = true;
+											}
+										}
+
+										if (phoneNumberBoolean == true
+												|| sendReasonBoolean == true
+												|| projectCodeBoolean == true
+												|| projectSeqNbrBoolean == true
+												|| subidBoolean == true) {
+											startstr = startstr + "用戶 "
+													+ (i + 1);
+
+											if (phoneNumberBoolean == true) {
+												startstr = startstr
+														+ " 異動簡訊發送門號<br> ";
+											}
+
+											if (sendReasonBoolean == true) {
+												startstr = startstr
+														+ " 發送原因<br> ";
+											}
+
+											if (projectCodeBoolean == true) {
+												startstr = startstr
+														+ " 專案代碼<br> ";
+											}
+
+											if (projectSeqNbrBoolean == true) {
+												startstr = startstr
+														+ " 續約流水號<br> ";
+											}
+
+											if (subidBoolean == true) {
+												startstr = startstr
+														+ " Sub ID<br> ";
+											}
+
+											phoneNumberBoolean = false;
+											sendReasonBoolean = false;
+											projectCodeBoolean = false;
+											projectSeqNbrBoolean = false;
+											subidBoolean = false;
+										}
+									}
+
+								}
+
+								if ("" != startstr) {
+									$
+											.confirm({
+												title : '資料輸入不完全',
+												titleClass : 'text-center font-weight-bold text-warning2',
+												content : '您以下資料輸入不完全：<br>'
+														+ startstr,
+												buttons : {
+													確定 : {
+														text : '確定',
+														btnClass : 'btn-warning2 text-white'
+													}
+												}
+											});
+									startstr = "";
+									return;
+								}
+								
+								
+								let uniqueArray = newArrayX.map((array) => {
+									return array.filter((item) => {
+										return !(['momoMemberId','sendReason','smsStatus'].includes(item[Object.keys(item)[0]] ));
+									});
+								});
+								
+								
+								let uniqueArray2 = uniqueArray.filter((value,index,self) => self.findIndex(v => JSON.stringify(v) === JSON.stringify(value)) === index);
+								console.log(uniqueArray2);
+								
+								if (uniqueArray.length != uniqueArray2.length) {
+									
+									$.confirm({
+										title : '重複輸入用戶資料',
+										titleClass : 'text-center d-block font-weight-bold text-warning2',
+										content : '您有重複輸入相同用戶資料，請重新檢查後再進行下一步設定喔！',												
+										buttons : {
+											確定 : {
+												text : '確定',
+												btnClass : 'btn-warning2 text-white'
+											}
+										}
+									});
+									
+									return;
+								}
+								
+								
+
+							    var formData = new FormData();							    
+								for(var i = 0 ; i < chosenFiles.length;i++){
+
+						        	formData.append('file',chosenFiles[i]);
+								}								
+							    formData.append('str',JSON.stringify(x));
+							    
+
+					            
+						    	
+						    	var db = openRequest.result;
+						        var tx = db.transaction('myObjectStore','readwrite');
+						        var store = tx.objectStore('myObjectStore');
+						        store.clear();
+							
+							for(var i = 0 ; i < chosenFiles.length;i++){
+								
+					        	var file = chosenFiles[i];
+					        	
+					        	var request = store.put({index:i,name:file.name,file:file});
+
+
+							}
+
+					            
+					            
+							    
+						    	
+								
+
+							    
+
+							    
+								$
+								.ajax({
+									type : 'POST',
+									url : 'momoidChangeSettingStep1',
+									data : formData,
+									cache : false,
+									processData : false,
+									contentType : false,
+									beforeSend : function() {
+										openLoading();
+									},
+									success : function(data) {
+
+										
+										
+										
+										
+										
+										
+										$.confirm({
+											title : '資料輸入正確',
+											titleClass : 'text-center d-block font-weight-bold text-warning2',
+											content : '您的用戶資料輸入皆正確，選定簽核人員並送簽後將無法再進行用戶資料修改喔！<br><br>' +
+													  '提醒：撤回該單也無法再修改，需重新提單。',												
+											buttons : {
+												確定 : {
+													text : '確定',
+													btnClass : 'btn-warning2 text-white',
+													action:function() {
+
+														
+														location.href = '/momoidChange/momoidChangeSettingStep1/momoidChangeApproval';
+													}
+												}
+											}
+										});
+
+									},
+									error : function(error, b, c) {
+
+										$
+												.confirm({
+													title : '資料輸入不完全',
+													titleClass : 'text-center d-block font-weight-bold text-warning2',
+													content : error.responseText,
+													buttons : {
+														確定 : {
+															text : '確定',
+															btnClass : 'btn-warning2 text-white'
+														}
+													}
+												});
+									},
+
+									complete : function(data) {
+										closeLoading();
+									}
+								});
+								
+								
+
+
+							});
+
+			$('form[id=totalForm]')
+					.submit(
+							function(e) {
+
+								e.preventDefault();
+
+								var x = $("#totalForm").serializeArray();
+
+								var index = 0;
+								var newArrayX = [];
+								while (index < x.length) {
+									newArrayX.push(x.slice(index, index += 7));
+								}
+
+								var startstr = "";
+								var projectCodeBoolean = false;
+								var projectSeqNbrBoolean = false;
+								var subidBoolean = false;
+
+								if ("projectCode" == newArrayX[aBtnsIndex][2].name) {
+									if ("" == newArrayX[aBtnsIndex][2].value) {
+
+										startstr = startstr + '專案代碼<br>';
+
+									}
+								}
+
+								if ("projectSeqNbr" == newArrayX[aBtnsIndex][3].name) {
+									if ("" == newArrayX[aBtnsIndex][3].value) {
+
+										startstr = startstr + '續約流水號<br>';
+									}
+								}
+
+								if ("subid" == newArrayX[aBtnsIndex][4].name) {
+									if ("" == newArrayX[aBtnsIndex][4].value) {
+										startstr = startstr + 'Sub ID<br>';
+
+									}
+								}
+
+								if ("" != startstr) {
+
+									$
+											.confirm({
+												title : '資料輸入不完全',
+												titleClass : 'text-center d-block font-weight-bold text-warning2',
+												content : startstr,
+												buttons : {
+													確定 : {
+														text : '確定',
+														btnClass : 'btn-warning2 text-white'
+													}
+												}
+											});
+									return;
+								}
+
+								let d = {
+									aBtnsIndex : aBtnsIndex
+								};
+
+								x.push(d);
+								$
+										.ajax({
+											type : 'POST',
+											url : 'momoidChangeSettingStep1/check',
+											data : JSON.stringify(x),
+											cache : false,
+											processData : false,
+											contentType : false,
+											beforeSend : function() {
+												openLoading();
+											},
+											success : function(data) {
+												$("input[name='momoMemberId']")[data.abtnsIndex].value = data.momoMemberId;
+											},
+											error : function(error, b, c) {
+												console.log(aBtnsIndex);
+												$("input[name='momoMemberId']")[aBtnsIndex].value = '';
+												var message = error.responseJSON.message;
+
+												$
+														.confirm({
+															title : message,
+															titleClass : 'text-center d-block font-weight-bold text-warning2',
+															content : error.responseJSON.errorMessages[message],
+															buttons : {
+																確定 : {
+																	text : '確定',
+																	btnClass : 'btn-warning2 text-white'
+																}
+															},
+															columnClass : 'col-md-6 col-md-offset-3'
+														});
+											},
+
+											complete : function(data) {
+												closeLoading();
+											}
+										});
+							});
+
+			$('.btn--back').on('click', function(e) {
+
+				window.history.go(-1);
+			});
+			
+			
+
+
+		});
+	</script>
+
+
+
+
+
+
+</body>
+</html>

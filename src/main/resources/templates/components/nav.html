@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+>
+  <body th:fragment="nav">
+    <div class="navbar sidebar fixed-top flex-column justify-content-start">
+      <div class="sidebar-header">
+        <div class="sidebar-profile d-flex">
+          <div class="d-flex align-items-center h-100 sidebar-profile-icon">
+            <a href="/"><img th:src="@{'/img/TWM_Logo4.png'}" /></a>
+          </div>
+          <div
+            class="sidebar-profile-info h-100 d-flex flex-column justify-content-center align-items-start"
+          >
+            <p class="sidebar-profile-text">[[${session.userInfo.userName}]]</p>
+            <p class="sidebar-profile-text">
+              [[${session.userInfo.departmentName}]]
+            </p>
+          </div>
+        </div>
+      </div>
+      <ul class="nav sidebar-nav">
+        <li th:each="menu : ${session.menuList}">
+          <a
+            id="dropdownmenu"
+            href="javascript:void(0);"
+            th:child_show="${menudata} eq ${menu.menuEntity.orderNo} ? 'true':'false'"
+            th:style="${menudata} eq ${menu.menuEntity.orderNo}? 'color:#FFd700;':'color:#ffffff;'"
+          >
+            <i
+              class="management-icon"
+              th:classappend="${menu.menuEntity.menuId == 1 ? 'systemCurrency-icon' : menu.menuEntity.menuId == 2 ? 'signOff-icon' : menu.menuEntity.menuId == 3 ? 'user-icon': menu.menuEntity.menuId == 4 ? 'report-icon': menu.menuEntity.menuId == 5 ? 'permissions-icon': menu.menuEntity.menuId == 6 ? 'serialNumberCurrency-icon': menu.menuEntity.menuId == 7 ? 'customerSideTransaction-icon':''}"
+              aria-hidden="true"
+            ></i>
+            <span>[[${menu.name}]]</span>
+          </a>
+          <ul
+            class="dropdown"
+            th:style="${menudata} eq ${menu.menuEntity.orderNo}? '':'display:none'"
+            th:data-parent-id="${menu.menuEntity.orderNo==1?'systemCurrency-icon':menu.menuEntity.orderNo==2?'serialNumberCurrency-icon':menu.menuEntity.orderNo==3?'signOff-icon':menu.menuEntity.orderNo==4?'user-icon':menu.menuEntity.orderNo==5?'report-icon':menu.menuEntity.orderNo==6?'permissions-icon':menu.menuEntity.orderNo==7?'customerSideTransaction-icon':''}"
+          >
+            <li th:each="subMenu : ${menu.subVos}" th:op="${subMenu.url}">
+              <a th:href="${subMenu.url}"> <span>[[${subMenu.name}]]</span> </a>
+            </li>
+          </ul>
+        </li>
+        <!--
+                <li>
+                    <a href="/logout">
+                    	<i class="fa fa-sign-out"></i>
+                    	<span>登出</span>
+                    </a>
+                </li>-->
+      </ul>
+    </div>
+
+    <!-- /#wrapper -->
+    <style>
+      .navbar {
+        padding: 0;
+      }
+
+      .mainPage {
+        padding-left: 250px;
+        /*transition: all 0.5s ease;*/
+      }
+
+      .mainPage.open {
+        padding-left: 250px;
+      }
+
+      .sidebar {
+        z-index: 1000;
+        left: 0px;
+        width: 250px;
+        height: 100%;
+        background: #172b4d;
+        /*transition: all 0.5s ease;*/
+      }
+
+      .mainPage.open .sidebar {
+        left: 0;
+      }
+
+      .sidebar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .sidebar-nav {
+        width: 100%;
+        max-height: calc(100% - 80px);
+        overflow: auto;
+        position: relative;
+        left: 0;
+      }
+
+      .sidebar-nav li {
+        position: relative;
+        line-height: 20px;
+        display: inline-block;
+        width: 100%;
+      }
+
+      .sidebar-nav li a {
+        display: block;
+        color: #e7e7e7;
+        text-decoration: none;
+        padding: 10px 20px;
+        width: 100%;
+      }
+
+      /*.sidebar-nav>li:hover {
+color: #FFd700;
+}*/
+      .sidebar-nav > li:hover > a {
+        color: #ffff00;
+      }
+
+      .sidebar-nav .dropdown > li:hover > a {
+        color: #ffff00;
+      }
+
+      .sidebar-nav .dropdownmenu .this a {
+        color: #ffd700;
+      }
+
+      .sidebar-nav .dropdown .this a {
+        color: #ffd700;
+      }
+
+      .sidebar-header {
+        text-align: center;
+        font-size: 20px;
+        position: relative;
+        width: 100%;
+        display: inline-block;
+      }
+
+      .sidebar-profile {
+        height: 80px;
+        position: relative;
+        background: #e7e9ed;
+        overflow: hidden;
+        border-bottom: 4px solid #a0d3e1;
+      }
+
+      .sidebar-profile:after {
+        content: "";
+        width: 100px;
+        height: 160px;
+        transform: rotate(-30deg);
+        background: #abc2cf;
+        position: absolute;
+        top: -30px;
+        left: -40px;
+      }
+
+      .sidebar-profile-icon {
+        z-index: 3;
+        font-size: 32px;
+        color: #abc2cf;
+      }
+
+      .sidebar-profile-icon i {
+        background: #fff;
+        border: 3px solid #abc2cf;
+        padding: 1px;
+      }
+
+      .sidebar-profile-icon img {
+        width: 100px;
+      }
+
+      .sidebar-profile-info .sidebar-profile-text {
+        margin: 0;
+        color: #172b4d;
+        font-size: 12px;
+        font-weight: 900;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        font-size: 12px;
+      }
+
+      .sidebar-profile-info .sidebar-profile-text:nth-child(1) {
+        -webkit-line-clamp: 1;
+      }
+
+      .sidebar-profile-info .sidebar-profile-text:nth-child(2) {
+        -webkit-line-clamp: 2;
+      }
+
+      .sidebar-profile-info .sidebar-profile-text:nth-child(3) {
+        -webkit-line-clamp: 1;
+      }
+
+      .management-icon {
+        background-repeat: no-repeat;
+        background-size: contain;
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        vertical-align: middle;
+        background-position: center;
+      }
+
+      .systemCurrency-icon {
+        background-image: url("/img/系統發幣管理_icon.png");
+      }
+
+      .systemCurrency-icon-yellow {
+        background-image: url("/img/系統發幣管理_yellow_icon.png");
+      }
+
+      .serialNumberCurrency-icon {
+        background-image: url("/img/序號發幣管理_icon.png");
+      }
+
+      .serialNumberCurrency-icon-yellow {
+        background-image: url("/img/序號發幣管理_yellow_icon.png");
+      }
+
+      .signOff-icon {
+        background-image: url("/img/簽核管理_icon.png");
+      }
+
+      .signOff-icon-yellow {
+        background-image: url("/img/簽核管理_yellow_icon.png");
+      }
+
+      .user-icon {
+        background-image: url("/img/用戶管理_icon.png");
+      }
+
+      .user-icon-yellow {
+        background-image: url("/img/用戶管理_yellow_icon.png");
+      }
+
+      .report-icon {
+        background-image: url("/img/報表管理_icon.png");
+      }
+
+      .report-icon-yellow {
+        background-image: url("/img/報表管理_yellow_icon.png");
+      }
+
+      .customerSideTransaction-icon {
+        background-image: url("/img/客邊異動管理_icon.png");
+      }
+      .customerSideTransaction-icon-yellow {
+        background-image: url("/img/客邊異動管理_yellow_icon.png");
+      }
+
+      .permissions-icon {
+        background-image: url("/img/權限管理_icon.png");
+      }
+      .permissions-icon-yellow {
+        background-image: url("/img/權限管理_yellow_icon.png");
+      }
+    </style>
+    <script th:inline="javascript">
+      $(function () {
+        var parentItemId = $(".dropdown .this").parent().data("parent-id");
+        $("." + parentItemId)
+          .removeClass()
+          .addClass("management-icon")
+          .addClass(parentItemId + "-yellow");
+      });
+    </script>
+  </body>
+</html>

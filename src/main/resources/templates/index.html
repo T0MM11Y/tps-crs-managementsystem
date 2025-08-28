@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+
+<script th:inline="javascript">
+$(function() {
+	var programName = [[${programName}]]
+	if (programName!=null) {
+		$.confirm({
+			title : '<br>',
+			content : '您的帳號不具' + programName + '權限，無法進入此頁面喔！',
+			buttons : {
+				確定 : {
+					text : '確定',
+					btnClass : 'btn-warning2 text-white'
+				}
+			}
+		});
+	}
+	
+	
+	
+	
+
+	
+	
+
+});
+</script>
+<div>
+	index
+</div>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+<link th:href="@{/css/pagination.css?v=20240930}" rel="stylesheet">
+<link th:href="@{/css/blockReport.css?v=20241003}" rel="stylesheet">
+<div class="container-fluid px-3 py-3">
+	<div class="tab-content" id="myTabContent">
+		<div class="tab-pane fade show active" role="tabpanel" aria-labelledby="page1-tab">
+			<div class="text-left">
+				<h1 class="font-size-22 font-weight-bold" style="color: rgb(89, 89, 89);">黑名單資料維護</h1>
+			</div>
+			<form id="form1" name="form1" method="post" action="index" enctype="multipart/form-data">
+				<input type="hidden" id="offset" name="offset" value=""/> 
+				<div class="pl-5">
+					<div class="form-group row">
+						<label class="col-auto col-form-label font-weight-bold">SUBID&emsp;</label>
+						<div class="col-2">
+							<input class="form-control" type="text" name="subId" id="subId">
+						</div>
+						<button type="button" class="btn btn-primary-blue btnrow-a" onclick="return doSearch(this.form)">查詢</button>&nbsp;&nbsp;&nbsp;&nbsp;
+						<div>
+							<label class="col-auto col-form-label font-weight-bold">黑名單檔案上傳</label>
+							<br/>
+							<span style="color: red; margin-top: 0.25rem;">(英文或數字檔名.csv)</span>
+						</div>
+						<div class="col-lg-6" style="max-width: 30%">
+							<div class="fileUpload" style="justify-content: left;">
+								<input type="file" name="file" id="fileUpload" class="fileUpload__input fileUpload__input--csv" accept="text/csv" th:disabled="${disable}">
+								<div class="fileUpload__bg"></div>
+								<div class="fileUpload__texts" style="padding-left: 10px;">
+									<span class="fileUpload__text" style="color: darkgray">請選擇欲上傳之檔案(每月1~7日可上傳)</span>
+								</div>
+							</div>
+						</div>
+						<input type="button" name="save" value="上傳" class="btn btn-primary--c mr-2" style="background-color: #172B4D; border-radius: 8px !important;" onclick="return doUploadFile(this.form)" th:disabled="${disable}"/>&nbsp;
+						<button type="button" id="downloadExample" class="btn  btn-primary--c mr-2 " style="background-color: #172B4D; border-radius: 8px !important;">下載上傳範例檔</button>
+					</div>
+				</div>
+				<div class="table--c my-4 table--blockReportDiv">
+				<div class="fixed-table-body">
+				<table class="table--blockReport table table-bordered table-hover" data-resizable="true">
+                    <thead class="">
+                        <tr>
+                            <th class="font-size-14" style="text-align: center;" data-field="">
+                                <div class="th-inner">操作<br/>
+									<input type="checkbox" id="select_all" name="select_all" style="width: 25px; height: 25px;" alt="全選"/>
+									<input type="image"  name="multiDelete" th:src="@{'/img/d_delete.gif'}" width="30" height="30" border=0 alt="多筆刪除" onClick="return doDelete(this.form);">
+								</div>
+                                <div class="fht-cell"></div>
+                            </th>
+                            <th class="font-size-14" style="text-align: center; vertical-align: middle;" data-field="btn_STATUS">
+                                <div class="th-inner">序號</div>
+                                <div class="fht-cell"></div>
+                            </th>
+                            <th class="font-size-14" style="text-align: center;" data-field="sys_ID">
+                                <div class="th-inner">SUBID</div>
+                                <div class="fht-cell"></div>
+                            </th>
+                            <th class="font-size-14" style="text-align: center;" data-field="applyname">
+                                <div class="th-inner">專案代碼</div>
+                                <div class="fht-cell"></div>
+                            </th>
+                            <th class="font-size-14" style="text-align: center;" data-field="campaign_NAME">
+                                <div class="th-inner">專案名稱</div>
+                                <div class="fht-cell"></div>
+                            </th>
+                            <th class="font-size-14" style="text-align: center;" data-field="send_DATE">
+                                <div class="th-inner">專案申請日</div>
+                                <div class="fht-cell"></div>
+                            </th>
+                            <th class="font-size-14" style="text-align: center;" data-field="signname">
+                                <div class="th-inner">原因</div>
+                                <div class="fht-cell"></div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    	<th:block th:each="block : ${blacklist}">
+                        <tr data-index="0">
+                            <td class="font-size-14" style="text-align: center;">
+                            	<input type="checkbox" name="deletedId" id="deletedId" style="width: 25px; height: 25px;" th:value="${block.rowId}" th:disabled="${((#dates.format(block.createDate, 'yyyyMM')) ne dateS) || disable}"/>
+                            </td>
+                            <td class="font-size-14" style="text-align: center;" th:text="${blockStat.index+1}"></td>
+                            <td class="font-size-14" style="text-align: center;" th:text="${block.subId}"></td>
+                            <td class="font-size-14" style="text-align: center;" th:text="${block.projectCode}"></td>
+                            <td class="font-size-14" style="text-align: center;" th:text="${block.projectName}"></td>
+                            <td class="font-size-14" style="text-align: center;" th:text="${#dates.format(block.applyDate, 'yyyy/MM/dd')}"></td>
+                            <td class="font-size-14" style="text-align: center;" th:text="${block.memo}"></td>
+                        </tr>
+                        </th:block>
+                    </tbody>
+                </table>
+                </div>
+                </div>
+			</form>
+		</div>
+	</div>
+</div>
+<footer class="text-center">
+	<ul id="pagination"></ul>
+</footer>
+<script th:src="@{'/js/jquery.simplePagination.js?v=20240930'}"></script>
+<script type="text/javascript">
+var msg = '[[${errorMsg}]]';
+if (msg != ''){
+	alert(msg);
+}
+
+if([[${total}]] > 0){
+	pagination([[${offset}]],[[${pageSize}]],[[${allPages}]]);
+}
+
+function pagination(currentPage,pageSize,allPages){
+	$('#pagination').pagination({
+		items: allPages,
+		itemOnPage: pageSize,
+		currentPage: currentPage,
+		ellipsePageSet:false,
+		cssStyle: 'rwd_pagination padding_none',
+		prevText: '«',
+		nextText: '»',
+		onInit: function () {},
+		onPageClick: function (currentPage, evt) {
+			$("#form1").attr('action', "index");
+			$("#offset").attr('value', currentPage);
+			$("#form1").submit();
+		}
+	});
+}
+
+$(document).ready(function() {
+	$('#select_all').change(function() {
+	    var checkboxes = $(this).closest('form').find(':checkbox:not(:disabled)');
+	    if($(this).is(':checked')) {
+	        checkboxes.prop('checked', true);
+	    } else {
+	        checkboxes.prop('checked', false);
+	    }
+	});
+	
+	$('#downloadExample').on('click', function(e) {
+		var form = document.createElement("form");
+		form.action = 'downloadExample';
+		form.method = "POST";
+		form.style.display = "none";
+		document.body.appendChild(form);
+		form.submit();
+		document.body.removeChild(form);
+
+	});
+});
+
+function doUploadFile(form){
+	form.action = 'upload';
+	if(form.file.value ==''){
+		alert("請選擇欲上傳之檔案");
+		return false;
+	}
+	form.submit();
+}
+
+function doDelete(form){
+	if($("input[name='deletedId']:checked").length == 0){
+		alert("請選擇欲刪除的資料");
+		return false;
+	}
+	if(confirm('刪除這些資料？')){
+		form.action = 'delete';
+		form.submit();
+	}
+	return false;
+}
+
+function doSearch(form){
+	if(form.subId.value ==''){
+		alert("請輸入subId");
+		return false;
+	}
+	form.action = 'index';
+	form.submit();
+}
+
+</script>
+</body>
+</html>

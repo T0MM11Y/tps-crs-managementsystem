@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <body th:fragment="titlebar">
+	
+	<div class="mainPage" style="background-color: #172b4d; height: 50px; text-align:right;
+		font-size: 18px; padding-right: 20px; vertical-align: center; padding-top: 15px;">
+					<a href="/logout" style="color: white;">
+                    	<i class="fa fa-sign-out"></i>
+                    	<span>登出</span>
+                    </a>
+		</div>
+	
+	<div class="text-left">
+		<h1 style="margin-left:18px;font-size:26px">發幣歸戶新增</h1>
+	</div>
+	<div class="container-fluid px-3 py-3">
+
+		<div class="row justify-content-center pb-3">
+			<div class="row  d-flex">
+			    <div class="col-sm-auto">
+						<label class="">部門別</label>
+						<input style="width:150px" class="" type="text"  th:value="*{session.userInfo.departmentName}" disabled>
+				</div>
+				<div class="col-sm-auto">
+						<label class="">申請人名稱</label>
+						<input style="width:150px" class="" type="text"   th:value="*{session.userInfo.userName}" disabled>
+				</div>
+				
+				<div class="col-sm-auto">
+						<label class="">活動專案歸屬</label>
+					    <input style="width:150px" class="" type="text"  th:value="*{session.userInfo.buTag}" disabled>
+				</div>
+			</div>
+		</div>
+     </div>		
+		
+</body>
+</html>

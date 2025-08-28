@@ -1,0 +1,193 @@
+# IDE and Build Files
+.settings/
+/target/
+.classpath
+.project
+*.iml
+*.iws
+*.ipr
+.idea/
+.vscode/
+.metadata/
+.recommenders/
+build/
+bin/
+out/
+
+# Log Files
+logs/
+work/
+accesslog/
+*.log
+*.log.*
+*.out
+spring.log
+application.log
+
+# Configuration Files with Sensitive Data
+# Database and Connection Configurations
+application-local.properties
+application-*.properties
+!application-dev.properties
+!application-prod.properties
+!application-uat.properties
+config/database.properties
+config/secret.properties
+config/local.properties
+
+# Environment and Secret Files
+.env
+.env.local
+.env.*.local
+secrets/
+keys/
+credentials/
+passwords.txt
+secrets.txt
+config.json
+secret.json
+
+# Security and Certificate Files
+# SSL Certificates and Keystores
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.crt
+*.cer
+*.key
+*.p7b
+*.p7c
+certificates/
+ssl/
+trust-store*
+key-store*
+keystore*
+truststore*
+
+# Database Files and Backups
+# Database dumps and sensitive data
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+*.dmp
+database-backup*
+db-backup*
+backup/
+dumps/
+data/
+test-data/
+sample-data/
+seed-data/
+*.csv
+*.xlsx
+*.xls
+
+# Temporary and Cache Files
+*.tmp
+*.temp
+*.cache
+cache/
+temp/
+tmp/
+.DS_Store
+Thumbs.db
+
+# Spring Boot Specific
+# Spring Boot sensitive files
+bootstrap-local.properties
+bootstrap-*.properties
+application-secrets.properties
+spring-boot-admin.properties
+management.properties
+
+# Security Token and Session Files
+# Authentication and session data
+token*
+session*
+jwt*
+auth*
+oauth*
+sso*
+saml*
+*.token
+*.session
+*.jwt
+
+# Oracle Database Specific
+# Oracle wallet and connection files
+wallet/
+cwallet.sso
+ewallet.p12
+sqlnet.ora
+tnsnames.ora
+listener.ora
+
+# Development and Test Files
+# Files containing test credentials or sensitive test data
+test-config/
+dev-config/
+local-config/
+demo-data/
+test-credentials*
+dev-credentials*
+local-credentials*
+
+# Documentation with Sensitive Info
+# Files that might contain credentials or sensitive information
+README-local.md
+NOTES.txt
+TODO.txt
+CREDENTIALS.md
+SETUP.md
+DEPLOYMENT.md
+api-keys.txt
+password-list.txt
+
+# Backup and Archive Files
+# Compressed files that might contain sensitive data
+*.zip
+*.tar.gz
+*.7z
+*.rar
+backup-*
+archive-*
+*.bak
+*.backup
+
+# Runtime and Process Files
+# Files created during runtime that might contain sensitive data
+pid*
+*.pid
+hs_err_pid*
+replay_pid*
+core.*
+
+# Email and Communication
+# Files containing email configurations or templates with sensitive data
+email-config*
+mail-config*
+smtp-config*
+email-templates-local/
+
+# Reports and Export Files
+# Generated reports that might contain sensitive customer data
+reports/
+exports/
+generated/
+output/
+downloads/
+*.report
+*.export
+
+# Custom Application Specific
+# CRS system specific sensitive files
+crs-config/
+serial-data/
+campaign-data/
+reward-data/
+customer-data/
+momo-config/
+sso-config/

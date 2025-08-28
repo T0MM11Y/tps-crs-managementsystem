@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+	<style>
+@media ( min-width :1920px) {
+	.fixed-table-body #tableid2 {
+		height: 65vh !important;
+		width: 100% !important;
+	}
+}
+
+@media screen and ( min-width :1280px) and ( max-width :1919px) {
+	.fixed-table-body #tableid2 {
+		width: 100% !important;
+		height: 50vh !important;
+	}
+}
+
+#divTableid2  .fixed-table-toolbar {
+	margin-top: -10px;
+}
+
+.th-inner {
+	font-size: 14px !important;
+	font-weight: 800 !important;
+}
+
+td {
+	font-size: 14px !important;
+}
+</style>
+
+
+
+
+	<div class="text-left">
+		<h1 class="font-size-22 font-weight-bold"
+			style="color: rgb(89, 89, 89);">簡訊簽核紀錄查詢</h1>
+	</div>
+	<div class="container-fluid px-3 py-3">
+		<form id="accountForm" method="post" style="padding-left: 2rem;">
+			<div class="form-group row">
+				<label class="col-auto col-form-label font-weight-bold"
+					style="margin-right: 1rem; font-size: 16px;">部門別</label>
+				<div class="col-lg-2">
+					<input type="text" class="form-control"
+						th:value="${session.userInfo.departmentName}" readonly
+						style="font-size: 14px;" />
+				</div>
+
+				<label class="col-auto col-form-label font-weight-bold"
+					style="font-size: 16px;">簽核人</label>
+				<div class="col-lg-2" style="margin-right: 2.4rem;">
+					<input type="text" class="form-control"
+						th:value="${session.userInfo.userName}" readonly
+						style="font-size: 14px;" /> <input type="hidden"
+						class="form-control" name="accountId"
+						th:value="${session.userInfo.accountId}" readonly />
+				</div>
+
+				<label class="col-auto col-form-label font-weight-bold"
+					style="margin-right: 2rem; font-size: 16px; padding-left: 9px;">狀態</label>
+				<div class="col-lg-2">
+					<select class="form-control" name="status" style="font-size: 14px;">
+						<option value="">請選擇</option>
+						<option value="0">待簽核</option>
+						<option value="1">簽核駁回</option>
+						<option value="3">待發送</option>
+						<option value="4">已發送</option>
+
+					</select>
+				</div>
+				<label class="col-auto col-form-label font-weight-bold"
+					style="font-size: 16px;">系統單號</label>
+				<div class="col-lg-2">
+					<input type="text" class="form-control" name="momoidChangeMainId"
+						style="font-size: 14px;" />
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+
+
+
+				<label class="col-auto col-form-label font-weight-bold"
+					style="font-size: 16px;">送簽日期</label>
+				<div class="col-lg-2">
+					<input type="date" class="form-control" name="createDateStart"
+						id="createDateStart" style="font-size: 14px;" />
+				</div>
+
+				<label class="col-auto col-form-label font-weight-bold"
+					style="font-size: 16px;">～</label>
+				<div class="col-lg-2" style="margin-right: 5rem;">
+					<input type="date" class="form-control" name="createDateEnd"
+						id="createDateEnd" style="font-size: 14px;" />
+				</div>
+				<label class="col-auto col-form-label font-weight-bold"
+					style="font-size: 16px;">發送日期</label>
+				<div class="col-lg-2">
+					<input type="date" class="form-control" name="smsDateStart"
+						id="smsDateStart" style="font-size: 14px;" />
+				</div>
+				<label class="col-auto col-form-label font-weight-bold"
+					style="font-size: 16px;">～</label>
+				<div class="col-lg-2">
+					<input type="date" class="form-control" name="smsDateEnd"
+						id="smsDateEnd" style="font-size: 14px;" />
+				</div>
+
+
+
+
+			</div>
+			<div class="row mt-2">
+				<div class="col-lg-12 text-center">
+					<button type="button"
+						class="btn btn-primary-blue btnrow-a font-weight-bold font-size-16"
+						onclick="findMomoidChangeApproval()">查詢</button>
+				</div>
+			</div>
+		</form>
+		<div>
+			<div class="table--c my-4" id="divTableid2" style="zoom: 1.5;">
+				<table class="table--momoidChangeApprovalList" id="tableid2"
+					data-resizable="true"></table>
+			</div>
+		</div>
+
+
+	</div>
+
+	<div class="modal fade" id="momoidChangeApprovalModal" tabindex="-1"
+		role="dialog" aria-labelledby="momoidChangeApprovalModalTitle"
+		aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-xl"
+			role="document">
+			<div class="modal-content"
+				style="border-radius: 50px; border-style: solid; border-color: #172B4D; font-weight: bold;">
+				<form name="approval">
+					<div class="modal-header pb-0" style="border-bottom-width: 0px;">
+						<div class="row col-lg-12">
+							<div class="col-lg-12">
+								<div class="row">
+									<div class="col-lg-12">
+
+
+
+
+										<button type="button" class="close" data-dismiss="modal"
+											aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</div>
+								</div>
+
+							</div>
+
+
+
+						</div>
+
+
+
+
+					</div>
+					<div class="modal-body pt-0" th:fragment="momoidChange__Approval">
+
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="modal fade" id="pictureModal" tabindex="-1" role="dialog"
+		aria-labelledby="pictureModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-xl"
+			role="document">
+			<div class="modal-content"
+				style="border-radius: 50px; border-style: solid; border-color: #172B4D; font-weight: bold;">
+				<div class="modal-header mr-4" style="border-bottom-width: 0px;">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close" id="pictureModalClose">
+						<span aria-hidden="true">&times;</span>
+					</button>
+
+
+
+
+				</div>
+
+				<div class="modal-body pt-0">
+					<div id="carouselExampleControls" class="carousel slide"
+						data-ride="carousel">
+						<div class="carousel-inner">
+
+						</div>
+						<button class="carousel-control-prev" type="button"
+							data-target="#carouselExampleControls" data-slide="prev">
+							<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+							<span class="sr-only">Previous</span>
+						</button>
+						<button class="carousel-control-next" type="button"
+							data-target="#carouselExampleControls" data-slide="next">
+							<span class="carousel-control-next-icon" aria-hidden="true"></span>
+							<span class="sr-only">Next</span>
+						</button>
+					</div>
+				</div>
+
+
+
+
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+
+
+	<script th:inline="javascript">
+	
+	$(function() {
+		
+		findMomoidChangeApproval();
+		
+		$('.table--c').on('click', '.btn--showBtn', function() {
+			
+			let arg = $(this).data('id');
+			let arg2 = $(this).data('index');
+
+			openLoading();
+			$('#momoidChangeApprovalModal .modal-body').load([[@{momoidChangeApproval}]], {id: arg,index:arg2}, function() {
+            
+            $('#momoidChangeApprovalModal').modal('show');
+			closeLoading();
+        	});
+			
+			
+		});
+		
+
+		
+		
+		
+	});
+	
+	
+    function findMomoidChangeApproval(obj) {
+    	if (''!=$('#createDateStart').val() && ''!=$('#createDateEnd').val()) {
+    		if (false == moment($('#createDateStart').val()).isBefore($('#createDateEnd').val())) {
+    			
+    			if ($('#createDateStart').val() != $('#createDateEnd').val()) {        			
+        			$
+        			.confirm({
+        				title : '錯誤訊息',
+        				titleClass : 'text-center font-weight-bold text-warning2',
+        				content : '訖日不可以小於起日',
+        				buttons : {
+        					確定 : {
+        						text : '確定',
+        						btnClass : 'btn-warning2 text-white'
+        					}
+        				}
+        			});
+        			return;
+    			}
+
+    		}
+    	}
+    	
+    	if (''==$('#createDateStart').val() && ''!=$('#createDateEnd').val()) {			
+			$
+			.confirm({
+				title : '錯誤訊息',
+				titleClass : 'text-center font-weight-bold text-warning2',
+				content : '請輸入起日',
+				buttons : {
+					確定 : {
+						text : '確定',
+						btnClass : 'btn-warning2 text-white'
+					}
+				}
+			});
+			return;
+    	}
+    	
+    	if (''!=$('#createDateStart').val() && ''==$('#createDateEnd').val()) {			
+			$
+			.confirm({
+				title : '錯誤訊息',
+				titleClass : 'text-center font-weight-bold text-warning2',
+				content : '請輸入訖日',
+				buttons : {
+					確定 : {
+						text : '確定',
+						btnClass : 'btn-warning2 text-white'
+					}
+				}
+			});
+			return;
+    	}
+    	
+    	
+    	
+    	if (''!=$('#smsDateStart').val() && ''!=$('#smsDateEnd').val()) {
+    		if (false == moment($('#smsDateStart').val()).isBefore($('#smsDateEnd').val())) {
+    			
+    			if ($('#smsDateStart').val() != $('#smsDateEnd').val()) {        			
+        			$
+        			.confirm({
+        				title : '錯誤訊息',
+        				titleClass : 'text-center font-weight-bold text-warning2',
+        				content : '訖日不可以小於起日',
+        				buttons : {
+        					確定 : {
+        						text : '確定',
+        						btnClass : 'btn-warning2 text-white'
+        					}
+        				}
+        			});
+        			return;
+    			}
+
+    		}
+    	}
+    	
+    	if (''==$('#smsDateStart').val() && ''!=$('#smsDateEnd').val()) {
+			$
+			.confirm({
+				title : '錯誤訊息',
+				titleClass : 'text-center font-weight-bold text-warning2',
+				content : '請輸入起日',
+				buttons : {
+					確定 : {
+						text : '確定',
+						btnClass : 'btn-warning2 text-white'
+					}
+				}
+			});
+			return;
+    	}
+    	
+    	if (''!=$('#smsDateStart').val() && ''==$('#smsDateEnd').val()) {
+			$
+			.confirm({
+				title : '錯誤訊息',
+				titleClass : 'text-center font-weight-bold text-warning2',
+				content : '請輸入訖日',
+				buttons : {
+					確定 : {
+						text : '確定',
+						btnClass : 'btn-warning2 text-white'
+					}
+				}
+			});
+			return;
+    	}
+    	
+    	obj = obj || $('#accountForm').serialize()+'&action=QUERY';
+
+    	callAjax([[@{findMomoidChangeApproval}]], obj, composeTable);
+    }
+
+    function composeTable(data) {
+    	
+    	
+    	$('.table--momoidChangeApprovalList').bootstrapTable('destroy');
+		
+    	$('.table--momoidChangeApprovalList').bootstrapTable({
+    		columns: [ //欄位設定
+    			{field: '', title: '',align: 'center',class:"lh-33 w3",formatter: function(value, row, index){return (data.number-1)*(data.size) + (index+1);}},
+    			{field: 'btn_STATUS',title: '簽核意見',align: 'center',class:'lh-33 w5' },
+    			{field: 'picture',title: '附件',align: 'center',class:'lh-33 w5' ,formatter: function(value,row ,index){if(value != null) {return '<i class=\"fa fa-paperclip fa-flip-horizontal fa-2x\" style=\"vertical-align: middle;\" aria-hidden=\"true\"></i>';}}},
+    			{field: 'momoid_CHANGE_MAIN_ID',title: '系統單號',align: 'center',class:"lh-33 w8",formatter: aFormatter},
+    			{field: 'user_NAME', title: '申請人',   align: 'center',class:"lh-33 w10"},
+    			{field: 'create_DATE', title: '送簽日期',  align: 'center',class:"lh-33 w8"},
+    			{field: 'approval_DATE', title: '簽核完成日',align: 'center',class:"lh-33 w8"},
+    			{field: 'sms_DATE', title: '簡訊發送日',align: 'center',class:"lh-33 w8"},
+    			{field: 'status', title: '狀態',align: 'center',class:"lh-33 w5"},
+    			],
+    		
+    		sidePagination: 'client',
+    		data: data.result,//資料
+    		pagination: true, //是否要分頁
+    		pageList: [10, 20, 50, 100],//一頁顯示幾筆的選項
+    		pageSize: 10,
+    		checkboxHeader: false,
+
+    	}
+    	
+    	);
+   	
+    }
+    
+    function buttonFormatter(value, row, index) {
+    	let btn = '<button type="button" class="btn btn-primary--c ml-2 btn-sm btn--showBtn  font-size-16" data-id="' + row.momoid_CHANGE_MAIN_ID + '">' + row.btn_STATUS + '</button>';
+    	let btn2 = row.btn_STATUS;
+    	let status = row.btn_STATUS;
+    	let showbtn = status === '簽核';
+    	let showbtn2 = status === '同意' || status === '駁回';
+    	return (showbtn  ? btn : '')  + (showbtn2 ? btn2 : '');
+    }
+    
+    function aFormatter(value, row, index) {
+    	
+    	let a = '<a href=\"javascript:void(0);\" style=\"text-decoration: underline;\" class=\"btn--showBtn\" data-id="'+ value +'" data-index="' + index+'">' + value + '</a>';
+    	let a2 = value;
+    	let btnStatus = row.btn_STATUS;
+    	let showbtn2 = btnStatus === '同意' || btnStatus === '駁回';
+
+    	return(showbtn2 ? a : a2);
+    }
+    
+
+
+		
+	</script>
+</body>
+</html>

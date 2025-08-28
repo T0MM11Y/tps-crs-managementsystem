@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+
+
+	<div class="text-left pt-2">
+		<h1 class="div-h1">簡訊簽核人員設定</h1>
+	</div>
+
+	<div class="container-fluid px-3 py-3">
+		<div class="row justify-content-center pb-3 font-size-18">
+			<div class="row  d-flex">
+				<div class="col-sm-auto">
+					<label class="">部門別</label> <input class="input-width-color w300px"
+						type="text" th:value="*{session.userInfo.departmentName}" disabled>
+				</div>
+				<div class="col-sm-auto">
+					<label class="">申請人姓名</label> <input class="input-width-color"
+						type="text" th:value="*{session.userInfo.userName}" disabled>
+				</div>
+
+
+			</div>
+		</div>
+
+		<div class="card border-0 bg-transparent">
+			<h4 class="card-header div-h4-span">
+				<span class="text-white">簽核人員設定</span>
+			</h4>
+
+			<div class="card-body font-size-18">
+				<form name="approval">
+					<div class="row">
+						<div class="col-lg-6">
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="row">
+										<br>
+									</div>
+								</div>
+
+								<div class="col-lg-12" style="margin-left: 2rem;">
+									<div class="form-group row">
+										<label
+											class="col-lg-3 col-form-label form-control-label addRedStar">選擇簽核人員
+
+										</label>
+										<div class="col-lg-5">
+											<select class="form-control" name="approvalId">
+												<option value="">請選擇</option>
+												<option th:each="status : ${approvalList}"
+													th:value="${status.accountId}" th:text="${status.userName}"></option>
+											</select>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-lg-12" style="margin-left: 2rem;">
+									<div class="form-group row">
+										<br>
+									</div>
+								</div>
+
+
+
+								<div class="col-lg-12">
+									<div class="form-group row">
+
+
+										<div class="col-lg-12" style="align: center">
+											<h5 style="color: red; font-weight: bold;">提醒：</h5>
+											<h5>簡訊經簽核完成即會依系統排程發送，無法指定發送時間。</h5>
+										</div>
+									</div>
+								</div>
+
+
+
+
+
+							</div>
+
+						</div>
+
+
+
+					</div>
+					<div class="col-lg-12">
+						<div class="d-flex justify-content-center">
+							<button type="button"
+								class="btn btn--pre btn-primary-blue mr-2 btnrow-a">返回</button>
+							<button type="submit"
+								class="btn btn--save btn-primary-blue mr-2 btnrow-a"
+								id="btn--next">確定並送簽</button>
+
+
+						</div>
+					</div>
+				</form>
+
+
+
+			</div>
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+		$(function() {
+			
+			
+			
+
+			$('.btn--pre').on('click', function(e) {
+				location.href = '/momoidChange/momoidChangeSettingStep1';
+
+			});
+
+			$('form[name=approval]')
+					.submit(
+							function(e) {
+								e.preventDefault();
+								let formData = new FormData(this);
+
+								$
+										.ajax({
+											type : 'POST',
+											url : '/momoidChange/momoidChangeSettingStep1/momoidChangeApproval',
+											data : formData,
+											cache : false,
+											processData : false,
+											contentType : false,
+											beforeSend : function() {
+												openLoading();
+											},
+											success : function(data) {
+												var request = indexedDB.deleteDatabase('myDatabase');
+												location.href = '/momoidChange/findMomoidChangeRecord';
+											},
+											error : function(error, b, c) {
+												$
+												.confirm({
+													title : '資料輸入不完全',
+													titleClass : 'text-center d-block font-weight-bold text-warning2',
+													content : '您尚未選擇簽核人員，無法進行送簽喔！',
+													buttons : {
+														確定 : {
+															text : '確定',
+															btnClass : 'btn-warning2 text-white'
+														}
+													}
+												});
+											},
+
+											complete : function(data) {
+												closeLoading();
+											}
+										});
+							});
+
+		});
+	</script>
+
+
+
+
+
+
+</body>
+</html>

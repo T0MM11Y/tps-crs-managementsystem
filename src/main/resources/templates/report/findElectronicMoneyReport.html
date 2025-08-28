@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+
+	<div class="text-left">
+		<h1 class="display-5">電子現金動支管理報表</h1>
+	</div>
+
+
+	<form name="accountForm" method="post">
+		<div id="inputdata1" class="text-center ">
+
+
+			<div class="col-lg-12 ">
+				<div class="row" style="">
+					<div class="row" style="padding-left: 20%;">
+						<!--<div class="isshow">
+				                        <input class="" type="text" name="session_RoleId" th:value="*{session.userInfo.RoleId}" >
+				                        <input class="" type="text" name="session_departmentName" th:value="*{session.userInfo.departmentName}" >
+				                        <input class="" type="text" name="session_accountId" th:value="*{session.userInfo.accountId}" >
+				                    </div>-->
+						<!--<span class="ccheckbox-label col-auto col-form-label font-weight-bold">擇一填寫</span>-->
+						<label
+							class="ccheckbox-label col-auto col-form-label font-weight-bold">po單號
+							<div class="" style="margin-left: 20px;">
+								<select name="momoeventId" id="momoeventId" class="form-control"
+									style="width: 150px;">
+									<option value="">請選擇</option>
+									<option th:each="momoevent : ${momoeventList}"
+										th:value="${momoevent.momoenevt}"
+										th:text="${momoevent.momoenevt}"></option>
+								</select>
+							</div>
+						</label> <label
+							class="ccheckbox-label col-auto col-form-label font-weight-bold">戶頭代碼
+							<div class="" style="margin-left: 20px;">
+								<select name="payaccountId" id="payaccountId"
+									class="form-control" style="width: 150px;">
+									<option value="">請選擇</option>
+									<option th:each="payaccount : ${payaccountList}"
+										th:value="${payaccount.payAccount}"
+										th:text="${payaccount.payAccount}"></option>
+								</select>
+							</div>
+						</label>
+					</div>
+
+				</div>
+
+
+				<!--<div class="row" style="justify-content: center;">-->
+				<div class="row">
+					<div class="row" style="padding-left: 20%;">
+
+						<label
+							class="ccheckbox-label col-auto col-form-label font-weight-bold">請購單位
+							<div class="" style="margin-left: 20px;">
+								<select name="departmentId" id="departmentId"
+									class="form-control" style="width: 150px;">
+									<option value="">請選擇</option>
+									<option th:each="department : ${departmentList}"
+										th:value="${department}" th:text="${department}"></option>
+								</select>
+							</div>
+						</label>
+
+					</div>
+
+
+					<div class="row" style="padding-left: 50px;">
+						<span
+							class="ccheckbox-label col-auto col-form-label font-weight-bold">訂單日期</label>
+							<div style="padding-left: 15px;">
+								<input type="date" class="form-control" name="sendStartDate"
+									id="sendStartDate" />
+							</div> <label class="col-auto col-form-label font-weight-bold">~</label>
+							<div>
+								<input type="date" class="form-control" name="sendEndDate"
+									id="sendEndDate" />
+							</div>
+					</div>
+				</div>
+
+			</div>
+
+
+
+
+		</div>
+		<div class="row mt-2">
+			<div class="col-lg-12 text-center">
+				<button type="button" class="btn btn-primary--c"
+					onclick="findWaitApprovalList()">查詢</button>
+			</div>
+		</div>
+	</form>
+
+
+	<div class="table--c findcheckbill-table">
+		<table class="table--waitApprovalList"></table>
+	</div>
+
+	<script th:inline="javascript">
+
+            function findWaitApprovalList(obj) {
+         		obj = obj || $('form').serialize()+'&action=QUERY';
+				var istrue = true;
+				
+				//alert("input:"+(document.getElementById("sendStartDate").value == ""));
+				if ( (document.getElementById("momoeventId").value == "") &&
+					(document.getElementById("payaccountId").value == "") &&
+					(document.getElementById("departmentId").value == "") &&
+					(document.getElementById("sendStartDate").value == "") && (document.getElementById("sendEndDate").value == "")
+				)
+				{
+					istrue = false;
+					alert("您未輸入任何內容!!!");
+				}			
+				
+				if ( (document.getElementById("sendStartDate").value != "") && (document.getElementById("sendEndDate").value != ""))
+				{
+					  //alert("sendStartDate:"+document.getElementById("sendStartDate").value);
+					  var oDate1 = new Date(document.getElementById("sendStartDate").value);
+					  var oDate2 = new Date(document.getElementById("sendEndDate").value);
+					  var iDays = parseInt(Math.abs(oDate1 - oDate2) / 1000 / 60 / 60 / 24);
+					  //alert("iDays:"+iDays);
+					  
+					  if(iDays>90){
+						alert("查詢區間不可超過3個月");
+						istrue = false;
+					  }
+				}
+				
+				
+				//alert("s::"+(document.getElementById("sendStartDate").value != ""));
+				//alert("e::"+(document.getElementById("ReceiveEndDate").value != ""));
+				
+				if (document.getElementById("sendStartDate").value != ""){
+					if(document.getElementById("sendEndDate").value == ""){
+						alert("訂單日期範圍需要起訖時間");
+						istrue = false;
+					}					
+				}
+				
+				if (document.getElementById("sendEndDate").value != ""){
+					if(document.getElementById("sendStartDate").value == ""){
+						alert("訂單日期範圍需要起訖時間");
+						istrue = false;
+					}					
+				}
+				
+				
+				if(istrue == true){
+					callAjax([[@{findElectronicMoneyList}]], obj, composeTable);
+				}
+            	
+            	
+            }
+
+            function composeTable(data) {
+            	$('.table--waitApprovalList').bootstrapTable('destroy');
+
+            	$('.table--waitApprovalList').bootstrapTable({
+            		columns: [ //欄位設定
+            			{field: 'indexnum', title: '', class: 'w8', align: 'center', switchable: false, formatter: function(value, row, index){return (data.number-1)*(data.size) + (index+1);}},
+
+            			{field: 'orderdate', title: '訂單日期', class: 'w8', align: 'center'},
+            			{field: 'momoeventId', title: 'po單號', class: 'w8', align: 'center'},
+            			{field: 'prRequestorDept', title: '請購單位', class: 'w8', halign: 'center'},
+            			{field: 'prRequestorName', title: '請購人', class: 'w8', align: 'center'},
+            			{field: 'poQty', title: '訂單數量', class: 'w8', halign: 'center'},
+            			{field: 'rcvAmountWithTax', title: '驗收金額', class: 'w8', halign: 'center'},
+            			{field: 'poAmountWithTax', title: '訂單金額', class: 'w8', halign: 'center'},
+            			{field: 'payaccount', title: '戶頭代碼', class: 'w8', halign: 'center'},
+            			{field: 'amountValidityPeriod', title: 'mo幣效期', class: 'w8', halign: 'center'},
+            			{field: 'itemA', title: '該戶頭可發送總額', class: 'w8', align: 'center'},
+            			{field: 'itemB', title: '該戶頭當月累計發送金額', class: 'w8', align: 'center'},
+            			{field: 'itemC', title: '該戶頭累計發送金額', class: 'w8', align: 'center'},
+            			{field: 'itemD', title: '該戶頭剩餘可發送金額', class: 'w8', align: 'center'},
+
+            			
+            		],
+            		// classes: 'table table-striped table-bordered table-dark',
+            		sidePagination: 'server',
+            		data: data.result,//資料
+            		//pagination: true, //是否要分頁
+            		pageNumber: data.number, //初始化加載第一頁
+            		pageSize: data.size, //一頁顯示幾筆
+            		pageList: [10, 20, 50, 100, 'All'], //一頁顯示幾筆的選項
+            		totalRows: data.total,
+            		showColumns: true, //切換欄位
+            		// showColumnsToggleAll: true, //切換所有
+            		// search : true, //查詢
+            		checkboxHeader: false,
+            		sortName: data.name,
+            		sortOrder: data.order,
+            		onClickRow: function(row, $element, field) {
+						/*
+						var a = JSON.stringify(row);
+						var obj = JSON.parse(a);
+						alert("obj"+obj.approvalMainId);
+						//$(".boxflow").fadeToggle(500);
+						rowtoggle(obj);
+						*/
+            		},
+            		onSort: function(name, order) {
+            			// console.log('name: ' + name + ', order: ' + order);
+
+            			// findWaitApprovalList({'name': name, 'order': order});
+            		},
+            		onPageChange: function(number, size) {
+            			// console.log('number: ' + number + ', size: ' + size);
+
+            			size = isNaN(size) ? this.totalRows : size;
+
+            			findWaitApprovalList({'number': number, 'size': size});
+            		},
+            		onLoadError: function(status, jqXHR) {
+            			// console.log('status: ' + status + ', jqXHR: ' + jqXHR);
+            		}
+            	});
+            }     
+         </script>
+
+
+
+
+</body>
+
+
+</html>

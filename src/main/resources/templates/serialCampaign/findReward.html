@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+	<style>
+@media ( min-width :1920px) {
+	.fixed-table-body {
+		height: 65vh !important;
+		width: 100% !important;
+	}
+}
+
+@media screen and ( min-width :1280px) and ( max-width :1919px) {
+	.fixed-table-body {
+		width: 100% !important;
+		height: 75vh !important;
+	}
+}
+
+.fixed-table-toolbar {
+	margin-top: -10px;
+}
+
+.fixed-table-pagination {
+	zoom: 1.3;
+}
+
+#tableid2>thead {
+	flex: 0 0 auto;
+	width: calc(100% - 1.5em) !important;
+}
+</style>
+
+
+
+
+	<div class="text-left">
+		<h1 class="font-size-22 font-weight-bold"
+			style="color: rgb(89, 89, 89);">序號發幣活動資訊查詢</h1>
+	</div>
+	<div class="container-fluid px-3 py-3">
+
+		<form>
+			<div class="pl-5">
+				<div class="form-group row">
+					<label class="col-auto col-form-label font-weight-bold"
+						style="flex: 0 0 3.6%; max-width: 3.6%;">部門別</label>
+					<div class="col-3">
+						<input type="text" class="form-control" readonly
+							th:value="${session.userInfo.departmentName}" />
+					</div>
+					<label class="col-auto col-form-label font-weight-bold">申請人姓名</label>
+					<div class="col-2">
+						<input type="text" class="form-control" readonly
+							th:value="${session.userInfo.userName}" />
+					</div>
+
+
+					<label class="col-auto col-form-label font-weight-bold">&ensp;專案代碼</label>
+					<div class="col-2">
+						<input type="text" class="form-control" name="projectCode" />
+					</div>
+					<label class="col-auto col-form-label font-weight-bold">狀態日期</label>
+					<div class="col-2">
+						<input type="date" class="form-control" name="updateDate" />
+					</div>
+
+				</div>
+				<div class="form-group row">
+					<label class="col-auto col-form-label font-weight-bold"
+						style="flex: 0 0 7.162%; max-width: 7.162%;">發幣活動名稱</label>
+					<div class="col-3" style="flex: 0 0 21.5%; max-width: 21.5%;">
+						<input type="text" class="form-control" name="campaignName" />
+					</div>
+					<label class="col-auto col-form-label font-weight-bold">&emsp;發幣月份</label>
+					<div class="col-2">
+						<input type="month" class="form-control" name="rewardDate" />
+					</div>
+					<label class="col-auto col-form-label font-weight-bold">Report
+						ID</label>
+					<div class="col-2">
+						<input type="number" class="form-control" name="reportId" />
+					</div>
+
+					<label class="col-auto col-form-label font-weight-bold">&emsp;&emsp;狀態</label>
+					<div class="col-2">
+						<select class="form-control" name="status">
+							<option value="">請選擇</option>
+							<option value="1">未建立</option>
+							<option value="2">建立中</option>
+							<option value="3">已建立</option>
+							<option value="4">已匹配</option>
+							<option value="5">已發送</option>
+						</select>
+					</div>
+
+
+				</div>
+
+				<div class="row mt-2">
+					<div class="col-lg-12 text-center">
+						<button type="button" class="btn btn-primary-blue btnrow-a"
+							onclick="findRewardList()">查詢</button>
+					</div>
+				</div>
+			</div>
+
+		</form>
+		<div class="table--c my-4">
+			<table class="table--findRewardList" id="tableid2"
+				data-resizable="true" data-show-columns="true"></table>
+		</div>
+	</div>
+
+
+
+	<script th:inline="javascript">
+	$(function() {
+		findRewardList();
+		
+    	$('.table--c').on('click', '.btn--editBtn', function() {
+    		
+    		
+    		
+    		let reportid = $(this).data('reportid');
+    		
+    		let campaigndetailid = $(this).data('campaigndetailid');
+    		let status = $(this).data('status');
+    		let button = $(this).data('button');
+    		let eventno = $(this).data('eventno');
+    		let eventdtid = $(this).data('eventdtid');
+    		let rewardmonth = $(this).data('rewardmonth');
+    		formSubmit([[@{setting/findReward}]], {reportId: reportid,campaignDetailId:campaigndetailid,status:status,eventno:eventno,eventdtid:eventdtid,button:button});
+    	});
+
+		
+	});
+	
+    function findRewardList(obj) {
+    	
+    	obj = obj || $('form').serialize()+'&action=QUERY';
+    	callAjax([[@{findReward}]], obj, composeTable);
+
+    }
+	
+    function composeTable(data) {
+
+    	
+    	$('.table--findRewardList').bootstrapTable('destroy');
+		
+    	$('.table--findRewardList').bootstrapTable({
+    		columns: [ //欄位設定
+    			{field: '',switchable:false ,title: '',align: 'center',class:"w2 font-size-14",formatter: function(value, row, index){return   (index+1);}},
+    			{field: 'BUTTON', switchable:false ,title: '',class:"w7 font-size-14"  ,align: 'center',formatter: buttonFormatter },   			 
+    			{field: 'report_ID',class:"w4 font-size-14", size: '14px',title: 'Report ID'  ,align: 'center' },   			
+    			{field: 'project_CODE' , title: '專案代碼', align: 'center',class:"w7 font-size-14"},
+    			{field: 'reward_MONTH' ,title: '發幣月份', align: 'center',class:"w4 font-size-14"},
+    			{field: 'campaign_NAME', title: '發幣活動名稱',class:"w16 font-size-14",   align: 'center'},
+    			{field: 'apply_TYPE' ,class:"w4 font-size-14", title: '申裝類型',   align: 'center'},
+    			{field: 'report_STATUS_DATE' ,title: '狀態日期',class:"w5 font-size-14",   align: 'center'},
+    			{field: 'status' ,title: '狀態',class:"w3 font-size-14",align: 'center'},
+    			{field: 'delay' ,title: '備註',class:"w9 font-size-14",align: 'center'},
+    				],
+
+    		sidePagination: 'client',
+    		data:data.result,
+    		pagination: true, //是否要分頁
+    		pageList: [10, 25, 50, 100,data.result.length], //一頁顯示幾筆的選項
+    		pageSize: 50,  		
+    		checkboxHeader: false,
+    	}
+    	
+    	);
+    	
+    	$('.table--findRewardList').bootstrapTable('hideColumn','apply_TYPE');
+    	$('.table--findRewardList').bootstrapTable('hideColumn','apply_TYPE');
+    	
+    }
+    
+    
+    function buttonFormatter(value, row, index) {
+    	
+    	let editBtn = '<button type="button" class="btn btn-primary--c    font-size-16  btn--editBtn" style="background: red;" data-reportid="'+row.report_ID+'" data-campaigndetailid="'+row.campaign_DETAIL_ID+'" data-status="'+row.status+'" data-button="'+row.button+'" data-eventno="'+row.eventno+'" data-eventdtid="'+row.eventdtid+'">新增發幣活動資訊</button>';
+    	let detailBtn = '<button type="button" class="btn btn-primary--c    font-size-16  btn--editBtn" data-reportid="'+row.report_ID+'" data-campaigndetailid="'+row.campaign_DETAIL_ID+'" data-status="'+row.status+'" data-button="'+row.button+'" data-eventno="'+row.eventno+'" data-eventdtid="'+row.eventdtid+'">查看</button>';
+    	let button = row.button;
+    	let showEdit = button === '新增發幣活動資訊';
+    	let showDetail = button === '查看';
+    	return (showEdit ? editBtn : '')  + (showDetail ? detailBtn : '');
+    }
+    
+
+  
+	</script>
+</body>
+</html>

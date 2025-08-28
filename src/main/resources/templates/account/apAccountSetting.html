@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+	<div class="text-left">
+		<h1 class="display-5">[[${vo.action.isAdd() ? '新增' : '編輯'}]]AP帳號</h1>
+	</div>
+	<div class="container-fluid px-3 py-3">
+		<form method="post">
+			<div class="pl-lg-4">
+				<div class="row">
+					<div class="col-lg-4">
+						<div class="form-group">
+							<label class="form-control-label mark__required" for="userName">部門別/服務群</label>
+							<select class="form-control" id="departmentId"
+								name="departmentId" th:disabled="${vo.action.isEdit()}">
+								<option value="">請選擇</option>
+								<option th:each="department : ${departmentList}"
+									th:value="${department.departmentId}"
+									th:text="${department.departmentName}"
+									th:selected="${department.departmentId eq vo.departmentId}"></option>
+							</select> <input type="hidden" name="departmentId"
+								th:value="${vo.departmentId}" th:if="${vo.action.isEdit()}" />
+						</div>
+					</div>
+					<div class="col-lg-4">
+						<div class="form-group">
+							<label class="form-control-label mark__required" for="sourceId">AP帳號/SOURCE
+								ID</label> <input type="text" class="form-control" id="sourceId"
+								name="sourceId" th:value="${vo.sourceId}"
+								th:readonly="${vo.action.isEdit()}" />
+						</div>
+					</div>
+					<div class="col-lg-4">
+						<div class="form-group">
+							<label class="form-control-label mark__required" for="sourceId">AP帳號狀態</label>
+							<div>
+								<div class="custom-control custom-radio custom-control-inline">
+									<input type="radio" class="custom-control-input" id="enabled1"
+										name="enabled" value="Y" th:checked="${vo.enabled eq 'Y'}" />
+									<label class="custom-control-label" for="enabled1">啟用</label>
+								</div>
+								<div class="custom-control custom-radio custom-control-inline">
+									<input type="radio" class="custom-control-input" id="enabled2"
+										name="enabled" value="N" th:checked="${vo.enabled eq 'N'}" />
+									<label class="custom-control-label" for="enabled2">停用</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="pl-lg-4">
+				<div class="col-lg-12 keyiv">
+					<div class="row keyiv--title">
+						<label class="form-control-label mark__required">KEY/IV</label>
+					</div>
+					<div class="row"
+						th:if="${vo.action.isEdit() and #lists.size(vo.keyIvs) lt 2 }">
+						<div class="col-4">
+							<button type="button" class="btn btn-secondary btn--addRow">
+								<i class="fa fa-plus" aria-hidden="true"></i>
+							</button>
+						</div>
+					</div>
+					<div class="keyiv--content my-2">
+						<div class="row" th:if="${not #lists.isEmpty(vo.keyIvs)}"
+							th:each="keyIv, i : ${vo.keyIvs}">
+							<input type="hidden"
+								th:name="'keyIvs[' + ${i.index} + '].keyIvId'"
+								th:value="${keyIv.keyIvId}" />
+							<div class="col-4">
+								<label class="form-control-label"
+									th:for="'expiredDate' + ${i.index}">到期日</label> <input
+									type="date" class="form-control"
+									th:id="'expiredDate' + ${i.index}"
+									th:name="'keyIvs[' + ${i.index} + '].expiredDate'"
+									th:value="${keyIv.expiredDate}" />
+							</div>
+							<div class="col-4">
+								<label class="form-control-label" th:for="'key' + ${i.index}">KEY</label>
+								<input type="text" class="form-control"
+									th:id="'key' + ${i.index}"
+									th:name="'keyIvs[' + ${i.index} + '].key'"
+									th:value="${keyIv.key}" disabled />
+							</div>
+							<div class="col-4">
+								<label class="form-control-label" th:for="'iv' + ${i.index}">IV</label>
+								<input type="text" class="form-control"
+									th:id="'iv' + ${i.index}"
+									th:name="'keyIvs[' + ${i.index} + '].iv'"
+									th:value="${keyIv.iv}" disabled />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="pl-lg-4">
+				<div class="row">
+					<div class="col-lg-4">
+						<div class="form-group">
+							<label class="form-control-label mark__required" for="requestId">需求單號</label>
+							<input type="text" class="form-control" id="requestId"
+								name="requestId" th:value="${vo.requestId}" maxlength="100" />
+						</div>
+					</div>
+					<div class="col-lg-4">
+						<div class="form-group">
+							<label class="form-control-label mark__required"
+								for="contactAccountId">帳號保管人姓名</label> <input type="text"
+								class="form-control" id="contactAccountId"
+								name="contactAccountId" th:value="${vo.contactAccountId}"/>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-12 my-4">
+				<div class="row justify-content-center">
+					<input type="hidden" name="action" th:value="${vo.action}" />
+					<button type="button" class="btn btn-primary"
+						th:onclick="'callAjax(\'' + @{saveAPAccountSetting} + '\', null, confirmMsg)'">儲存</button>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<script th:inline="javascript">
+    $(function() {
+    	[# th:if="${vo.action.isAdd()}"]
+    	addKeyIvRow();
+    	[/]
+    	
+    	initExpiredDate();
+    	
+    	$('.keyiv').on('click', '.btn--addRow', function(){
+    		let size = $('.keyiv--content').find('.row').length;
+    		
+    		if(size < 2) {
+    			addKeyIvRow();
+    		} else {
+    			messagePopup('僅可編輯兩組KEY/IV');
+    		}
+    	});
+        	        
+    });
+
+    function initExpiredDate() {
+    	$('[name$=".expiredDate"]').attr('min', moment().format('YYYY-MM-DD'));
+    }
+    
+    function addKeyIvRow() {
+    	let content = $('.keyiv--content');
+    	
+    	let arg = content.find('.row').length;
+    	
+    	let last = content.find('.row:last');
+    	
+    	let row = $('<div>').prop('class', 'row my-2');
+    	
+    	row.append(getDiv1(arg)).append(getDiv2(arg)).append(getDiv3(arg));
+    	
+    	if(arg === 0) {
+    		content.append(row);
+    	} else {
+    		last.after(row);
+    	}
+    }
+    
+    function getDiv1(arg) {
+    	let div = $('<div>').prop('class', 'col-4');
+    	
+    	let label = $('<label>').prop('class', 'form-control-label').prop('for', 'expiredDate' + arg).text('到期日');
+    	
+    	let inputDate = $('<input>').prop('class', 'form-control').prop('type', 'date').prop('id', 'expiredDate' + arg).prop('name', 'keyIvs[' + arg + '].expiredDate');
+    	
+    	return div.append(label).append(inputDate);
+    }
+    
+    function getDiv2(arg) {
+    	let div = $('<div>').prop('class', 'col-4');
+    	
+    	let label = $('<label>').prop('class', 'form-control-label').prop('for', 'key' + arg).text('KEY');
+    	
+    	let inputText = $('<input>').prop('class', 'form-control').prop('type', 'text').prop('id', 'key' + arg).prop('name', 'keyIvs[' + arg + '].key').prop('readonly', true).prop('placeholder', '系統自動產生');
+    	
+    	return div.append(label).append(inputText);
+    }
+    
+    function getDiv3(arg) {
+    	let div = $('<div>').prop('class', 'col-4');
+    	
+    	let label = $('<label>').prop('class', 'form-control-label').prop('for', 'iv' + arg).text('IV');
+    	
+    	let inputText = $('<input>').prop('class', 'form-control').prop('type', 'text').prop('id', 'iv' + arg).prop('name', 'keyIvs[' + arg + '].iv').prop('readonly', true).prop('placeholder', '系統自動產生');
+    	
+    	return div.append(label).append(inputText);
+    }
+    
+    function confirmMsg() {
+    	let contentDiv = $('#messageModal .modal-content');
+    	
+    	let footerDiv = $('<div>').prop('class', 'modal-footer');
+    	
+    	let continueBtn = $('<button>').prop('class', 'btn btn-secondary').attr('onclick', 'gotoPage([[@{apAccountSetting}]])').html('繼續新增');
+    	
+    	let redirectBtn = $('<button>').prop('class', 'btn btn-primary').attr('onclick', 'gotoPage([[@{findAPAccount}]])').html('回AP帳號列表');
+    	
+    	contentDiv.append(footerDiv.append(continueBtn).append(redirectBtn));
+    	
+    	$('#messageModal').on('hidden.bs.modal', function() {
+    		$(this).find('.modal-body').empty();
+    		
+    		gotoPage([[@{findAPAccountList}]]);
+    	});
+    }
+    
+
+    
+
+    
+    </script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+
+	<div class="text-left">
+		<h1 class="display-5">用戶累兌紀錄查詢</h1>
+	</div>
+	<div id="isshow">
+		<input class="" type="text" id="session_RoleId" name="session_RoleId"
+			th:value="*{session.userInfo.RoleId}"> <input class=""
+			type="text" name="session_departmentName"
+			th:value="*{session.userInfo.departmentName}"> <input
+			class="" type="text" name="session_accountId"
+			th:value="*{session.userInfo.accountId}">
+	</div>
+
+	<form name="accountForm" id="accountForm" method="post">
+		<div id="inputdata1" class="row">
+
+			<div class="col-lg-6">
+
+				<div id="inputdata1_left" class="row">
+					<div class="col-lg-12">
+						<div class="col-lg-12"
+							style="background-color: lightgray; margin: 0px; padding: 0px;">
+							<div class="col-lg-12 row" style="margin: 0px; padding: 0px;">
+								<label
+									class="col-auto col-form-label font-weight-bold addRedStar">類型</label>
+								<div class="" style="margin: 0px; padding: 0px;">
+
+									<input type="radio" id="isChooseA" name="status"
+										onclick="get_isChoose()" class="cradio" value="checkboxA"
+										style="margin: 0px; padding: 0px;" /> <label for="isChooseA"
+										class="cradio-label"> <span class="cradio-span"></span>
+										發幣
+									</label>
+								</div>
+								<div class="" style="margin: 0px; padding: 0px;">
+									<input type="radio" id="isChooseB" name="status"
+										onclick="get_isChoose()" class="cradio" value="checkboxB"
+										style="margin: 0px; padding: 0px;" /> <label for="isChooseB"
+										class="cradio-label"> <span class="cradio-span"></span>
+										兌幣
+									</label>
+								</div>
+							</div>
+							<fieldset>
+								<legend id="showChooseA">
+									<div id="inputdata1_left" class="row">
+										<div class="col-lg-6">
+											<label class="ccheckbox-label" style="font-size: 18px;">momo
+												客編 <input class="form-control col-lg-6" id="momenberid"
+												type="text" name="momenberid" style="margin: 5px;"
+												maxlength="12" />
+											</label>
+										</div>
+										<!-- 						 
+							                    <div class="col-lg-6">
+											 		<label class="ccheckbox-label" style="font-size: 18px;">會員 UID  
+											 			<input class="form-control col-lg-6" id="twmuid" type="text" name="twmuid" style="margin: 5px;" maxlength="9"/>
+											 		</label>					 		
+											 	</div>	
+											 	-->
+									</div>
+								</legend>
+								<legend id="showChooseB">
+									<div id="inputdata1_left" class="row">
+										<div class="col-lg-6">
+											<label class="ccheckbox-label" style="font-size: 18px;">會員
+												UID <input class="form-control col-lg-6" type="text"
+												id="twmuid1" name="twmuid1" style="margin: 5px;" />
+											</label>
+										</div>
+									</div>
+								</legend>
+							</fieldset>
+						</div>
+						<br>
+					</div>
+
+					<div class="col-lg-12">
+						<div class="col-lg-12"
+							style="background-color: lightgray; padding-top: 10px;">
+							<fieldset>
+								<legend>
+									<div id="inputdata1_left" class="row"
+										style="background-color: lightgray;">
+										<div class="col-lg-6">
+											<label class="ccheckbox-label" style="font-size: 18px;">發幣活動名稱
+												<input class="form-control col-lg-6" type="text"
+												name="campaignName" id="campaignName" style="margin: 5px;" />
+											</label>
+										</div>
+										<div class="col-lg-6">
+											<label class="ccheckbox-label" style="font-size: 18px;">兌幣品項
+												<input class="form-control col-lg-6" type="text"
+												name="exchangeitems" id="exchangeitems" style="margin: 5px;" />
+											</label>
+										</div>
+									</div>
+								</legend>
+							</fieldset>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div id="inputdata1_left">
+
+					<div class="row">
+						<div class="col-lg-12" style="margin: 10px;">
+							<div class="form-group row" style="padding: 0px;">
+								<div class="col-lg-8">
+									<label
+										class="ccheckbox-label col-auto col-form-label font-weight-bold">部門別
+										<div class="col-lg-8" id="showDepartment0"
+											style="margin-left: 0 px;">
+											<select name="departmentId" id="departmentId"
+												class="form-control">
+												<option value="">請選擇</option>
+												<option th:each="department : ${departmentList}"
+													th:value="${department.departmentId}"
+													th:text="${department.departmentName}"></option>
+											</select>
+										</div>
+
+									</label>
+								</div>
+
+
+
+
+							</div>
+						</div>
+					</div>
+
+					<div class="row" id="isshow4">
+						<div class="col-lg-12" style="margin: 10px;">
+							<div class="form-group row">
+								<label
+									class="ccheckbox-label col-auto col-form-label font-weight-bold">查詢備註
+								</label>
+								<div class="col-lg-8">
+									<select name="remard" id="remard" class="form-control">
+										<option value="">請選擇</option>
+
+										<option th:each="status : ${Rewardmemo}"
+											th:value="${status.key}" th:text="${status.value}"></option>
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-lg-12" style="margin: 10px;">
+							<div class="form-group row">
+								<label
+									class="ccheckbox-label col-auto col-form-label font-weight-bold"
+									for="sendStartDate">日期區間</label>
+								<div class="col-lg-4">
+									<input type="date" class="form-control" name="sendStartDate"
+										id="sendStartDate" />
+								</div>
+								<label class="col-auto col-form-label font-weight-bold">~</label>
+								<div class="col-lg-4">
+									<input type="date" class="form-control" name="sendEndDate"
+										id="sendEndDate" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="row mt-2">
+			<div class="col-lg-12 text-center">
+				<button type="button" class="btn btn-primary--c"
+					onclick="findWaitApprovalList()">查詢</button>
+			</div>
+		</div>
+	</form>
+
+
+	<div class="findcheckbill-table2">
+		<div class="table--c">
+			<table class="table--waitApprovalList"></table>
+		</div>
+	</div>
+
+
+
+
+
+
+	<script th:inline="javascript">
+         	document.getElementById("isshow").style.display = "none";
+         
+			document.getElementById("showChooseA").style.display = "none";
+			document.getElementById("showChooseB").style.display = "none";
+
+								function get_isChoose(){
+									if (document.getElementById("isChooseA").checked) {
+										document.getElementById("accountForm").reset();
+										document.getElementById("isChooseA").checked=true;
+										document.getElementById("showChooseA").style.display = "block";
+										document.getElementById("showChooseB").style.display = "none";
+										
+										document.getElementById("remard").disabled = false;
+										document.getElementById("campaignName").disabled = false;
+										document.getElementById("exchangeitems").disabled = true;
+									}
+									else{
+										document.getElementById("accountForm").reset();
+										document.getElementById("isChooseB").checked=true;
+										document.getElementById("showChooseA").style.display = "none";
+										document.getElementById("showChooseB").style.display = "block";
+
+										document.getElementById("remard").disabled = true;
+										document.getElementById("campaignName").disabled = true;
+										document.getElementById("exchangeitems").disabled = false;
+										
+									}									
+								}				
+
+			if(document.getElementById("session_RoleId").value == "25"){
+				document.getElementById("showDepartment0").style.display = "none";
+				document.getElementById("showDepartment1").style.display = "block";						
+
+			}
+			else{
+				document.getElementById("showDepartment0").style.display = "block";
+				document.getElementById("showDepartment1").style.display = "none";		
+			}
+
+
+
+            function findWaitApprovalList(obj) {
+         		obj = obj || $('form').serialize()+'&action=QUERY';
+				var istrue = true;
+
+				if (document.getElementById("sendStartDate").value != ""){
+					if(document.getElementById("sendEndDate").value == ""){
+						alert("日期區間範圍需要起訖時間");
+						istrue = false;
+					}					
+				}
+				
+				if (document.getElementById("sendEndDate").value != ""){
+					if(document.getElementById("sendStartDate").value == ""){
+						alert("日期區間範圍需要起訖時間");
+						istrue = false;
+					}					
+				} 
+
+
+
+				if(document.getElementById("isChooseA").checked || document.getElementById("isChooseB").checked){
+					
+					if(document.getElementById("isChooseA").checked){
+						
+						//alert("momenberid:"+(document.getElementById("momenberid").value));
+						//alert("twmuid:"+(document.getElementById("twmuid").value));
+						
+						if ( (document.getElementById("momenberid").value != "" || document.getElementById("twmuid").value != "")){
+							//callAjax([[@{findExchangeCurrencyList}]], obj, composeTable);
+							
+						}
+						else{
+							alert("momo客編、會員UID，請擇一輸入");
+							istrue = false;
+						}
+					}
+					
+					
+					if(document.getElementById("isChooseB").checked){
+						
+						if ((document.getElementById("twmuid1").value != "")){
+							//callAjax([[@{findExchangeCurrencyList}]], obj, composeTable);
+						}		
+						else{
+							alert("請輸入會員 UID");
+							istrue = false;
+						}				
+					}					
+					
+					
+					
+				}
+				else{
+					alert("請選擇類型");
+					istrue = false;
+				}
+				
+				if ( (document.getElementById("sendStartDate").value != "") && (document.getElementById("sendEndDate").value != ""))
+				{
+						//alert("sendStartDate:"+document.getElementById("sendStartDate").value);
+					  var oDate1 = new Date(document.getElementById("sendStartDate").value);
+					  var oDate2 = new Date(document.getElementById("sendEndDate").value);
+					  var iDays = parseInt(Math.abs(oDate1 - oDate2) / 1000 / 60 / 60 / 24);
+					  //alert("iDays:"+iDays);
+					  
+					  if(iDays>180){
+						alert("查詢區間不可超過180天");
+						istrue = false;
+					  }
+				}
+            	if(istrue == true && document.getElementById("isChooseA").checked){
+					
+					callAjax([[@{findExchangeCurrencyList}]], obj, composeTable);
+				}
+				
+            	if(istrue == true && document.getElementById("isChooseB").checked){
+
+					callAjax([[@{findExchangeCurrencyList}]], obj, composeTableB);
+				}				
+            	//alert("getfindWaitApproval")
+            }
+
+            function composeTableB(data) {
+            	$('.table--waitApprovalList').bootstrapTable('destroy');
+
+            	$('.table--waitApprovalList').bootstrapTable({
+            		columns: [ //欄位設定
+            			{field: 'indexnum', title: '', class: 'w8', align: 'center', switchable: false, formatter: function(value, row, index){return (data.number-1)*(data.size) + (index+1);}},
+            			{field: 'twmuid', title: '會員UID', class: 'w8', align: 'center'},
+            			{field: 'departmentId', title: '部門別', class: 'w8', halign: 'center'},
+            			{field: 'exchangeitems', title: '兌幣品項', class: 'w8', align: 'center'},
+            			{field: 'getmo', title: '使用momo幣', class: 'w8', align: 'center'},
+            			{field: 'exchangemo', title: '兌換日期', class: 'w8', align: 'center'},
+            			
+            		],
+            		// classes: 'table table-striped table-bordered table-dark',
+            		sidePagination: 'server',
+            		data: data.result,//資料
+            		//pagination: true, //是否要分頁
+            		pageNumber: data.number, //初始化加載第一頁
+            		pageSize: data.size, //一頁顯示幾筆
+            		pageList: [10, 20, 50, 100, 'All'], //一頁顯示幾筆的選項
+            		totalRows: data.total,
+            		showColumns: true, //切換欄位
+            		// showColumnsToggleAll: true, //切換所有
+            		// search : true, //查詢
+            		checkboxHeader: false,
+            		sortName: data.name,
+            		sortOrder: data.order,
+            		onClickRow: function(row, $element, field) {
+						/*
+						var a = JSON.stringify(row);
+						var obj = JSON.parse(a);
+						alert("obj"+obj.approvalMainId);
+						//$(".boxflow").fadeToggle(500);
+						rowtoggle(obj);
+						*/
+            		},
+            		onSort: function(name, order) {
+            			// console.log('name: ' + name + ', order: ' + order);
+
+            			// findWaitApprovalList({'name': name, 'order': order});
+            		},
+            		onPageChange: function(number, size) {
+            			// console.log('number: ' + number + ', size: ' + size);
+
+            			size = isNaN(size) ? this.totalRows : size;
+
+            			findWaitApprovalList({'number': number, 'size': size});
+            		},
+            		onLoadError: function(status, jqXHR) {
+            			// console.log('status: ' + status + ', jqXHR: ' + jqXHR);
+            		}
+            	});
+            }     
+
+
+
+
+            function composeTable(data) {
+            	$('.table--waitApprovalList').bootstrapTable('destroy');
+
+            	$('.table--waitApprovalList').bootstrapTable({
+            		columns: [ //欄位設定
+            			{field: 'indexnum', title: '', class: 'w8', align: 'center', switchable: false, formatter: function(value, row, index){return (data.number-1)*(data.size) + (index+1);}},
+
+            			{field: 'momenberid', title: 'momo客編', class: 'w8', align: 'center'},
+            			{field: 'twmuid', title: '會員UID', class: 'w8', align: 'center'},
+            			/*{field: 'status', title: '類型', class: 'w8', halign: 'center'},*/
+            			{field: 'departmentId', title: '部門別', class: 'w8', halign: 'center'},
+            			{field: 'campaignName', title: '發幣活動名稱', class: 'w8', halign: 'center'},
+            			{field: 'campaignInfo', title: '發幣活動說明', class: 'w8', align: 'center'},
+            			{field: 'remard', title: '前台查詢備註', class: 'w8', halign: 'center'},
+            			{field: 'remardstatus', title: '發幣名單狀態', class: 'w8', halign: 'center'},
+            			/*{field: 'exchangeitems', title: '兌幣品項', class: 'w8', align: 'center'},*/
+            			{field: 'isblock', title: '黑名單用戶', class: 'w8', align: 'center'},
+            			{field: 'getmo', title: '取得momo幣', class: 'w8', align: 'center'},
+            			{field: 'exchangemo', title: '發送日期', class: 'w8', align: 'center'},
+            			
+            		],
+            		// classes: 'table table-striped table-bordered table-dark',
+            		sidePagination: 'server',
+            		data: data.result,//資料
+            		//pagination: true, //是否要分頁
+            		pageNumber: data.number, //初始化加載第一頁
+            		pageSize: data.size, //一頁顯示幾筆
+            		pageList: [10, 20, 50, 100, 'All'], //一頁顯示幾筆的選項
+            		totalRows: data.total,
+            		showColumns: true, //切換欄位
+            		// showColumnsToggleAll: true, //切換所有
+            		// search : true, //查詢
+            		checkboxHeader: false,
+            		sortName: data.name,
+            		sortOrder: data.order,
+            		onClickRow: function(row, $element, field) {
+						/*
+						var a = JSON.stringify(row);
+						var obj = JSON.parse(a);
+						alert("obj"+obj.approvalMainId);
+						//$(".boxflow").fadeToggle(500);
+						rowtoggle(obj);
+						*/
+            		},
+            		onSort: function(name, order) {
+            			// console.log('name: ' + name + ', order: ' + order);
+
+            			// findWaitApprovalList({'name': name, 'order': order});
+            		},
+            		onPageChange: function(number, size) {
+            			// console.log('number: ' + number + ', size: ' + size);
+
+            			size = isNaN(size) ? this.totalRows : size;
+
+            			findWaitApprovalList({'number': number, 'size': size});
+            		},
+            		onLoadError: function(status, jqXHR) {
+            			// console.log('status: ' + status + ', jqXHR: ' + jqXHR);
+            		}
+            	});
+            }     
+         
+         
+         
+         
+         </script>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+	<div class="text-left">
+		<h1 class="display-5">MO幣系統帳號列表</h1>
+	</div>
+	<div class="container-fluid px-3 py-3">
+		<div class="card-body-step0-step1-step2-step3">
+			<div class="table--c my-4">
+				<table class="table--accountList"></table>
+			</div>
+		</div>
+	</div>
+	<script th:inline="javascript">
+        $(function() {
+        	$('.table--c').on('click', '.btn--editBtn', function() {
+        		let arg = $(this).data('json');
+        		
+        		formSubmit([[@{moAccountSetting}]], arg);
+        	});
+        	
+        	findMOAccountList();
+        });
+
+        function findMOAccountList(obj) {
+        	obj = obj || $('form').serialize()+'&action=QUERY';
+
+        	callAjax([[@{findMOAccount}]], obj, composeTable);
+        }
+
+        function composeTable(data) {
+        	$('.table--accountList').bootstrapTable('destroy');
+
+        	$('.table--accountList').bootstrapTable({
+        		columns: [ //欄位設定
+        			{field: 'departmentName', title: '部門別/服務群組', class: 'w20', halign: 'center'},
+        			{field: 'merchantId', title: 'MOMO廠商代碼(Merchant ID)', class: 'w20', halign: 'center'},
+        			{field: 'deptNo', title: 'MOMO公司單位(Department No)', class: 'w20', halign: 'center'},
+        			{field: 'contactUserName', title: 'MO幣系統窗口', class: 'w15', halign: 'center'},
+        			{field: 'updateDate', title: '最近異動時間', class: 'w15', align: 'center'},
+        			{field: '', title: '', class: 'w10', align: 'center', formatter: buttonFormatter}
+        		],
+        		// classes: 'table table-striped table-bordered table-dark',
+        		sidePagination: 'server',
+        		data: data.result,//資料
+        		pagination: true, //是否要分頁
+        		pageNumber: data.number, //初始化加載第一頁
+        		pageSize: data.size, //一頁顯示幾筆
+        		pageList: [10, 20, 50, 100, 'All'], //一頁顯示幾筆的選項
+        		totalRows: data.total,
+        		// search : true, //查詢
+        		checkboxHeader: false,
+        		sortName: data.name,
+        		sortOrder: data.order,
+        		/*onClickRow: function(row, $element, field) {
+        			console.log('row: ', row);
+
+        		},*/
+        		onSort: function(name, order) {
+        			// console.log('name: ' + name + ', order: ' + order);
+
+        			// findMOAccountList({'name': name, 'order': order});
+        		},
+        		onPageChange: function(number, size) {
+        			// console.log('number: ' + number + ', size: ' + size);
+
+        			size = isNaN(size) ? this.totalRows : size;
+
+        			findMOAccountList({'number': number, 'size': size});
+        		},
+        		onLoadError: function(status, jqXHR) {
+        			// console.log('status: ' + status + ', jqXHR: ' + jqXHR);
+        		}
+        	});
+        }
+
+        function buttonFormatter(value, row, index) {
+        	let editBtn = '<button type="button" class="btn btn-primary--c btn-sm btn--editBtn" data-json=' + JSON.stringify({'merchantId': row.merchantId,'deptNo' : row.deptNo}) + '>編輯</button>';
+
+        	return editBtn;
+        }
+    </script>
+</body>
+</html>

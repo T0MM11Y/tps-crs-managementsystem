@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+
+	<style>
+.addRedStar:before {
+	margin-left: 5px;
+}
+
+.form-group {
+	margin-bottom: 10px; /* Smaller bottom margin for tighter grouping */
+}
+
+.form-control {
+	height: auto; /* Allow the height to adjust to content */
+	padding: 6px 12px; /* Smaller padding results in a smaller height */
+}
+
+.fa-ban {
+	color: red;
+	margin-left: 5px;
+	font-size: larger;
+}
+</style>
+
+	<div class="container-fluid px-3 py-3">
+		<!-- Bootstrap 分页组件 -->
+		<ul class="nav nav-tabs" id="myTab" role="tablist"
+			style="display: none;">
+			<li class="nav-item"><a class="nav-link active" id="page1-tab"
+				data-toggle="tab" href="#page1" role="tab" aria-controls="page1"
+				aria-selected="true">第一頁</a></li>
+			<li class="nav-item"><a class="nav-link" id="page2-tab"
+				data-toggle="tab" href="#page2" role="tab" aria-controls="page2"
+				aria-selected="false">第二頁</a></li>
+		</ul>
+
+		<div class="tab-content" id="myTabContent">
+			<!-- 第一頁内容 -->
+			<div class="tab-pane fade show active" id="page1" role="tabpanel"
+				aria-labelledby="page1-tab">
+				<!-- 第一頁的表单内容 -->
+				<div class="text-left">
+					<h1 class="font-size-22 font-weight-bold"
+						style="color: rgb(89, 89, 89); font-size: 24px; text-align: left; margin-bottom: 0.5em;">序號簡訊白名單[[${h1}]]</h1>
+
+				</div>
+
+				<div class="container-fluid px-3 py-3"
+					style="font-size: 16px; line-height: 1.6; text-align: justify;">
+					<div class="row justify-content-center pb-3 font-size-18"
+						style="font-size: 20px; /* Adjust font size to your preference */ font-weight: bold;">
+						<div class="row  d-flex">
+							<div class="col-sm-auto">
+								<label class="" style="margin-right: 10px;">部門別</label> <input
+									class="input-width-color w300px" type="text"
+									th:value="*{session.userInfo.departmentName}" disabled
+									style="margin-right: 10px;">
+							</div>
+							<div class="col-sm-auto">
+								<label class="" style="margin-right: 10px;">申請人姓名</label> <input
+									class="input-width-color" type="text"
+									th:value="*{session.userInfo.userName}" disabled
+									style="margin-right: 10px;">
+							</div>
+							<div class="col-sm-auto">
+								<label class="" style="margin-right: 10px;">用戶歸屬</label> <input
+									class="input-width-color" type="text"
+									th:value="*{session.userInfo.buTag}" disabled
+									style="margin-right: 10px;" id="projectType">
+							</div>
+
+						</div>
+					</div>
+
+					<div class="card border-0 bg-transparent">
+						<h4 class="card-header div-h4-span"
+							style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+							<span class="text-white">序號發幣白名單設定</span>
+						</h4>
+
+
+						<form name="step1">
+							<div class="card-body font-size-18">
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="row">
+											<div class="col-lg-12">
+												<div class="row">
+													<span style="font-weight: bold;">此符號&nbsp;<i
+														class="fa fa-ban fa-flip-horizontal " aria-hidden="true"></i>&nbsp;的欄位，送簽後無法修改
+													</span>
+												</div>
+											</div>
+
+											<div class="col-lg-12">
+												<div class="form-group row"
+													style="height: auto; padding: 6px 12px;">
+													<label
+														class="col-lg-4 col-form-label form-control-label addRedStar"
+														for="campaignName">&nbsp;發幣活動名稱 <i
+														class="fa fa-ban fa-flip-horizontal " aria-hidden="true"></i>
+													</label>
+													<div class="col-lg-8">
+														<input class="form-control" type="text" id="campaignName"
+															name="campaignName"
+															th:value="${SerialCampaignDetailEntity?.campaignName}">
+
+													</div>
+												</div>
+											</div>
+
+											<div class="col-lg-12">
+												<div class="form-group row"
+													style="height: auto; padding: 6px 12px;">
+													<label
+														class="col-lg-4 col-form-label form-control-label addRedStar"
+														for="campaignInfo">&nbsp;發幣活動說明 <i
+														class="fa fa-ban fa-flip-horizontal " aria-hidden="true"></i>
+													</label>
+													<div class="col-lg-8">
+														<textarea class="form-control campaignInfo" rows="1"
+															id="campaignInfo" name="campaignInfo"
+															style="resize: none;"
+															th:text="${SerialCampaignDetailEntity?.campaignInfo}"></textarea>
+
+													</div>
+												</div>
+
+											</div>
+
+
+
+
+
+
+
+										</div>
+
+									</div>
+
+
+
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="row">
+											<div class="col-lg-12"
+												style="margin-top: 0.25rem; height: auto; padding: 6px 12px;">
+												<span style="color: red;">提醒：發幣活動說明會顯示於 SCMS 與官網我的
+													momo 幣等用戶查詢明細，但不會顯示於官網我的合約專案回饋 momo 幣中。</span><br> <br>
+											</div>
+											<div class="col-lg-12"
+												style="background-color: #d6d6d6; padding-top: 20px; padding-bottom: 40px;">
+												<div class="form-group row"
+													style="margin-bottom: 5px; height: auto; padding: 6px 12px;">
+													<label
+														class="col-lg-4 col-form-label form-control-label addRedStar d-flex"
+														style="flex: 0 0 270px; max-width: 270px;"><span>&nbsp;檔案上傳&nbsp;<i
+															class="fa fa-ban fa-flip-horizontal " aria-hidden="true"></i></span></label>&emsp;
+
+
+													<div class="container px-4 col-lg-8"
+														style="margin-left: 0px; padding-left: 10px !important; width: 500px;">
+														<div class="row gx-5">
+															<div class="col-lg-6">
+																<div class="fileUpload" style="justify-content: left;">
+																	<input type="file" name="projectFile" id="fileUpload"
+																		class="fileUpload__input fileUpload__input--csv"
+																		accept="text/csv">
+																	<div class="fileUpload__bg"></div>
+																	<div class="fileUpload__texts"
+																		style="padding-left: 10px;">
+																		<span class="fileUpload__text" style="color: darkgray">請選擇欲上傳之檔案</span>
+																	</div>
+																</div>
+
+															</div>
+															<button type="button" id="btn--downloadExampleCsv"
+																class="btn  btn-primary--c mr-2 "
+																style="background-color: #172B4D; border-radius: 8px !important;">下載上傳範例檔</button>
+														</div>
+													</div>
+
+
+													<div style="color: red; margin-top: 0.25rem;"
+														class=" col-lg-12">
+														<span>&nbsp;(活動代碼.csv)</span>
+													</div>
+												</div>
+											</div>
+
+										</div>
+									</div>
+								</div>
+
+								<div class="row"
+									style="background-color: #bfbfbf; padding-top: 10px; padding-left: 30px; margin-top: 20px;">
+
+									<div class="form-group row col-12" style="margin-bottom: 5px;"
+										th:if="${edit}">
+
+										<label
+											class="mark__required col-auto col-form-label form-control-label">發幣活動代碼</label>
+										<div class="col-3">
+											<input id="momoEventNo" type="text" class="form-control"
+												required />
+										</div>
+
+										<label
+											class="mark__required col-auto col-form-label form-control-label">戶頭代碼</label>
+										<div class="col-3">
+											<input id="payAccount" type="text" class="form-control"
+												maxlength="16" pattern="[A-Z]{4}\d{8}[LMS]{1}\d{3}"
+												title="開頭為英文 4 碼，倒數第 4 碼為L/M/S，共 計16碼。 " required />
+										</div>
+										<label
+											class="mark__required col-auto col-form-label form-control-label">PO單號</label>
+										<div class="col-3">
+											<input id="orderNumber" type="text" class="form-control"
+												pattern="P.*" title="P 開頭" required />
+										</div>
+
+									</div>
+									<div class="form-group row col-12" style="margin-bottom: 5px;">
+										<label
+											class="mark__required col-auto col-form-label form-control-label">序號發送時間</label>
+										<div class="col-3">
+											<input type="date" class="form-control" id="rewardDate"
+												required />
+										</div>
+									</div>
+
+									<div class="form-group row col-12" style="margin-bottom: 5px;">
+
+
+										<div class="col-lg-12">
+
+											<div class="d-flex justify-content-center">
+
+												<button type="submit"
+													class="btn  btn-primary-blue mr-2 btnrow-a d-none"
+													id="btn-add">[[${btnAdd}]]</button>
+											</div>
+
+										</div>
+									</div>
+
+								</div>
+
+								<div class="row" style="margin-top: 20px;">
+									<div class="col-lg-12">
+										<div class="d-flex justify-content-center">
+											<button type="submit"
+												class="btn  btn-primary-blue mr-2 btnrow-a btn-next">下一步</button>
+
+										</div>
+									</div>
+								</div>
+
+							</div>
+						</form>
+
+					</div>
+				</div>
+			</div>
+
+			<!-- 第二頁内容 -->
+			<div class="tab-pane fade" id="page2" role="tabpanel"
+				aria-labelledby="page2-tab">
+
+				<div class="text-left">
+					<h1 class="font-size-22 font-weight-bold"
+						style="color: rgb(89, 89, 89);">序號發幣白名單發幣活動資訊[[${h1}]]</h1>
+				</div>
+				<div class="container-fluid px-3 py-3">
+
+
+					<div class="row">
+
+						<form name="finishStep" style="width: 100%;">
+
+							<div class="col-lg-12  row"
+								style="padding-left: 20px; padding-right: 0px; padding-top: 5px;">
+								<div class="form-group row col-lg-4">
+									<label class="col-auto col-form-label form-control-label">部門別&emsp;&emsp;&emsp;</label>
+									<div class="col">
+										<input type="text" class="form-control" readonly
+											th:value="${session.userInfo.departmentName}" />
+									</div>
+
+								</div>
+								<div class="form-group row col-lg-4">
+									<label class="col-auto col-form-label form-control-label">送簽人&emsp;</label>
+									<div class="col">
+										<input type="text" class="form-control" readonly
+											th:value="${session.userInfo.userName}" />
+									</div>
+
+								</div>
+								<div class="form-group row col-lg-3">
+									<label class="col-auto col-form-label form-control-label">序號發送時間</label>
+									<div class="col">
+										<input type="text" class="form-control" readonly
+											name="rewardDate"
+											th:value="${#dates.format(SerialRewardReportEntity?.rewardDate,'yyyy/MM/dd')}" />
+									</div>
+
+								</div>
+
+							</div>
+
+							<div class="col-lg-12  row"
+								style="padding-left: 20px; padding-right: 0px; padding-top: 5px;">
+								<div class="form-group row col-lg-4">
+									<label class="col-auto col-form-label form-control-label">發幣活動代碼</label>
+									<div class="col">
+										<input type="text" class="form-control" name="momoEventNo"
+											th:value="${SerialRewardReportEntity?.momoEventNo}" readonly />
+									</div>
+
+								</div>
+								<div class="form-group row col-lg-4">
+									<label class="col-auto col-form-label form-control-label">戶頭代碼</label>
+									<div class="col">
+										<input type="text" class="form-control" readonly
+											th:value="${SerialRewardReportEntity?.payAccount}"
+											name="payAccount" />
+									</div>
+
+								</div>
+								<div class="form-group row col-lg-3">
+									<label class="col-auto col-form-label form-control-label">PO
+										單號&emsp;&emsp;&nbsp;</label>
+									<div class="col">
+										<input type="text" class="form-control" readonly
+											name="orderNumber"
+											th:value="${SerialRewardReportEntity?.orderNumber}" />
+									</div>
+
+								</div>
+
+							</div>
+
+							<div class="col-lg-12  row"
+								style="padding-left: 20px; padding-right: 0px; padding-top: 5px;">
+								<div class="form-group row col-lg-4">
+									<label class="col-auto col-form-label form-control-label">請購單位&emsp;&emsp;</label>
+									<div class="col">
+										<input type="text" class="form-control" readonly
+											id="requisitionUnit" name="requisitionUnit"
+											th:value="${SerialRewardReportEntity?.requisitionUnit}" />
+									</div>
+
+								</div>
+								<div class="form-group row col-lg-4">
+									<label class="col-auto col-form-label form-control-label">請購人&emsp;</label>
+									<div class="col">
+										<input type="text" class="form-control" readonly
+											id="requisitioner" name="requisitioner"
+											th:value="${SerialRewardReportEntity?.requisitioner}" />
+									</div>
+
+								</div>
+								<div class="form-group row col-lg-3">
+									<label class="col-auto col-form-label form-control-label">發幣用戶總數</label>
+									<div class="col">
+										<input type="text" class="form-control" readonly
+											id="totalRewardUsers" name="totalRewardUsers"
+											th:value="${SerialRewardReportEntity?.totalRewardUsers}" />
+									</div>
+
+
+								</div>
+								<div class="form-group row col-lg-3">
+									<label class="col-auto col-form-label form-control-label">發幣總額</label>
+									<div class="col">
+										<input type="text" class="form-control" readonly
+											id="totalRewardAmount" name="totalRewardAmount"
+											th:value="${SerialRewardReportEntity?.totalRewardAmount}" />
+									</div>
+
+
+								</div>
+
+							</div>
+
+							<div class="col-lg-12"
+								style="margin-top: 0.25rem; height: auto; padding: 6px 12px;">
+								<span style="color: red;">備註：序號簡訊為簽核過即會發送，簡訊發送時間為每日 AM
+									08:00 至 PM 08:00</span><br> <br>
+							</div>
+
+							<div class="row">
+								<div class="col-lg-12 pl-3 pr-0">
+									<div style="margin-top: auto;">
+
+										<div class="col-lg-12 form-group row"
+											style="margin-bottom: 15px; margin-top: 0px; background-color: #172b4d; border-radius: 5px;">
+											<label class="col-lg-12 col-form-label font-weight-bold "
+												style="font-size: 18px; color: rgb(255, 255, 255); padding-top: 5px; padding-bottom: 5px; padding-left: 20px;">第一關簽核人員設定</label>
+										</div>
+
+
+										<div class="form-group row col-lg-12 ml-5"
+											style="margin-top: 0px; margin-bottom: 0px;">
+
+											<label for="signUser"
+												class="col-auto col-form-label font-weight-bold mark__required">選擇簽核人員</label>
+											<div class="col-lg-4">
+												<select name="signUser1" id="signUser1" class="form-control">
+													<option value="">請選擇</option>
+													<option th:each="status : ${approvalUser}"
+														th:value="${status.accountId}"
+														th:text="${status.userName}"
+														th:selected="${status.accountId eq SerialApprovalBatchEntity?.l1Account}"></option>
+
+												</select>
+											</div>
+
+										</div>
+
+									</div>
+								</div>
+							</div>
+
+
+
+							<!--第二關簽核人員設定-->
+							<div class="row">
+								<div class="col-lg-12 pl-3 pr-0">
+									<div style="margin-top: 15px;">
+
+										<div class="col-lg-12 form-group row"
+											style="margin-bottom: 15px; background-color: #172b4d; border-radius: 5px;">
+											<label class="col-lg-12 col-form-label font-weight-bold "
+												style="font-size: 18px; color: rgb(255, 255, 255); padding-top: 5px; padding-bottom: 5px; padding-left: 20px;">第二關簽核人員設定</label>
+										</div>
+
+
+										<div class="form-group row col-lg-12 ml-5"
+											style="margin-top: 0px;">
+											<label for="signUser"
+												class="col-auto col-form-label font-weight-bold mark__required">選擇簽核人員</label>
+											<div class="col-lg-4">
+												<select name="signUser2" id="signUser2" class="form-control">
+													<option value="">請選擇</option>
+													<option th:each="status : ${approvalUser}"
+														th:value="${status.accountId}"
+														th:text="${status.userName}"
+														th:selected="${status.accountId eq SerialApprovalBatchEntity?.l2Account}"></option>
+
+												</select>
+											</div>
+
+										</div>
+
+									</div>
+								</div>
+							</div>
+
+							<div class="row" style="position: fixed; left: 50%; top: 90%;">
+								<div class="col-lg-12">
+									<div class="d-flex justify-content-center">
+										<button type="button"
+											class="btn  btn-primary-blue mr-2 btnrow-a" id="btn--pre">上一頁</button>
+
+										<button type="submit"
+											class="btn  btn-primary-blue mr-2 btnrow-a" id="btn--next"
+											disabled
+											th:attr="data-campaignDetailId=${SerialCampaignDetailEntity?.campaignDetailId},data-reportId=${SerialRewardReportEntity?.reportId},data-approvalBatchId=${SerialApprovalBatchEntity?.approvalBatchId}">完成並送簽</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+
+
+
+
+
+	<script th:inline="javascript">
+		$(function() {
+
+			$('form[name=step1]')
+					.submit(
+							function(e) {
+
+								e.preventDefault();
+
+								let formData = new FormData(this);
+
+								$
+										.ajax({
+											type : 'POST',
+											url : 'nextSettingStep1',
+											data : formData,
+											cache : false,
+											processData : false,
+											contentType : false,
+											beforeSend : function() {
+
+												openLoading();
+											},
+											success : function(data) {
+
+												submitAddStepForm();
+
+											},
+											error : function(response) {
+												closeLoading();
+
+												var errors = response.responseJSON;
+
+												if (undefined == errors) {
+													$
+															.confirm({
+																title : '系統訊息',
+																titleClass : 'text-center d-block font-weight-bold text-warning2',
+																content : '請重新選擇欲上傳之檔案',
+																buttons : {
+																	確定 : {
+																		text : '確定',
+																		btnClass : 'btn-warning2 text-white'
+																	}
+																}
+															});
+												} else if (undefined != errors) {
+													if (errors.requiredError) {
+														$
+																.confirm({
+																	title : '系統訊息',
+																	titleClass : 'text-center d-block font-weight-bold text-warning2',
+																	content : errors.requiredError,
+																	buttons : {
+																		確定 : {
+																			text : '確定',
+																			btnClass : 'btn-warning2 text-white'
+																		}
+																	}
+																});
+													}
+													if (errors.campaignNameError) {
+														$
+																.confirm({
+																	title : '系統訊息',
+																	titleClass : 'text-center d-block font-weight-bold text-warning2',
+																	content : errors.campaignNameError,
+																	buttons : {
+																		確定 : {
+																			text : '確定',
+																			btnClass : 'btn-warning2 text-white'
+																		}
+																	}
+																});
+													}
+													if (errors.campaignInfoError) {
+														$
+																.confirm({
+																	title : '系統訊息',
+																	titleClass : 'text-center d-block font-weight-bold text-warning2',
+																	content : errors.campaignInfoError,
+																	buttons : {
+																		確定 : {
+																			text : '確定',
+																			btnClass : 'btn-warning2 text-white'
+																		}
+																	}
+																});
+													}
+													if (errors.fileError) {
+														$
+																.confirm({
+																	title : '系統訊息',
+																	titleClass : 'text-center d-block font-weight-bold text-warning2',
+																	content : errors.fileError,
+																	buttons : {
+																		確定 : {
+																			text : '確定',
+																			btnClass : 'btn-warning2 text-white'
+																		}
+																	}
+																});
+													}
+													if (errors.fileContentError) {
+														$
+																.confirm({
+																	title : '系統訊息',
+																	titleClass : 'text-center d-block font-weight-bold text-warning2',
+																	content : errors.fileContentError,
+																	buttons : {
+																		確定 : {
+																			text : '確定',
+																			btnClass : 'btn-warning2 text-white'
+																		}
+																	}
+																});
+													}
+													if (errors.fileReadError) {
+														$
+																.confirm({
+																	title : '系統訊息',
+																	titleClass : 'text-center d-block font-weight-bold text-warning2',
+																	content : errors.fileReadError,
+																	buttons : {
+																		確定 : {
+																			text : '確定',
+																			btnClass : 'btn-warning2 text-white'
+																		}
+																	}
+																});
+													}
+													if (errors.expiryDateError) {
+														$
+																.confirm({
+																	title : '系統訊息',
+																	titleClass : 'text-center d-block font-weight-bold text-warning2',
+																	content : errors.expiryDateError,
+																	buttons : {
+																		確定 : {
+																			text : '確定',
+																			btnClass : 'btn-warning2 text-white'
+																		}
+																	}
+																});
+													}
+													if (errors.serialExpiryDateError) {
+														$
+																.confirm({
+																	title : '系統訊息',
+																	titleClass : 'text-center d-block font-weight-bold text-warning2',
+																	content : errors.serialExpiryDateError,
+																	buttons : {
+																		確定 : {
+																			text : '確定',
+																			btnClass : 'btn-warning2 text-white'
+																		}
+																	}
+																});
+													}
+												}
+
+											},
+
+											complete : function(data) {
+
+											}
+										});
+							});
+
+			$('#btn--pre').click(function(e) {
+
+				document.getElementById("page1-tab").click();
+			});
+
+			$('#btn--next')
+					.click(
+							function(e) {
+								e.preventDefault();
+
+								let signUser1 = $('#signUser1').val();
+								let signUser2 = $('#signUser2').val();
+
+								let formData = new FormData();
+								formData.append('signUser1', signUser1);
+								formData.append('signUser2', signUser2);
+								$
+										.ajax({
+											type : 'POST',
+											url : 'finishSetting',
+											data : formData,
+											cache : false,
+											processData : false,
+											contentType : false,
+											beforeSend : function() {
+												openLoading();
+											},
+											success : function(data) {
+												// Display confirmation dialog on success
+												$
+														.confirm({
+															title : '系統訊息',
+															titleClass : 'text-center d-block font-weight-bold text-warning2',
+															content : '您的資料輸入皆正確，選定簽核人員並送簽後將無法再進行用戶資料修改喔！<br><br>提醒：送簽後無法再修改。',
+															buttons : {
+																取消 : {
+																	text : '取消',
+																	btnClass : 'btn-outline-warning2 mr-3',
+																// Add any action for the 取消 button if needed
+																},
+																確定 : {
+																	text : '確定',
+																	btnClass : 'btn-warning3 ml-3',
+																	action : function() {
+
+																		let campaignName = $(
+																				'#campaignName')
+																				.val(); // Adjust ID as needed
+																		let campaignInfo = $(
+																				'#campaignInfo')
+																				.val(); // Adjust ID as needed
+																		let projectType = $(
+																				'#projectType')
+																				.val(); // Adjust ID as needed
+																		let file = $('#fileUpload')[0].files[0]; // Adjust ID for your file input
+
+																		let signUser1 = $(
+																				'#signUser1')
+																				.val();
+																		let signUser2 = $(
+																				'#signUser2')
+																				.val();
+																		let campaignDetailId = $(
+																				'#btn--next')
+																				.data(
+																						'campaigndetailid');
+																		let reportId = $(
+																				'#btn--next')
+																				.data(
+																						'reportid');
+																		let approvalBatchId = $(
+																				'#btn--next')
+																				.data(
+																						'approvalbatchid');
+
+																		let formData = new FormData();
+																		formData
+																				.append(
+																						'campaignName',
+																						campaignName);
+																		formData
+																				.append(
+																						'campaignInfo',
+																						campaignInfo);
+																		formData
+																				.append(
+																						'projectType',
+																						projectType);
+																		formData
+																				.append(
+																						'fileUpload',
+																						file);
+
+																		formData
+																				.append(
+																						'signUser1',
+																						signUser1);
+																		formData
+																				.append(
+																						'signUser2',
+																						signUser2);
+
+																		formData
+																				.append(
+																						'totalRewardUsers',
+																						$(
+																								'#totalRewardUsers')
+																								.val()); // Adjust ID as needed
+																		formData
+																				.append(
+																						'totalRewardAmount',
+																						$(
+																								'#totalRewardAmount')
+																								.val()); // Adjust ID as needed
+																		formData
+																				.append(
+																						'rewardDate',
+																						$(
+																								'input[name=rewardDate]')
+																								.val()); // Adjust ID as needed
+																		formData
+																				.append(
+																						'momoEventNo',
+																						$(
+																								'input[name=momoEventNo]')
+																								.val()); // Adjust ID as needed
+																		formData
+																				.append(
+																						'orderNumber',
+																						$(
+																								'input[name=orderNumber]')
+																								.val()); // Adjust ID as needed
+																		formData
+																				.append(
+																						'payAccount',
+																						$(
+																								'input[name=payAccount]')
+																								.val()); // Adjust ID as needed
+																		formData
+																				.append(
+																						'requisitioner',
+																						$(
+																								'#requisitioner')
+																								.val()); // Adjust ID as needed
+																		formData
+																				.append(
+																						'requisitionUnit',
+																						$(
+																								'#requisitionUnit')
+																								.val());
+																		formData
+																				.append(
+																						'campaignDetailId',
+																						campaignDetailId);
+																		formData
+																				.append(
+																						'reportId',
+																						reportId);
+																		formData
+																				.append(
+																						'approvalBatchId',
+																						approvalBatchId);
+
+																		$
+																				.ajax({
+																					type : 'POST',
+																					url : 'completeSendApproval',
+																					data : formData,
+																					cache : false,
+																					processData : false,
+																					contentType : false,
+																					beforeSend : function() {
+																						openLoading();
+																					},
+																					success : function(
+																							data) {
+																						window.location.href = '/serialCampaignWhileList/findWhileList';
+																					},
+																					error : function(
+																							response) {
+																						var errors = response.responseJSON;
+																						if (errors.exceptionError) {
+																							$
+																									.confirm({
+																										title : '系統訊息',
+																										titleClass : 'text-center d-block font-weight-bold text-warning2',
+																										content : errors.exceptionError,
+																										buttons : {
+																											確定 : {
+																												text : '確定',
+																												btnClass : 'btn-warning2 text-white'
+																											}
+																										}
+																									});
+																						}
+
+																					},
+
+																					complete : function(
+																							data) {
+																						closeLoading();
+																					}
+																				});
+																	}
+																}
+															},
+															onContentReady : function() {
+																$(document)
+																		.on(
+																				'mouseover',
+																				'.btn-outline-warning2',
+																				function() {
+																					$(
+																							this)
+																							.removeClass(
+																									'btn-outline-warning2')
+																							.addClass(
+																									'btn-warning3');
+																					$(
+																							'.btn-warning3')
+																							.not(
+																									this)
+																							.removeClass(
+																									'btn-warning3')
+																							.addClass(
+																									'btn-outline-warning2');
+																				});
+															}
+														});
+
+											},
+											error : function(response) {
+												var errors = response.responseJSON;
+												if (errors.signUserError) {
+													$
+															.confirm({
+																title : '系統訊息',
+																titleClass : 'text-center d-block font-weight-bold text-warning2',
+																content : errors.signUserError,
+																buttons : {
+																	確定 : {
+																		text : '確定',
+																		btnClass : 'btn-warning2 text-white'
+																	}
+																}
+															});
+												}
+												if (errors.exceptionError) {
+													$
+															.confirm({
+																title : '系統訊息',
+																titleClass : 'text-center d-block font-weight-bold text-warning2',
+																content : errors.exceptionError,
+																buttons : {
+																	確定 : {
+																		text : '確定',
+																		btnClass : 'btn-warning2 text-white'
+																	}
+																}
+															});
+												}
+											},
+
+											complete : function(data) {
+												closeLoading();
+											}
+										});
+							});
+
+			$('#btn--downloadExampleCsv').on('click', function(e) {
+				var form = document.createElement("form");
+				form.action = 'downloadExampleCsv';
+				form.method = "POST";
+				form.style.display = "none";
+				document.body.appendChild(form);
+				form.submit();
+				document.body.removeChild(form);
+
+			});
+
+			$('#fileUpload').on(
+					'change',
+					function() {
+						var fileName = $(this).val() ? $(this).val()
+								.split('\\').pop() : '請選擇欲上傳之檔案';
+						$('.fileUpload__text').text(fileName);
+					});
+
+			var d = new Date();
+			d.setDate(d.getDate() + 1);
+			var year = d.getFullYear();
+			var month = ('0' + (d.getMonth() + 1)).slice(-2);
+			var day = ('0' + d.getDate()).slice(-2);
+			var minDate = year + '-' + month + '-' + day;
+
+			document.getElementById('rewardDate').min = minDate;
+
+		});
+
+		function submitAddStepForm() {
+			let momoEventNo = $('#momoEventNo,input[name=momoEventNo]').first()
+					.val();
+			let fileData = $('#fileUpload')[0].files[0];
+			let rewardDate = $('#rewardDate').val();
+			let orderNumber = $('#orderNumber').val() ? $('#orderNumber').val()
+					.trim() : ($('input[name=orderNumber]').val() || '').trim();
+			let payAccount = $('#payAccount').val();
+
+			let formData = new FormData();
+			formData.append('momoEventNo', momoEventNo);
+			formData.append('fileUpload', fileData);
+			formData.append('rewardDate', rewardDate);
+			formData.append('orderNumber', orderNumber);
+			formData.append('payAccount', payAccount);
+
+			$
+					.ajax({
+						type : 'POST',
+						url : 'nextSettingStep2',
+						data : formData,
+						cache : false,
+						processData : false,
+						contentType : false,
+						beforeSend : function() {
+
+						},
+						success : function(data) {
+
+							$('#totalRewardUsers')
+									.val(
+											data.totalRewardUsers !== "undefined"
+													&& data.totalRewardUsers ? data.totalRewardUsers
+													: $('#totalRewardUsers')
+															.val());
+							$('#totalRewardAmount')
+									.val(
+											data.totalRewardAmount !== "undefined"
+													&& data.totalRewardAmount ? data.totalRewardAmount
+													: $('#totalRewardAmount')
+															.val());
+
+							$('#requisitionUnit').val(data.requisitionUnit);
+							$('#requisitioner').val(data.requisitioner);
+							$('input[name=rewardDate]')
+									.val(
+											data.rewardDate !== "undefined"
+													&& data.rewardDate ? data.rewardDate
+													: $(
+															'input[name=rewardDate]')
+															.val());
+							$('input[name=momoEventNo]')
+									.val(
+											data.momoEventNo !== "undefined"
+													&& data.momoEventNo ? data.momoEventNo
+													: $(
+															'input[name=momoEventNo]')
+															.val());
+							$('input[name=payAccount]')
+									.val(
+											data.payAccount !== "undefined"
+													&& data.payAccount ? data.payAccount
+													: $(
+															'input[name=payAccount]')
+															.val());
+							$('input[name=orderNumber]')
+									.val(
+											data.orderNumber !== "undefined"
+													&& data.orderNumber ? data.orderNumber
+													: $(
+															'input[name=orderNumber]')
+															.val());
+							document.getElementById("btn--next").disabled = false;
+
+							document.getElementById("page2-tab").click();
+
+						},
+						error : function(response) {
+							document.getElementById("btn--next").disabled = true;
+							var errors = response.responseJSON;
+							if (errors.momoEventNoError) {
+								$
+										.confirm({
+											title : '系統訊息',
+											titleClass : 'text-center d-block font-weight-bold text-warning2',
+											content : errors.momoEventNoError,
+											buttons : {
+												確定 : {
+													text : '確定',
+													btnClass : 'btn-warning2 text-white'
+												}
+											}
+										});
+							}
+							if (errors.rewardDateError) {
+								$
+										.confirm({
+											title : '系統訊息',
+											titleClass : 'text-center d-block font-weight-bold text-warning2',
+											content : errors.rewardDateError,
+											buttons : {
+												確定 : {
+													text : '確定',
+													btnClass : 'btn-warning2 text-white'
+												}
+											}
+										});
+							}
+							if (errors.serialPeriodError) {
+								$
+										.confirm({
+											title : '系統訊息',
+											titleClass : 'text-center d-block font-weight-bold text-warning2',
+											content : errors.serialPeriodError,
+											buttons : {
+												確定 : {
+													text : '確定',
+													btnClass : 'btn-warning2 text-white'
+												}
+											}
+										});
+							}
+							if (errors.fileReadError) {
+								$
+										.confirm({
+											title : '系統訊息',
+											titleClass : 'text-center d-block font-weight-bold text-warning2',
+											content : errors.fileReadError,
+											buttons : {
+												確定 : {
+													text : '確定',
+													btnClass : 'btn-warning2 text-white'
+												}
+											}
+										});
+							}
+							if (errors.exceptionError) {
+								$
+										.confirm({
+											title : '系統訊息',
+											titleClass : 'text-center d-block font-weight-bold text-warning2',
+											content : errors.exceptionError,
+											buttons : {
+												確定 : {
+													text : '確定',
+													btnClass : 'btn-warning2 text-white'
+												}
+											}
+										});
+							}
+
+						},
+
+						complete : function(data) {
+
+							closeLoading();
+						}
+					});
+		}
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:include="components/head :: head">
+</head>
+<script th:inline="javascript">
+$(function() {
+	
+	const viewportE2 = document.getElementById('page-content');
+	
+	viewportE2.style.zoom="normal";
+	viewportE2.style.zoom=getZoom();
+	viewportE2.style.display="block";
+	
+	
+	$(window).on('resize',function(){
+		
+		
+		viewportE2.style.zoom="normal";
+		viewportE2.style.zoom=getZoom();
+	
+	});
+});
+</script>
+<style>
+* {
+	font-family: '微軟正黑體';
+	
+}
+
+#page-content {
+	display:none;
+	
+}
+
+.btn-lines {
+	position: fixed;
+	top: 0;
+	z-index: 999;
+	width: 25px;
+	height: 30px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.btn-line {
+	width: 25px;
+	height: 3px;
+	position: absolute;
+	display: block;
+	background: #000;
+	transition: transform .3s;
+}
+
+.btn-line:nth-child(1) {
+	transform: translate3d(0, -8px, 0);
+}
+
+.btn-line:nth-child(2) {
+	transform: translate3d(0, 0, 0);
+}
+
+.btn-line:nth-child(3) {
+	transform: translate3d(0, 8px, 0);
+}
+
+.mainPage.open .btn-line:nth-child(1) {
+	transform: translate3d(0, 0, 0) rotate(45deg);
+}
+
+.mainPage.open .btn-line:nth-child(2) {
+	transform: translate3d(0, 0, 0) scale(0.1, 1);
+}
+
+.mainPage.open .btn-line:nth-child(3) {
+	transform: translate3d(0, 0, 0) rotate(-45deg);
+}
+
+.mainPage-height-small {
+	height: 100vh;
+}
+
+.container-fluid--c {
+	min-height: 100vh;
+}
+
+.bootstrap-table .fixed-table-container .fixed-table-body {
+	overflow-x: visible;
+	overflow-y: visible;
+}
+
+</style>
+<script th:inline="javascript">
+
+	$(function() {
+		$('.btn-lines').on('click', function(e) {
+			$('.mainPage').toggleClass('open');
+		});
+		$('.mainPage')
+				.on(
+						'change',
+						'.fileUpload__input',
+						function() {
+							let fileType = this.files[0].type;
+							let fileName = this.files[0].name;
+							let $this = $(this);
+							let $fileText = $this
+									.siblings('.fileUpload__texts').children(
+											'.fileUpload__text');
+							if ($this.hasClass('fileUpload__input--pdf')
+									&& fileType == 'application/pdf') {
+								$fileText.html(fileName);
+							} else if ($this
+									.hasClass('fileUpload__input--xlsx')
+									&& fileType == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+								$fileText.html(fileName);
+							} else if ($this.hasClass('fileUpload__input--csv')) {// && fileType == 'application/vnd.ms-excel') {
+								$fileText.html(fileName);
+							} else {
+								$this.val('');
+								$fileText.html('Drop your file here');
+								$('#messageModal').find('.modal-body').html(
+										'請重新上傳正確格式檔案。');
+								$('#messageModal').modal('show');
+							}
+
+						});
+
+		$('.sidebar-nav>li>a').on('click', function() {
+			var child_show = $(this).attr('child_show');
+			if (child_show == 'true') {
+				$(this).parent().find('ul').slideUp('normal');
+				$(this).attr('child_show', 'false');
+			} else {
+				$(this).parent().find('ul').slideDown('normal');
+				$(this).attr('child_show', 'true');
+			}
+		});
+
+		 //$('.sidebar-nav>ul>li').removeClass('this');
+		$('li[op=[[${menuop}]]]').addClass('this');
+		
+
+		
+
+
+		
+		setInterval(function(){
+			
+			fetch('/api/sessionTime')
+			.then(response => response.json())
+			.then(data => {
+				console.log('Session is:',data);
+				if(data == false){
+					var request = indexedDB.deleteDatabase('myDatabase');
+			        request.onsuccess = function () {
+						console.log('clear myDatabase');
+			        };
+				}
+			})
+			.catch(error => {
+				console.log('Error:',error);
+			});
+		
+			},7260000);
+		
+			
+
+		$('#fa-sign-out').on('click', function() {
+			
+	        var request = indexedDB.deleteDatabase('myDatabase');
+
+
+		});
+
+
+			
+	
+		
+	})
+</script>
+<body>
+
+	<div class="mainPage-height-small">
+		<div class="mainPage">
+
+
+			<div class="mainPage mb-2"
+				style="background-color: #172b4d; height: 50px; text-align: right; font-size: 18px; padding-right: 20px; vertical-align: center; padding-top: 15px;">
+				<a href="/logout" style="color: white;" id=fa-sign-out> <i
+					class="fa fa-sign-out"></i> <span>登出</span>
+				</a>
+			</div>
+			<div th:include="components/nav :: nav"></div>
+			<div class="page-content h-100" id="page-content">
+
+
+
+				<div class="container-fluid pl-7 h-100 container-fluid--c">
+					<div layout:fragment="content"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:include="components/footer :: footer"></div>
+	<div th:include="components/loading :: loading"></div>
+	<div th:include="components/message :: messages"></div>
+</body>
+</html>

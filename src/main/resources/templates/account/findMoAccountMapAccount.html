@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+	<style>
+@media ( min-width :1920px) {
+	.fixed-table-body {
+		height: 65vh !important;
+		width: 100% !important;
+	}
+}
+
+@media screen and ( min-width :1280px) and ( max-width :1919px) {
+	.fixed-table-body {
+		width: 100% !important;
+		height: 80vh !important;
+	}
+}
+
+.fixed-table-toolbar {
+	margin-top: -10px;
+}
+
+#tableid2>thead {
+	flex: 0 0 auto;
+	width: calc(100% - 1.5em) !important;
+}
+
+.fixed-table-pagination {
+	zoom: 1.3;
+}
+</style>
+
+
+
+
+	<div class="text-left">
+		<h1 class="font-size-22 font-weight-bold"
+			style="color: rgb(89, 89, 89);">momo單位對應</h1>
+	</div>
+	<div class="container-fluid px-3 py-3">
+
+		<div class="form-group row"
+			style="display: flex; justify-content: center;">
+			<label class="col-auto col-form-label font-weight-bold"
+				style="flex: 0 0 70%; max-width: 70%;">新增核帳報表權限:</label>
+
+		</div>
+
+		<div class="form-group row"
+			style="display: flex; justify-content: center;">
+
+			<label class="col-auto col-form-label font-weight-bold mark__required">功能</label>
+			<div class="col-lg-2">
+				<select name="functionId" id="functionId" class="form-control">
+					<option value="0">請選擇</option>
+					<option value="1">每日核帳告警</option>
+					<option value="2">每月核帳告警</option>
+					<option value="3">核帳報表</option>
+					<option value="4">26號核帳告警</option>
+				</select>
+			</div>
+
+			<label class="col-auto col-form-label font-weight-bold mark__required">momo公司單位</label>
+			<div class="col-lg-4" style="margin-left: 20px;">
+				<select name="departmentId" id="departmentId" class="form-control">
+					<option value="">請選擇</option>
+					<option th:each="department : ${departmentList}"
+						th:value="${department.departmentName}"
+						th:text="${department.departmentName}"></option>
+				</select>
+			</div>
+			<label class="col-auto col-form-label font-weight-bold mark__required">CRS用戶帳號</label>
+			<div class="col-lg-2">
+				<select id="accountId" name="accountId" class="form-control w80">
+					<option value="">請選擇</option>
+					<option th:each="account : ${accounts}"
+						th:value="${account.accountId}" th:text="${account.userName}"></option>
+				</select>
+			</div>
+
+		</div>
+		<div class="form-group row"
+			style="display: flex; justify-content: center;">
+			<label
+				class="col-auto col-form-label font-weight-bold mark__required">需求單號</label>
+			<div class="col-lg-4">
+				<input type="text" class="form-control" id="requestId"
+					name="requestId" maxlength="100"  />
+			</div>
+		</div>
+		<div class="row mt-2">
+			<div class="col-lg-12 text-center">
+				<button type="button"
+					class="btn btn-primary-blue btnrow-a font-weight-bold font-size-16 btn--insertRow">新增</button>
+			</div>
+		</div>
+
+
+		<div class="table--c my-4" style="height: 800px; overflow: auto;">
+			<div class="form-group row"
+				style="display: flex; justify-content: center;">
+				<input type="text" class="form-control w20" id="sn-val"
+					placeholder="請輸入查詢關鍵字"> <a href="javascript:;"
+					class="btn btn-default btn-sm" id="sn-btn"> <i
+					class="fa fa-search"></i>
+				</a>
+			</div>
+
+			<table class="table--setCheckbillPermission" id="tableid2"
+				data-resizable="true" data-unique-id="Id"></table>
+		</div>
+
+	</div>
+	<script th:inline="javascript">
+		var searchText = "";
+		$(function() {
+			findMOAccountMapAccountList();
+			
+			$('#sn-btn').click(function(){
+				searchText=$('#sn-val').val();
+			    findMOAccountMapAccountList({ search: searchText });
+			});
+			$('#sn-val').on('keyup', function(event) {
+	            if (event.keyCode === 13) {
+	                searchText = $('#sn-val').val();
+	                findMOAccountMapAccountList({ search: searchText });
+	            }
+	        });
+			
+	    	$('.table--c').on('click', '.btn--remove', function() {
+	    		
+	    		var functionId = $(this).data('functionid');
+	    		var functionTitle = $(this).data('functiontitle');
+	    		var moDeptNo = $(this).data('modeptno');
+	    		var crsAccountId = $(this).data('crsaccountid');
+	    		var requestId = $('#requestId').val();
+	    		if( requestId ==''){
+	    			alert("請填寫需求單號!");
+	    			return;
+	    		}
+	    		//var searchText = $('.table--setCheckbillPermission').bootstrapTable('getOptions').searchText;
+				$.confirm({
+					title : '刪除權限',
+					titleClass : 'text-center d-block font-weight-bold text-warning2',
+					content : '請確認「需求單號」欄位輸入的單號。<br>' + '確認要刪除此權限？',												
+					buttons : {
+						取消 : {
+							text : '取消 ',
+							btnClass : 'btn-warning2 text-white',
+							action:function() {
+							}
+						},
+						確定 : {
+							text : '確定',
+							btnClass : 'btn-warning2 text-white',
+							action:function() {
+						    	//$('.table--setCheckbillPermission').bootstrapTable('removeByUniqueId',id);
+								removeMOAccountMapAccount(functionId, moDeptNo, crsAccountId,requestId,functionTitle);
+							}
+						}
+					}
+				});
+			
+	    	});
+	    	
+	    	$('.btn--insertRow').on('click', function() {
+	    		var functionId = $('#functionId').val();
+	    		var departmentId = $('#departmentId').val();
+	    		var accountId = $('#accountId').val();
+	    		var requestId = $('#requestId').val();
+	    		var functiontitle = $('#functionId option:selected').text();
+	    			    		
+	    		if(functionId==0 || departmentId=='' || accountId=='' || requestId==''){
+	    			alert("請選擇功能、momo公司單位、CRS用戶帳號、需求單號!");
+	    			return;
+	    		}
+				$.confirm({
+					title : '新增核帳報表權限',
+					titleClass : 'text-center d-block font-weight-bold text-warning2',
+					content : '確認要新增此筆核帳報表權限？',												
+					buttons : {
+						取消 : {
+							text : '取消 ',
+							btnClass : 'btn-warning2 text-white',
+							action:function() {
+							}
+						},
+						確定 : {
+							text : '確定',
+							btnClass : 'btn-warning2 text-white',
+							action:function() {
+								insertMOAccountMapAccount(functionId, departmentId, accountId,requestId,functiontitle);
+							}
+						}
+					}
+					
+				});
+
+	    		
+	    	});
+		
+		});
+		
+		function removeMOAccountMapAccount(functionId, moDeptNo, crsAccountId,requestId,functionTitle) {
+			
+			$.ajax({
+	        	url : 'deleteMoAccountMapAccount',
+	            type : "POST",
+	            data : {
+	                'functionId': functionId,
+	                'moDeptNo': moDeptNo,
+	                'crsAccountId': crsAccountId,
+	                'requestId' : requestId,
+	                'functionTitle' : functionTitle
+	            },
+	            beforeSend : function() {
+	    			openLoading();
+	    		},
+	    		complete : function() {
+	    			closeLoading();
+	    		},
+	    		success : function(data) {
+	    			
+	    			if (data.code === '998') {
+	    				showError(data.errorMessages);
+	    			} else if (data.code === '000') {
+	    				messagePopup(data.message);
+
+	    				if (findMOAccountMapAccountList) {
+	    					findMOAccountMapAccountList();
+	    				}
+	    			} else if (findMOAccountMapAccountList) {
+	    				findMOAccountMapAccountList({ search: searchText });
+	    			}
+	    		},
+	    		error : function(e) {
+	    			errorMessagePopup(e.responseJSON.message);
+	    		}
+	        });
+        }
+		
+		function insertMOAccountMapAccount(functionId, departmentId, crsAccountId,requestId,functiontitle){
+			$.ajax({
+	        	url : 'insertMoAccountMapAccount',
+	            type : "POST",
+	            data : {
+	                'functionId': functionId,
+	                'departmentId': departmentId,
+	                'crsAccountId': crsAccountId,
+	                'requestId' : requestId,
+	                'functiontitle' : functiontitle
+	            },
+	            beforeSend : function() {
+	    			openLoading();
+	    		},
+	    		complete : function() {
+	    			closeLoading();
+	    		},
+	    		success : function(data) {
+	    			
+	    			if (data.code === '998') {
+	    				showError(data.errorMessages);
+	    			} else if (data.code === '000') {
+	    				messagePopup(data.message);
+
+	    				if (findMOAccountMapAccountList) {
+	    					findMOAccountMapAccountList();
+	    				}
+	    			} else if (findMOAccountMapAccountList) {
+	    				findMOAccountMapAccountList();
+	    			}
+	    		},
+	    		error : function(e) {
+	    			//errorMessagePopup(e.responseJSON.message);
+	    			errorMessagePopup("新增錯誤!請檢查是否重複寫入!");
+	    		}
+	        });
+		}
+		
+		function findMOAccountMapAccountList(obj) {
+        	obj = obj || $('form').serialize()+'&action=QUERY';
+            if (searchText !== "") {
+                obj.search = searchText;
+            }
+        	callAjax([[@{findMoAccountMapAccount}]], obj, composeTable);
+        	
+        }
+		
+		function composeTable(data) {
+			//var searchText = $('.table--setCheckbillPermission').bootstrapTable('getOptions').searchText;
+			$('.table--setCheckbillPermission').bootstrapTable('destroy');
+			$('.table--setCheckbillPermission').bootstrapTable({
+	    		columns: [ //欄位設定
+	    			//{field: 'Id', title: '',class:"w3"  ,align: 'center'}, 
+	    			{field: '', title: '',class:"w2"  ,align: 'center',formatter: buttonFormatter },
+	    			{field: 'functionId',class:"w3",title: '功能id'  ,align: 'center', sortable:true},
+	    			{field: 'functionTitle',class:"w8",title: '功能'  ,align: 'center', sortable:true},
+	    			{field: 'moDeptNo',class:"w7", title: 'momo公司單位',   align: 'center', sortable:true},
+	    			//{field: 'crsAccountId', title: 'CRS用戶ID',class:"w7",   align: 'center', sortable:true},
+	    			{field: 'crsUserName', title: 'CRS用戶帳號',class:"w7",   align: 'center', sortable:true},
+	    			{field: 'department', title: '部門', class:"w10", align: 'center', sortable:true}
+	    		],
+
+	    		sidePagination: 'server',
+	    		data: data.result,//資料
+	    		pagination: true, //是否要分頁
+	    		pageNumber: data.number, //初始化加載第一頁
+	    		pageSize: data.size, //一頁顯示幾筆
+	    		pageList: [10, 25, 50, 100,'All'], //一頁顯示幾筆的選項
+	    		totalRows: data.total,
+	    		//search : true,
+	    		//searchOnEnterKey : true,
+	    		//showSearchClearButton: true,
+	    		//showRefresh: true, // 关闭 Bootstrap Table 默认的刷新按钮
+	    		checkboxHeader: false,
+	    		sortName: data.name,
+        		sortOrder: data.order,
+        		onSort: function(name, order) {
+        			findMOAccountMapAccountList({'name': name, 'order': order});
+        		},
+        		onPageChange: function(number, size) {
+        			size = isNaN(size) ? this.totalRows : size;
+        			findMOAccountMapAccountList({'number': number, 'size': size});
+        		},
+        		onLoadError: function(status, jqXHR) {
+        			// console.log('status: ' + status + ', jqXHR: ' + jqXHR);
+        		}
+        		/*onSearch: function (text) {
+        	        // 调用后端接口，传递搜索关键字
+        	        searchText = $('.table--setCheckbillPermission').bootstrapTable('getOptions').searchText;
+        	        findMOAccountMapAccountList({ search: text });
+        	    },
+        	    onRefresh:function(params)
+                {
+        	    	searchText = "";
+        	    	findMOAccountMapAccountList({ search: '' });
+                },*/
+                
+	    	});
+		}
+		
+	    function buttonFormatter(value, row, index) {
+	    	
+	    	let btn = '<button type="button" class="btn bg-danger text-white ml-2 btn-sm font-weight-bold btn--remove" data-functionId="'+row.functionId+'" data-moDeptNo="'+row.moDeptNo+'" data-crsAccountId="'+row.crsAccountId+'" data-functionTitle="'+row.functionTitle+'">刪除</button>';
+	    	return btn;
+	    }
+	 	
+	</script>
+</body>
+</html>

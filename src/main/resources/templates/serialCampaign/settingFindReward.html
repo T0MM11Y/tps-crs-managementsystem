@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<body layout:fragment="content">
+
+	<style>
+.detail--step {
+	color: #47c37f;
+}
+
+.tooltip {
+	zoom: 0.7
+}
+
+.disabled {
+	pointer-events: none;
+	opacity: 0.5;
+}
+
+/* 新增的文字水平置中 */
+.center-text {
+	text-align: center;
+	width: 100%;
+	font-weight: bold;
+	font-size: 18px;
+	margin-top: 20px;
+}
+
+/* 限制 select 内 option 文字的显示长度，并在鼠标悬停时显示完整文字 */
+.custom-select option {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* 讓 select & option 都是等寬字體，並且保留空白 */
+.custom-select, .custom-select option {
+	font-family: "Courier New", Courier, monospace;
+	white-space: pre; /* 保留所有空白 */
+}
+
+table.table-hover tbody tr.selected {
+	background-color: #d7f3e3 !important;
+}
+
+.table th, .table td {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#detail-table {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed; /* 固定版面，才會尊重下面的寬度分配 */
+}
+
+#detail-table th, #detail-table td {
+	white-space: nowrap;
+	padding: .5rem;
+}
+
+/* 讓左右 table 容器維持彈性排版，同時限制 table 高度並啟用滾動 */
+.flex-fill.pr-2, .flex-fill.pl-2 {
+	display: flex;
+	flex-direction: column;
+}
+
+.flex-fill.pr-2 table, .flex-fill.pl-2 table {
+	flex: 1 1 auto; /* 讓 table 撐滿剩餘空間 */
+	max-height: 300px; /* 高度上限，可自行調整 */
+	overflow-y: auto; /* 超出時顯示垂直滾動條 */
+	display: block; /* 才能套用 max-height 與 overflow */
+	width: 100%;
+}
+/* 固定表頭 */
+.flex-fill.pr-2 table thead th, .flex-fill.pl-2 table thead th {
+	position: sticky;
+	top: 0; /* 距離容器頂端 0px，保持固定 */
+	background: #fff; /* 或跟表格相同的底色 */
+	z-index: 2; /* 確保蓋過表身 */
+}
+
+/* 如果 detail-table 也要固定表頭： */
+#detail-table thead th {
+	position: sticky;
+	top: 0;
+	background: #fff;
+	z-index: 2;
+}
+
+.table-scroll-wrapper {
+	max-height: 250px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.table-scroll-wrapper table {
+	width: 100%;
+	table-layout: fixed;
+}
+
+#detail-table tbody tr.selected {
+	background-color: #d7f3e3 !important;
+}
+
+/* 1. 共同套用固定版面 & 省略長字 */
+#left-table, #right-table {
+	table-layout: fixed;
+	width: 100%;
+}
+
+#left-table th, #left-table td, #right-table th, #right-table td {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* 2. 指定每一欄的寬度（可依實際需求調整 px） */
+#left-table th:nth-child(1), #left-table td:nth-child(1), #right-table th:nth-child(1),
+	#right-table td:nth-child(1) {
+	max-width: 90px;
+	min-width: 90px;
+}
+
+#left-table th:nth-child(2), #left-table td:nth-child(2), #right-table th:nth-child(2),
+	#right-table td:nth-child(2) {
+	max-width: 120px;
+	min-width: 120px;
+}
+
+#left-table th:nth-child(3), #left-table td:nth-child(3), #right-table th:nth-child(3),
+	#right-table td:nth-child(3) {
+	max-width: 300px;
+	min-width: 300px;
+}
+
+#left-table th:nth-child(4), #left-table td:nth-child(4), #right-table th:nth-child(4),
+	#right-table td:nth-child(4) {
+	max-width: 100px;
+	min-width: 100px;
+}
+
+#left-table th:nth-child(5), #left-table td:nth-child(5), #right-table th:nth-child(5),
+	#right-table td:nth-child(5) {
+	max-width: 100px;
+	min-width: 100px;
+}
+
+#left-table th:nth-child(6), #left-table td:nth-child(6), #right-table th:nth-child(6),
+	#right-table td:nth-child(6) {
+	max-width: 110px;
+	min-width: 110px;
+}
+</style>
+
+	<div class="text-left">
+		<h1 class="font-size-22 font-weight-bold"
+			style="color: rgb(89, 89, 89);">序號發幣活動資訊新增</h1>
+	</div>
+	<div class="container-fluid px-3 py-3" style="margin-top: -60px;">
+
+		<div class="form-group row">
+			<div class="col-lg-9"></div>
+			<div class="col-lg-3">
+				<button type="button" class="btn-primary--c toggleBtn--btn"
+					style="visibility: hidden;">簽核流程圖</button>
+			</div>
+		</div>
+
+		<div id="settingFindReward1" class="collapse show">
+			<div class="form-group row" id="addStepDiv"
+				style="padding-top: 10px; padding-left: 30px; border-radius: 25px">
+				<form name="addStep" style="width: 100%;">
+					<div class="form-group row" style="margin-bottom: 50px;">
+
+						<label
+							class="mark__required col-auto col-form-label form-control-label">&nbsp;發幣活動代碼</label>
+						<div class="col-3">
+							<input id="momoEventNo" name="momoEventNo" type="text"
+								class="form-control"
+								th:value="${batch != null ? batch.eventNo : ''}"
+								th:disabled="${viewMode}" /> <span id="momoEventNoError"
+								class="text-danger"></span>
+						</div>
+
+						<label
+							class="mark__required col-auto col-form-label form-control-label">&nbsp;戶頭代碼</label>
+						<div class="col-3 position-relative">
+							<input id="payAccount" name="payAccount" type="text"
+								class="form-control" maxlength="16"
+								th:value="${batch != null ? batch.payAccount : ''}"
+								th:disabled="${viewMode}" />
+							<!-- 隱藏的錯誤提示 -->
+							<small id="payAccountError" class="text-danger"></small>
+						</div>
+
+						<label class="col-auto col-form-label form-control-label">PO單號</label>
+						<div class="col-3">
+							<input id="orderNumber" type="text" class="form-control"
+								maxlength="10" pattern="P\d{9}" title="P 開頭，共 10 位數"
+								name="orderNumber"
+								th:value="${batch != null ? batch.orderNumber : ''}"
+								th:disabled="${viewMode}" />
+						</div>
+					</div>
+
+					<div class="form-group row align-items-center mb-4">
+						<label class="mark__required col-auto col-form-label">&nbsp;本月發送日期</label>
+						<div class="col-auto d-flex align-items-center">
+							<input type="date" class="form-control" name="rewardDate"
+								id="rewardDate"
+								th:value="${#dates.format(rewardMonth, 'yyyy-MM-dd')}"
+								th:disabled="${viewMode}" /> <span class="ml-2  text-muted">
+								只能選本月明天之後的日期 </span><small id="rewardDateError" class="text-danger"></small>
+						</div>
+					</div>
+
+					<!-- 發幣金額 -->
+					<div class="form-group row" style="margin-bottom: 5px;">
+						<label class="col-auto col-form-label form-control-label">&nbsp;&nbsp;發幣金額:</label>
+						<div class="col-3">
+							<p id="issueAmount"
+								th:text="${batch != null ? batch.eventNoAmt : ''}" />
+						</div>
+					</div>
+
+					<!-- 發幣餘額 -->
+					<div class="form-group row" style="margin-bottom: 5px;">
+						<label class="col-auto col-form-label form-control-label">&nbsp;&nbsp;發幣餘額:</label>
+						<div class="col-3">
+							<p id="remainingAmount"
+								th:text="${batch != null ? batch.remainingAmt : ''}" />
+						</div>
+					</div>
+
+					<!-- 效期起日 -->
+					<div class="form-group row" style="margin-bottom: 5px;">
+						<label class="col-auto col-form-label form-control-label">&nbsp;&nbsp;效期起日:</label>
+						<div class="col-3">
+							<p id="validFrom" th:text="${amountValidityStartDate}" />
+						</div>
+					</div>
+
+					<!-- 效期訖日 -->
+					<div class="form-group row" style="margin-bottom: 5px;">
+						<label class="col-auto col-form-label form-control-label">&nbsp;&nbsp;效期訖日:</label>
+						<div class="col-3">
+							<p id="validTo" th:text="${amountValidityEndDate}" />
+						</div>
+					</div>
+
+					<div class="d-flex" style="height: 300px; margin-top: 25px;">
+						<!-- 左側：待匹配 reportIds -->
+						<div class="flex-fill pr-2">
+							<p>待匹配 reportIds</p>
+							<table id="left-table" class="table table-striped table-hover">
+
+								<thead>
+									<tr>
+										<th>reportId</th>
+										<th>專案類型</th>
+										<th>活動名稱</th>
+										<th class="text-right">總額</th>
+										<th class="text-right">面額</th>
+										<th>待發幣人數</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="opt,stat : ${options}"
+										th:data-value="${optionValues[stat.index]}"
+										th:if="${optionValues[stat.index]} != ${reportId}">
+										<!-- reportId -->
+										<td
+											th:text="${#strings.trim(#strings.arraySplit(opt,'|')[0])}">ID</td>
+										<!-- 專案類型 -->
+										<td
+											th:text="${#strings.trim(#strings.arraySplit(opt,'|')[1])}">Type</td>
+										<!-- 活動名稱（加上 title） -->
+										<td
+											th:text="${#strings.trim(#strings.arraySplit(opt,'|')[2])}"
+											th:title="${titleCampaignNames[stat.index]}">Name</td>
+										<!-- 總額 -->
+										<td
+											th:text="${#strings.trim(#strings.arraySplit(opt,'|')[5])}"
+											class="text-right">Total</td>
+										<!-- 面額 -->
+										<td
+											th:text="${#strings.trim(#strings.arraySplit(opt,'|')[3])}"
+											class="text-right">Amt</td>
+										<!-- 待發幣人數 -->
+										<td
+											th:text="${#strings.trim(#strings.arraySplit(opt,'|')[4])}">Cnt</td>
+									</tr>
+
+								</tbody>
+							</table>
+						</div>
+
+						<!-- 中間按鈕 -->
+						<div class="d-flex flex-column justify-content-center px-1">
+							<button type="button"
+								class="btn btn-outline-secondary move-right mb-2">&gt;&gt;</button>
+							<button type="button" class="btn btn-outline-secondary move-left">&lt;&lt;</button>
+						</div>
+
+						<!-- 右側：已選擇 reportIds -->
+						<div class="flex-fill pl-2">
+							<p>
+								<span class="text-danger">*</span> 已選擇 reportIds
+							</p>
+							<table id="right-table" class="table table-striped table-hover">
+								<thead>
+									<tr>
+										<th>reportId</th>
+										<th>專案類型</th>
+										<th>活動名稱</th>
+										<th class="text-right">總額</th>
+										<th class="text-right">面額</th>
+										<th>待發幣人數</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!-- 特殊那一筆 -->
+									<th:block th:if="${specificOptions}">
+										<tr th:each="opt : ${specificOptions}"
+											th:data-value="${opt[0]}" class="fixed">
+											<td th:text="${opt[0]}">ID</td>
+											<td th:text="${opt[1]}">Type</td>
+											<!-- 第三格直接用 opt[2] 作 title -->
+											<td th:text="${opt[2]}" th:title="${opt[2]}">Name</td>
+											<td th:text="${opt[5]}" class="text-right">Total</td>
+											<td th:text="${opt[3]}" class="text-right">Amt</td>
+											<td th:text="${opt[4]}">Cnt</td>
+										</tr>
+									</th:block>
+
+
+									<!-- 動態細節 -->
+									<tr th:each="d : ${detailList}" th:data-value="${d.reportId}">
+										<td th:text="${d.reportId}"></td>
+										<td th:text="${d.projectType}"></td>
+										<td th:text="${d.campaignName}"></td>
+										<td th:text="${d.totalAmount}"></td>
+										<td th:text="${d.amount}"></td>
+										<td th:text="${d.pendingUser}"></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+
+
+					<div
+						style="display: flex; justify-content: center; align-items: center; width: 100%; background: #F2F2F2;">
+						<div class="col-lg-5">
+							<div class="d-flex align-items-center col-lg-12"
+								style="justify-content: center;">
+								<div class="col-lg-12 text-left">
+									<p>建立細節:</p>
+								</div>
+							</div>
+
+							<div class="d-flex align-items-center col-lg-12"
+								style="justify-content: center;">
+								<div class="col-lg-12 text-left">
+									<p>
+										總金額: <span id="totalAmountDisplay"
+											th:text="${batch != null ? batch.requestAmount : 0}">0</span>
+									</p>
+									<span id="requestCountError" class="text-danger"></span> <span
+										id="requestAmountError" class="text-danger"></span>
+								</div>
+							</div>
+
+							<!-- 改為 table -->
+							<div class="d-flex align-items-center col-lg-12">
+
+								<div class="mr-3 col-lg-12 flex-fill table-scroll-wrapper">
+									<table id="detail-table"
+										class="table table-striped table-hover table-bordered text-center w-100">
+										<!-- 先定義兩條欄位，平均各 50% -->
+										<colgroup>
+											<col style="width: 50%;">
+											<col style="width: 50%;">
+										</colgroup>
+										<thead>
+											<tr>
+												<th th:text="${viewMode} ? '序號金額' : '面額'" class="text-right">面額</th>
+												<th th:text="${viewMode} ? '序號筆數' : '待發幣人數'"
+													class="text-left">待發幣人數</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr
+												th:each="pair, iterStat : ${#strings.arraySplit(batch != null ? batch.amountCountMap : '', ',')}"
+												th:id="'detail-row-' + ${iterStat != null ? iterStat.index : 0}">
+												<td th:text="${#strings.arraySplit(pair, ':')[0]}"
+													class="text-right">面額</td>
+												<td th:text="${#strings.arraySplit(pair, ':')[1]}"
+													class="text-left">人數</td>
+											</tr>
+
+										</tbody>
+									</table>
+									<span id="conditionsError" class="text-danger"></span>
+								</div>
+
+							</div>
+						</div>
+
+						<div class="col-lg-5">
+							<!-- 按鈕區 -->
+							<div class="
+							d-flex  align-items-centermt-2"
+								style="justify-content: space-evenly;">
+								<button type="submit" id="createBtn"
+									class="btn btn-primary-blue mr-2 btnrow-a">建立</button>
+								<button type="button" id="backBtn"
+									class="btn btn-primary-blue btnrow-a">返回</button>
+							</div>
+						</div>
+					</div>
+
+
+				</form>
+			</div>
+		</div>
+
+	</div>
+
+	<script th:inline="javascript">
+	 /*<![CDATA[*/
+		$(function() {
+			
+
+			  
+			  
+			$('.btn--conditionSettingDetails').on(
+					'click',
+					function(e) {																										
+						$('#settingFindReward1').slideUp("slow");
+						$('#collapseOne').slideUp("slow");
+
+					});
+
+			$('#btn--pre').on('click', function(e) {
+				
+				window.history.go(-1);
+			});
+
+			$('#btn--downloadExampleCsv3').on('click', function(e) {
+				var form = document.createElement("form");
+				form.action = 'downloadExampleCsv3';
+				form.method = "POST";
+				form.style.display = "none";
+				document.body.appendChild(form);
+				form.submit();
+				document.body.removeChild(form);
+
+			});
+
+			var spans = document.getElementsByClassName("mark__required");
+			var spansArray = Array.from(spans);
+			for (var i = 0; i < spansArray.length; i++) {
+				var html = spansArray[i].innerHTML;
+				if (html == "申裝類型" || html == "用戶世代別") {
+					spansArray[i].classList.remove("mark__required");
+				}
+			}
+
+			$('.btn--pre').on('click', function(e) {
+																								
+				$('#settingFindReward1').slideDown("slow");
+				$('#collapseOne').slideDown("slow");
+			});
+
+		if($('#countreportId').val()=='0') {
+			document.getElementById("serialRewardReportXlsx2").disabled = true;
+			document.getElementById("momoEventNo").disabled = true;
+			document.getElementById("payAccount").disabled = true;
+			document.getElementById("orderNumber").disabled = true;
+			document.getElementById("fileUpload").disabled = true;
+			document.getElementById("btn--downloadExampleCsv3").disabled = true;
+			document.getElementById("btn-add").disabled = true;
+		}
+		
+		if ('已設定' == [[${status}]] || 'read_only' == [[${status}]]) {
+			document.getElementById("momoEventNo").disabled = true;
+			document.getElementById("payAccount").disabled = true;
+			document.getElementById("orderNumber").disabled = true;
+			document.getElementById("fileUpload").disabled = true;
+			document.getElementById("btn--downloadExampleCsv3").disabled = true;
+			document.getElementById("btn-add").disabled = true;
+		}
+				
+	    $('[data-toggle="tooltip"]').tooltip(); // 初始化 Bootstrap 工具提示
+	    
+	    // 從後端 model 拿到 viewMode（boolean）
+	    var viewMode = /*[[${viewMode}]]*/ false;
+
+	    // 只有在查看模式要隱藏這些互動元件
+	    if(viewMode) {
+	      
+	   		viewHide();
+	    }
+	    
+	    
+		 // 先解除舊的 click 綁定（可選，確保不重複）
+	    $('#left-table, #right-table').off('click', 'tbody tr');
+
+	    // 同時對左右表做多／單／全選
+// 在 script 最外層先宣告兩個 anchor
+const anchors = {
+  '#left-table': null,
+  '#right-table': null
+};
+
+$('#left-table, #right-table')
+.off('click', 'tbody tr')
+.on('click', 'tbody tr', function(e) {
+  if ($(this).hasClass('fixed')) return;  // 跳過固定列
+
+  const $table = $(this).closest('table');
+  const sel    = '#' + $table.attr('id');
+  const $rows  = $table.find('tbody tr');
+  const idx    = $rows.index(this);
+  const value  = $(this).data('value');   // reportId
+
+  if (e.shiftKey && anchors[sel] !== null) {
+    // → Shift 範圍選取：先清空，再根據區間內的 reportId 做群組選取
+    const [start, end] = [anchors[sel], idx].sort((a, b) => a - b);
+    // 1. 蒐集範圍內所有不含 .fixed 的唯一 reportId
+    const ids = new Set();
+    for (let i = start; i <= end; i++) {
+      const $r = $rows.eq(i);
+      if (!$r.hasClass('fixed')) {
+        ids.add($r.data('value'));
+      }
+    }
+    // 2. 清空之前的選取
+    $rows.removeClass('selected');
+    // 3. 對每個 reportId，在整張表裡選取所有對應列（不含 .fixed）
+    ids.forEach(id => {
+      $rows
+        .filter(`[data-value="${id}"]`)
+        .not('.fixed')
+        .addClass('selected');
+    });
+  }
+  else if (e.ctrlKey || e.metaKey) {
+    // Ctrl/⌘ 切換：對同 reportId 的所有列做 toggle
+    const isSel = $(this).hasClass('selected');
+    $rows
+      .filter(`[data-value="${value}"]`)
+      .toggleClass('selected', !isSel);
+    anchors[sel] = idx;
+  }
+  else {
+    // 單點：只選同 reportId 的所有列
+    $rows.removeClass('selected');
+    $rows
+      .filter(`[data-value="${value}"]`)
+      .addClass('selected');
+    anchors[sel] = idx;
+  }
+
+  // 重新計算 & 更新明細
+  updateTotalAmount();
+  updateDetailSelect();
+  updateDetailTable();
+});
+
+
+
+	    
+	    // 右移：把左表被選取的列移到右表末端
+	    $('.move-right').click(function() {
+	      $('#left-table tbody tr.selected').each(function() {
+	        $(this).removeClass('selected').appendTo('#right-table tbody');
+	      });
+	      sortTable('#left-table');
+	      sortTable('#right-table');
+	      updateTotalAmount();
+	      updateDetailTable();
+	    });
+
+	    // 左移：把右表被選取的列移回左表
+	    $('.move-left').click(function() {
+	      $('#right-table tbody tr.selected').each(function() {
+	        $(this).removeClass('selected').appendTo('#left-table tbody');
+	      });
+	      sortTable('#left-table');
+	      sortTable('#right-table');
+	      updateTotalAmount();
+	      updateDetailTable();
+	    });
+	    
+	    updateTotalAmount();
+	    updateDetailSelect();
+	    updateDetailTable();
+	    
+	    
+	    $('#momoEventNo, #payAccount').on('blur', function(){
+	        const code = $('#momoEventNo').val().trim();
+	        const deptNo = $('#payAccount').val().trim();
+	        
+	        // 清空舊訊息
+	        $('#momoEventNoError').text('');
+	        $('#payAccountError').text('');
+
+	        let hasError = false;
+
+	        // momoEventNo: 為必填、長度 16
+	        if (!code) {
+	            $('#momoEventNoError').text('為必填');
+	            hasError = true;
+	        } else if (code.length !== 16) {
+	            $('#momoEventNoError').text('長度須為 16 碼');
+	            hasError = true;
+	        }
+	        
+	        const re = /[A-Z]{4}\d{8}[LMS]{1}\d{3}/;
+
+	        // deptNo: 為必填、長度 4、大寫英文字母
+	        if (!deptNo) {
+	            $('#payAccountError').text('為必填');
+	            hasError = true;
+	        }  else if (!re.test(deptNo)) {
+	            $('#payAccountError').text('開頭為英文 4 碼，倒數第 4 碼為L/M/S，共 計16碼。');
+	            hasError = true;
+	        }
+
+	        // 有任何錯誤就不發 AJAX
+	        if (hasError) {
+	            return;
+	        }
+
+	        $.ajax({
+	          url: 'validateEventCode',
+	          type: 'POST',
+	          data: {
+	              momoEventNo: code,
+	              deptNo: deptNo
+	          },
+	          dataType: 'json',
+				beforeSend : function() {
+
+					openLoading();
+				},
+	          success: function(data) {
+	            if (data.auditStatus !== 1) {
+	              // 情境1：尚未簽核通過
+	              $.confirm({
+	                title: '發幣活動代碼驗證',
+	                titleClass: 'text-center d-block font-weight-bold text-warning2',
+	                content: '此發幣活動代碼尚未簽核通過',
+	                buttons: {
+	                  確定: { btnClass: 'btn-warning2 text-white' }
+	                }
+	              });
+	            } else {
+	              // 情境2：驗證成功，自動帶入四個欄位
+	              $('#issueAmount').text(data.issueAmount);      // 發幣金額
+	              $('#remainingAmount').text(data.remainingAmount);  // 發幣餘額
+	              $('#validFrom').text(data.validFrom);          // 效期起日 (yyyy/MM/dd)
+	              $('#validTo').text(data.validTo);              // 效期訖日
+	            }
+	          },
+	          error: function(xhr) {
+	            // 情境3：呼叫失敗
+	            // 如果是 400 驗證錯誤，就可以讀 xhr.responseJSON.error
+            const msg = xhr.status === 400 && xhr.responseJSON 
+                          ? xhr.responseJSON.error 
+                          : '請重新輸入發幣活動代碼，並點按其他地方。如果仍出現此訊息，請通知系統人員。';
+	            $.confirm({
+	              title: '發幣活動代碼驗證失敗',
+	              titleClass: 'text-center d-block font-weight-bold text-warning2',
+	              content: msg,
+	              buttons: {
+	                確定: { btnClass: 'btn-warning2 text-white' }
+	              }
+	            });
+	          },
+				complete : function(data) {
+					closeLoading();
+				}
+	        });
+	      });
+	    
+	    
+	    $('form[name=addStep]').submit(function(e) {
+	    	  e.preventDefault(); // 暫停原本提交
+	    	  
+	    	  // 先檢查日期是否有選
+	    	  const dateVal = $('#rewardDate').val();
+	    	  if (!dateVal) {
+	    	    $('#rewardDateError').text('本月發送日期為必填');
+	    	    return;
+	    	  } else {
+	    	    $('#rewardDateError').text('');
+	    	  }
+
+	    	  // 1. 讀取並轉數字
+	    	  const remaining = parseFloat($('#remainingAmount').text().replace(/,/g, ''));
+	    	  const total     = parseFloat($('#totalAmountDisplay').text().replace(/,/g, ''));
+
+	    	  // 2. 如果餘額不足，就跳情境4
+	    	  if (remaining < total) {
+	    	    $.confirm({
+	    	      title: '發幣餘額小於總金額',
+	    	      titleClass: 'text-center d-block font-weight-bold text-warning2',
+	    	      content: '欲建立的序號總金額要大於發幣餘額',
+	    	      buttons: {
+	    	        確定: { btnClass: 'btn-warning2 text-white' }
+	    	      }
+	    	    });
+	    	    return;
+	    	  }
+
+	    	  // 3. 餘額足夠 → 再跳「請確認」二次確認視窗
+	    	  $.confirm({
+	    	    title: '請確認',
+	    	    titleClass: 'text-center d-block font-weight-bold text-warning2',
+	    	    content: '是否確定執行建立序號? 點按確定之後，系統會有排程至 momo 建立序號以及匹配和發簡訊。',
+	    	    buttons: {
+	    	      取消: {
+	    	        text: '取消',
+	    	        btnClass: 'btn-outline-warning2 mr-3'
+	    	      },
+	    	      確定: {
+	    	        text: '確定',
+	    	        btnClass: 'btn-warning3 ml-3',
+	    	        action: function() {
+	    	        	
+	    	        	  // 1. 基本欄位
+	    	        	  const payload = {
+	    	        	    eventNo: $('#momoEventNo').val().trim(),
+	    	        	    requestCount: (() => {
+	    	        	        let sum = 0;
+	    	        	        $('#detail-table tbody tr').each((_, row) => {
+	    	        	            const count = parseInt($(row).find('td').eq(1).text().trim(), 10); // 讀取第二欄「待發幣人數」
+	    	        	            if (!isNaN(count)) sum += count;
+	    	        	        });
+	    	        	        return sum;
+	    	        	    })(),
+	    	        	    requestAmount: parseFloat($('#totalAmountDisplay').text().replace(/,/g, '')),
+	    	        	    payAccount: $('#payAccount').val().trim(),
+	    	        	    orderNumber: $('#orderNumber').val().trim(),
+	    	        	    eventNoAmount: parseFloat($('#issueAmount').text().replace(/,/g, '')),
+	    	        	    remainingAmt: parseFloat($('#remainingAmount').text().replace(/,/g, '')),
+	    	        	    amountValidityStartDate: $('#validFrom').text().trim(),
+	    	        	    amountValidityEndDate: $('#validTo').text().trim(),
+	    	        	    accountId: null,
+	    	        	    reportIdDetail: [],
+	    	        	    conditions: [],
+	    	        	    rewardDate: $('#rewardDate').val()    // yyyy-MM-dd
+	    	        	  };
+
+	    	        	// 已選擇的 reportIds 明細
+	    	        	  $('#right-table tbody tr').each((_, row) => {
+	    	        	      const cols = $(row).find('td');
+	    	        	      payload.reportIdDetail.push({
+	    	        	          reportId: cols.eq(0).text().trim(),
+	    	        	          projectType: cols.eq(1).text().trim(),
+	    	        	          campaignName: cols.eq(2).text().trim(),
+	    	        	          totalAmount: parseFloat(cols.eq(3).text().replace(/,/g, '')),
+	    	        	          amount: parseFloat(cols.eq(4).text().replace(/,/g, '')),
+	    	        	          pendingUser: parseInt(cols.eq(5).text().replace(/,/g, ''), 10)
+	    	        	      });
+	    	        	  });
+
+	    	        	  $('#detail-table tbody tr').each((_, row) => {
+	    	        		    const cols = $(row).find('td');
+	    	        		    payload.conditions.push({
+	    	        		        seqDenoAmt: parseFloat(cols.eq(0).text().replace(/,/g, '')),  // 面額
+	    	        		        seqDenoCount: parseInt(cols.eq(1).text().replace(/,/g, ''), 10)  // 待發幣人數
+	    	        		    });
+	    	        		});
+
+	    	        	  
+	    	        	  // 清空舊錯誤
+	    	        	  $('#momoEventNoError, #requestCountError, #requestAmountError, #conditionsError, #payAccountError')
+	    	        	    .text('');
+	    	        	  
+	    	        	  // 驗證
+	    	        	  const errs = validateSeqEventPayload(payload);
+	    	        	  if (Object.keys(errs).length) {
+	    	        	    showSeqEventErrors(errs);
+	    	        	    return; // 有錯就不送
+	    	        	  }
+
+	    	        	  // 4. AJAX 呼叫後端
+	    	        	  $.ajax({
+	    	        	    url: 'create',    // 或你在 Controller 裡設定的路徑
+	    	        	    type: 'POST',
+	    	        	    contentType: 'application/json',
+	    	        	    data: JSON.stringify(payload),
+	    	        	    beforeSend: openLoading,
+	    	        	    success: function(res) {
+
+	    	        	    	  // 1. disable 所有表單操作
+	    	        	    	  $('form[name="addStep"] input, form[name="addStep"] select, .move-right, .move-left, #createBtn')
+	    	        	    	    .prop('disabled', true)
+	    	        	    	    .addClass('disabled');
+
+	    	        	    	  viewHide();
+	    	        	    },
+	    	        	    error: function(xhr) {
+	    	        	      	    	        	    	    	        	      
+	    	        	        // 1. 如果是 400 並且有 errors 欄位，就做欄位錯誤顯示
+	    	        	        if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.errors) {
+	    	        	            const errs = xhr.responseJSON.errors;
+
+	    	        	            // eventNo
+	    	        	            if (errs.eventNo) {
+	    	        	                $('#momoEventNoError').text(errs.eventNo.join('；'));
+	    	        	            } else {
+	    	        	                $('#momoEventNoError').text('');
+	    	        	            }
+
+	    	        	            // deptNo (payAccount)
+	    	        	            if (errs.deptNo) {
+	    	        	                $('#payAccountError').text(errs.deptNo.join('；'));
+	    	        	            } else {
+	    	        	                $('#payAccountError').text('');
+	    	        	            }
+
+	    	        	            // requestCount
+	    	        	            if (errs.requestCount) {
+	    	        	                $('#requestCountError').text(errs.requestCount.join('；'));
+	    	        	            } else {
+	    	        	                $('#requestCountError').text('');
+	    	        	            }
+
+	    	        	            // requestAmount
+	    	        	            if (errs.requestAmount) {
+	    	        	                $('#requestAmountError').text(errs.requestAmount.join('；'));
+	    	        	            } else {
+	    	        	                $('#requestAmountError').text('');
+	    	        	            }
+
+	    	        	            // conditions
+	    	        	            if (errs.conditions) {
+	    	        	                // 如果是單純字串
+	    	        	                if (typeof errs.conditions === 'string') {
+	    	        	                    $('#conditionsError').text(errs.conditions);
+	    	        	                } else if (Array.isArray(errs.conditions)) {
+	    	        	                    // 假設後端回 [{0:{seqDenoAmt:["..."],seqDenoCount:["..."]}}, …]
+	    	        	                    const msg = errs.conditions.map((e,i) => {
+	    	        	                        const parts = [];
+	    	        	                        if (e.seqDenoAmt)   parts.push(`第${i+1}筆面額：${e.seqDenoAmt.join('；')}`);
+	    	        	                        if (e.seqDenoCount) parts.push(`第${i+1}筆筆數：${e.seqDenoCount.join('；')}`);
+	    	        	                        return parts.join('，');
+	    	        	                    }).join('；');
+	    	        	                    $('#conditionsError').text(msg);
+	    	        	                }
+	    	        	            } else {
+	    	        	                $('#conditionsError').text('');
+	    	        	            }
+
+	    	        	        } else {
+	    	        	            // 2. 其他狀況（伺服器錯誤 or network）就給通用提示
+	    	        	            $.confirm({
+	    	        	                title: '建立序號異常',
+	    	        	                titleClass: 'text-center d-block font-weight-bold text-warning2',
+	    	        	                content: '請再嘗試點按一次建立按鈕。如仍然出現此警告，請通知系統人員。',
+	    	        	                buttons: {
+	    	        	                    確定: { btnClass: 'btn-warning2 text-white' }
+	    	        	                }
+	    	        	            });
+	    	        	        }
+	    	        	    },
+	    					complete : function(data) {
+	    						closeLoading();
+	    					}
+	    	        	  });
+	    	        	}
+
+	    	      }
+	    	    },
+	    	    onContentReady: function() {
+	    	      // 滑過按鈕樣式切換
+	    	      $(document).on('mouseover', '.btn-outline-warning2', function() {
+	    	        $(this).removeClass('btn-outline-warning2').addClass('btn-warning3');
+	    	        $('.btn-warning3').not(this)
+	    	          .removeClass('btn-warning3').addClass('btn-outline-warning2');
+	    	      });
+	    	    }
+	    	  });
+	    	});
+
+	 // 返回上一页
+	    $('#backBtn').on('click', function(e) {
+	      e.preventDefault();
+	      window.history.back();
+	    });
+	 
+	    let detailAnchor = null;
+
+	    $('#detail-table tbody')
+	      .off('click', 'tr')
+	      .on('click', 'tr', function(e) {
+	        const $rows = $('#detail-table tbody tr');
+	        const idx   = $rows.index(this);
+
+	        if (e.shiftKey && detailAnchor !== null) {
+	          $rows.removeClass('selected');
+	          const [start, end] = [detailAnchor, idx].sort((a, b) => a - b);
+	          for (let i = start; i <= end; i++) {
+	            $rows.eq(i).addClass('selected');
+	          }
+	        }
+	        else if (e.ctrlKey || e.metaKey) {
+	          $(this).toggleClass('selected');
+	          detailAnchor = idx;
+	        }
+	        else {
+	          $rows.removeClass('selected');
+	          $(this).addClass('selected');
+	          detailAnchor = idx;
+	        }
+	      });
+	    
+	    const dateInput = document.getElementById('rewardDate');
+	    const today = new Date();           // 使用本地時區
+	    const year = today.getFullYear();
+	    const month = today.getMonth();     // JS 月份從 0 開始
+	    const tomorrow = new Date(year, month, today.getDate() + 1);
+	    const lastDay = new Date(year, month + 1, 0);  // 下個月第 0 天＝本月最後一天
+
+	    // 在地時間 YYYY-MM-DD
+	    const pad = n => n < 10 ? '0' + n : n;
+	    const toLocalYMD = d =>
+	      `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+	    dateInput.min = toLocalYMD(tomorrow);
+	    dateInput.max = toLocalYMD(lastDay);
+
+		
+		});
+
+		function serialRewardReportXlsx() {
+			var form = document.createElement("form");
+			form.action = 'serialRewardReportXlsx';
+			form.method = "POST";
+			form.style.display = "none";
+			var input = document.createElement("input");
+			input.name = "reportId";
+			input.value = $('#reportId').val();
+			input.type = "hidden";
+			form.appendChild(input);
+			document.body.appendChild(form);
+			form.submit();
+			document.body.removeChild(form);
+		}
+
+
+
+		function openSpecificStore() {
+			var form = document.createElement("form");
+			form.action = 'openSpecificStore';
+			form.method = "POST";
+			form.target = "_blank";
+			form.style.display = "none";
+
+			var input = document.createElement("input");
+			input.name = "campaignDetailId";
+			input.value = $('#campaignDetailId').val();
+			input.type = "hidden";
+
+			form.appendChild(input);
+
+			document.body.appendChild(form);
+			form.submit();
+			document.body.removeChild(form);
+		}
+
+		function openFeedbackContent() {
+			var form = document.createElement("form");
+			form.action = 'openFeedbackContent';
+			form.method = "POST";
+			form.target = "_blank";
+			form.style.display = "none";
+
+			var input = document.createElement("input");
+			input.name = "campaignDetailId";
+			input.value = $('#campaignDetailId').val();
+			input.type = "hidden";
+
+			form.appendChild(input);
+
+			document.body.appendChild(form);
+			form.submit();
+			document.body.removeChild(form);
+		}
+		
+		function sortSelect(selector) {
+			
+		    var options = $(selector + ' option');
+		    var firstOption = options.first();  // 保留第一个option
+		    options = options.slice(1);  // 从第二个option开始获取剩下的options
+
+		    options.sort(function(a, b) {
+		        // 假设选项的文本可以转换为数字
+		        return parseInt($(a).text()) - parseInt($(b).text());
+		    });
+
+		    // 清空原来的select，并重新插入第一个option和排序后的options
+		    $(selector).empty().append(firstOption);
+		    
+		    // 逐个添加选项以确保所有属性如 title 保持不变
+		    options.each(function() {
+		        $(selector).append($(this));
+		    });
+		    $('[data-toggle="tooltip"]').tooltip();
+		}
+		
+		function addStepSubmit(obj){
+			let formData = new FormData(obj);
+			
+			//解checkmarx的Client Potential XSS中風險
+			formData.append("reportId", encodeURI($('#reportId')
+					.val()));
+			
+			$('#right-select option').each(function(){
+				formData.append('reportIds',encodeURI($(this).val()));
+			});
+												            
+			$
+					.ajax({
+						type : 'POST',
+						url : 'addStep',
+						data : formData,
+						cache : false,
+						processData : false,
+						contentType : false,
+						beforeSend : function() {
+							openLoading();
+						},
+						success : function(data) {
+							
+							$
+									.confirm({
+										title : '匹配成功',
+										titleClass : 'text-center d-block font-weight-bold text-warning2',
+										content : '您上傳之 momo 幣序號已成功完成匹配。',
+										buttons : {
+											確定 : {
+												text : '確定',
+												btnClass : 'btn-warning2 text-white',
+												action : function() {
+
+													var momoEventNo = document
+															.querySelectorAll('input[name="momoEventNo"]');
+													var momoEventNoValue = momoEventNo[0].value;
+
+													momoEventNo[1].value = momoEventNoValue;
+
+													var payAccount = document
+															.querySelectorAll('input[name="payAccount"]');
+													var payAccountValue = payAccount[0].value;
+
+													payAccount[1].value = payAccountValue;
+
+													var orderNumber = document
+															.querySelectorAll('input[name="orderNumber"]');
+													var orderNumberValue = orderNumber[0].value;
+
+													orderNumber[1].value = orderNumberValue;
+
+													$(
+															'#requisitionUnit')
+															.val(
+																	data.prRequestorDept);
+													$(
+															'#requisitioner')
+															.val(
+																	data.prRequestorName);
+
+													document
+															.getElementById("btn--next").disabled = false;
+													document.getElementById('addStepDiv').classList.add('disabled');
+												}
+											}
+										}
+									});
+
+						},
+						error : function(error, b, c) {
+
+							var errorMessages = error.responseJSON.errorMessages;
+							var errorMessagesStr = "";
+
+							for ( var m in errorMessages) {
+								for (var i = 0; i < errorMessages[m].length; i++) {
+
+									errorMessagesStr = errorMessagesStr
+											+ errorMessages[m][i];
+
+								}
+							}
+
+							$
+									.confirm({
+										title : error.responseJSON.message,
+										titleClass : 'text-center d-block font-weight-bold text-warning2',
+										content : errorMessagesStr,
+										buttons : {
+											確定 : {
+												text : '確定',
+												btnClass : 'btn-warning2 text-white',
+												action : function() {
+
+													var momoEventNo = document
+															.querySelectorAll('input[name="momoEventNo"]');
+													momoEventNo[1].value = '';
+													var payAccount = document
+															.querySelectorAll('input[name="payAccount"]');
+													payAccount[1].value = '';
+													var orderNumber = document
+															.querySelectorAll('input[name="orderNumber"]');
+													orderNumber[1].value = '';
+													$(
+															'#requisitionUnit')
+															.val(
+																	'');
+													$(
+															'#requisitioner')
+															.val(
+																	'');
+													document
+															.getElementById("btn--next").disabled = true;
+												}
+											}
+										}
+									});
+
+						},
+
+						complete : function(data) {
+							closeLoading();
+						}
+					});
+		}
+		
+		  // 更新總額
+		  function updateTotalAmount() {
+		    let total = 0;
+		    $('#right-table tbody tr').each(function() {
+		      total += parseFloat($(this).find('td').eq(3).text().replace(/,/g, '')) || 0;
+		    });
+		    $('#totalAmountDisplay').text(total.toLocaleString());
+		  }
+		
+		// 1. 讀出每筆 option 的 denom(面額) & cnt(待發幣人數)，並累加
+		function getDenomCounts() {
+		  const counter = {};
+		  $('#right-select option').each((_, opt) => {
+		    // 假設 opt.text = "ID | 類型 | 名稱 | 總額 | 面額 | 待發幣人數"
+		    const parts = $(opt).text().split('|').map(s => s.trim());
+		    const denom = parts[4];                                // 第五段：面額
+		    const cnt   = parseInt(parts[5].replace(/,/g,''), 10); // 第六段：待發幣人數
+		    // 過濾掉不合法或 header
+		    if (!denom || isNaN(Number(denom)) || isNaN(cnt)) return;
+		    counter[denom] = (counter[denom] || 0) + cnt;
+		  });
+		  return counter;  // e.g. { "100": 3, "200": 5 }
+		}
+
+		
+		// 1. 計算所有面額與人數的最長字元長度
+		function calcMaxLengths(counts) {
+		  let maxDenom = 0, maxCnt = 0;
+		  for (const [denom, cnt] of Object.entries(counts)) {
+		    maxDenom = Math.max(maxDenom, denom.length);
+		    maxCnt   = Math.max(maxCnt, String(cnt).length);
+		  }
+		  return { maxDenom, maxCnt };
+		}
+
+		// 2. padding 函式：left=true 表示在左邊補空白（右靠），false 則在右邊補空白（左靠）
+		function pad(str, length, left) {
+		  const nbsp = '\u00A0';
+		  const padCount = Math.max(length - str.length, 9);
+		  const padStr = nbsp.repeat(padCount);
+		  return left ? padStr + str : str + padStr;
+		}
+
+		// 3. 更新 detail-select
+		function updateDetailSelect() {
+		  const $detail = $('#detail-select');
+		  $detail.find('option:not(:first)').remove();  // 清掉 header 以外的
+
+		  const counts = getDenomCounts();              // e.g. { "100": 3, "200": 5 }
+		  const { maxDenom, maxCnt } = calcMaxLengths(counts);
+
+		  Object.entries(counts).forEach(([denom, sumCnt]) => {
+		    const denomPadded = pad(denom,   maxDenom, true);   // 面額 → 右靠
+		    const cntPadded   = pad(String(sumCnt), maxCnt, false); // 人數 → 左靠
+		    $detail.append(`<option>${denomPadded}${'\u00A0'}| ${'\u00A0'}${cntPadded}</option>`);
+		  });
+		}
+		
+		
+		// 只排序右邊，且保留 header(第0筆) + specificOption(第1筆) 不動
+		function sortRightSelect(selector) {
+		  const $opts = $(selector + ' option');
+		  const $header = $opts.eq(0);      // 靜態表頭
+		  const $fixed = $opts.eq(1);       // specificOption (如 6715)
+		  const $rest  = $opts.slice(2);    // 其餘要排序的資料
+
+		  // 按文字中的數字大小排序
+		  $rest.sort((a, b) => {
+		    return parseInt($(a).text(), 10) - parseInt($(b).text(), 10);
+		  });
+
+		  // 清空並重組：header、fixed、排序後的 rest
+		  $(selector).empty()
+		    .append($header)
+		    .append($fixed);
+		  $rest.each(function() { $(selector).append(this); });
+
+		  // 重新初始化 tooltip
+		  $('[data-toggle="tooltip"]').tooltip();
+		}
+		
+		
+		// 1. 驗證函式，回傳一個 errors 物件（欄位名稱 -> 訊息）
+		function validateSeqEventPayload(payload) {
+		  const errors = {};
+
+		  // eventNo (momoEventNo)
+		  if (!payload.eventNo) {
+		    errors.eventNo = '為必填';
+		  } else if (payload.eventNo.length !== 16) {
+		    errors.eventNo = '長度須為 16 碼';
+		  }
+
+		  // requestCount (從 detail-select 算出來)
+		  if (payload.requestCount == null || !Number.isInteger(payload.requestCount)) {
+		    errors.requestCount = '為必填';
+		  } else if (payload.requestCount < 1) {
+		    errors.requestCount = '最少要 1 筆';
+		  }
+
+		  // requestAmount (totalAmountDisplay)
+		  if (payload.requestAmount == null || isNaN(payload.requestAmount)) {
+		    errors.requestAmount = '為必填';
+		  } else if (payload.requestAmount < 1) {
+		    errors.requestAmount = '最少要 1 元';
+		  }
+
+		  // conditions (detail-select 的每個 option 都要有合法值)
+		  if (!Array.isArray(payload.conditions) || payload.conditions.length === 0) {
+		    errors.conditions = '列表不可為空';
+		  } else {
+		    const condErrs = [];
+		    payload.conditions.forEach((c, i) => {
+		      const e = {};
+		      if (c.seqDenoAmt == null || isNaN(c.seqDenoAmt)) {
+		        e.seqDenoAmt = '為必填';
+		      } else if (c.seqDenoAmt < 1) {
+		        e.seqDenoAmt = '最少要 1 元';
+		      }
+		      if (c.seqDenoCount == null || !Number.isInteger(c.seqDenoCount)) {
+		        e.seqDenoCount = '為必填';
+		      } else if (c.seqDenoCount < 1) {
+		        e.seqDenoCount = '最少要 1 筆';
+		      }
+		      if (Object.keys(e).length) condErrs[i] = e;
+		    });
+		    if (condErrs.length) errors.conditions = condErrs;
+		  }
+
+		  // deptNo (payAccount)
+		  if (!payload.payAccount) {
+		    errors.deptNo = '為必填';
+		  } else if (!/[A-Z]{4}\d{8}[LMS]{1}\d{3}/.test(payload.payAccount)) {
+		    errors.deptNo = '開頭為英文 4 碼，倒數第 4 碼為L/M/S，共 計16碼。';
+		  }
+
+		  return errors;
+		}
+		
+		
+		// 2. 把錯誤顯示到你的畫面上
+		function showSeqEventErrors(errs) {
+		  $('#momoEventNoError').text(errs.eventNo || '');
+		  $('#requestCountError').text(errs.requestCount || '');
+		  $('#requestAmountError').text(errs.requestAmount || '');
+		  $('#conditionsError').text(
+		    typeof errs.conditions === 'string'
+		      ? errs.conditions
+		      : Array.isArray(errs.conditions)
+		        ? errs.conditions.map((e,i) => {
+		            const parts = [];
+		            if (e.seqDenoAmt)   parts.push(`第${i+1}筆面額：${e.seqDenoAmt}`);
+		            if (e.seqDenoCount) parts.push(`第${i+1}筆筆數：${e.seqDenoCount}`);
+		            return parts.join('，');
+		          }).join('；')
+		        : ''
+		  );
+		  $('#payAccountError').text(errs.deptNo || '');
+		}
+		
+		function viewHide() {
+		      // 隱藏左側「待匹配 reportIds」清單
+		      $('.flex-fill.pr-2').hide();
+		      // 隱藏中間的左右移動按鈕
+		      $('.move-right, .move-left').hide();
+		      // 隱藏「建立」按鈕
+		      $('#createBtn').hide();
+		      
+		      
+		      
+		      const container = document.querySelector('.d-flex.align-items-center.col-lg-12');
+
+		   // 1. 添加 justify-content: center
+		   container.style.justifyContent = 'center';
+		}
+		
+		  // 簡易排序：依 data-value 欄位作升冪
+function sortTable(selector) {
+  const $tbody = $(selector + ' tbody');
+  // 1. 先把所有 .fixed 列分離（但保留在記憶體）
+  const $fixedRows = $tbody.find('tr.fixed').detach();
+  // 2. 對剩下的列依 data-value 做排序
+  const rows = $tbody.find('tr').get();
+  rows.sort((a, b) => {
+    const va = parseFloat($(a).data('value'));
+    const vb = parseFloat($(b).data('value'));
+    return va - vb;
+  });
+  // 3. 清空 tbody，重插排序後的普通列
+  $tbody.empty();
+  $.each(rows, (_i, row) => {
+    $tbody.append(row);
+  });
+  // 4. 最後把 fixed 列重新 prepend 回去
+  if ($fixedRows.length) {
+    $tbody.prepend($fixedRows);
+  }
+}
+
+		  
+		  // 依面額＆人數彙整明細表
+function updateDetailTable() {
+  const counter = {};
+  // 從右邊的已選 table (#right-table) 撈面額 & 人數做累計
+  $('#right-table tbody tr').each(function() {
+    const denom = $(this).find('td').eq(4).text().trim();
+    const cnt   = parseInt($(this).find('td').eq(5).text().trim(), 10) || 0;
+    if (!denom) return;
+    counter[denom] = (counter[denom] || 0) + cnt;
+  });
+
+  const $tb = $('#detail-table tbody');
+  $tb.empty();
+
+  // 根據 viewMode 決定欄位標題
+  const denomTitle = $('#detail-table thead th').eq(0).text();
+  const cntTitle   = $('#detail-table thead th').eq(1).text();
+
+  Object.entries(counter).sort((a,b) => parseFloat(a[0]) - parseFloat(b[0]))
+    .forEach(([denom, cnt]) => {
+      $tb.append(`
+        <tr>
+          <td class="text-right">${denom}</td>
+          <td class="text-left">${cnt}</td>
+        </tr>
+      `);
+    });
+
+  // 如果沒有任何資料，就顯示空白或提示
+  if (Object.keys(counter).length === 0) {
+    $tb.append('<tr><td colspan="2" class="text-muted">尚無細節</td></tr>');
+  }
+}
+
+		
+
+		 /*]]>*/
+	</script>
+
+
+</body>
+</html>
