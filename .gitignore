@@ -1,193 +1,257 @@
-# IDE and Build Files
-.settings/
-/target/
+# ===============================================
+# Spring Boot Maven Project .gitignore
+# ===============================================
+
+# ===============================================
+# Maven Build Files
+# ===============================================
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ===============================================
+# IDE Files
+# ===============================================
+
+# Eclipse
 .classpath
 .project
-*.iml
-*.iws
-*.ipr
+.settings/
+.factorypath
+
+# IntelliJ IDEA
 .idea/
-.vscode/
-.metadata/
-.recommenders/
-build/
-bin/
+*.iws
+*.iml
+*.ipr
 out/
 
-# Log Files
+# Visual Studio Code
+.vscode/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+# ===============================================
+# Operating System Files
+# ===============================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ===============================================
+# Logs and Runtime Files
+# ===============================================
 logs/
-work/
-accesslog/
 *.log
 *.log.*
-*.out
-spring.log
-application.log
+log/
+log4j.properties
+logback-spring.xml.bak
 
-# Configuration Files with Sensitive Data
-# Database and Connection Configurations
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# ===============================================
+# Java Compiled Files
+# ===============================================
+*.class
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Virtual machine crash logs
+hs_err_pid*
+replay_pid*
+
+# ===============================================
+# Spring Boot Specific
+# ===============================================
+
+# Spring Boot DevTools restart file
+.reloadtrigger
+
+# Spring Boot application properties with sensitive data
+# (Keep template files, ignore customized ones)
 application-local.properties
-application-*.properties
-!application-dev.properties
-!application-prod.properties
-!application-uat.properties
-config/database.properties
-config/secret.properties
-config/local.properties
+application-dev-local.properties
+application-uat-local.properties
+application-prod-local.properties
 
-# Environment and Secret Files
+# ===============================================
+# Database and Security Files
+# ===============================================
+
+# Database files
+*.db
+*.sqlite
+*.h2.db
+*.trace.db
+*.lock.db
+
+# Security and Certificate files
+*.jks
+*.p12
+*.key
+*.pem
+*.crt
+*.keystore
+*.truststore
+
+# ===============================================
+# Temporary and Cache Files
+# ===============================================
+
+# Temporary directories
+temp/
+tmp/
+work/
+
+# Cache directories
+.cache/
+cache/
+
+# Node modules (if any frontend build tools are used)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===============================================
+# Documentation Build Files
+# ===============================================
+
+# Generated documentation
+docs/build/
+site/
+
+# ===============================================
+# Test Coverage and Reports
+# ===============================================
+coverage/
+.nyc_output/
+target/site/jacoco/
+
+# ===============================================
+# Environment and Configuration
+# ===============================================
+
+# Environment files
 .env
 .env.local
 .env.*.local
-secrets/
-keys/
-credentials/
-passwords.txt
-secrets.txt
-config.json
-secret.json
 
-# Security and Certificate Files
-# SSL Certificates and Keystores
-*.jks
-*.keystore
-*.p12
-*.pfx
-*.pem
-*.crt
-*.cer
-*.key
-*.p7b
-*.p7c
-certificates/
-ssl/
-trust-store*
-key-store*
-keystore*
-truststore*
+# ===============================================
+# Git and Version Control
+# ===============================================
 
-# Database Files and Backups
-# Database dumps and sensitive data
-*.sql
-*.db
-*.sqlite
-*.sqlite3
-*.dmp
-database-backup*
-db-backup*
+# Git patches
+*.patch
+*.diff
+
+# ===============================================
+# Build and Deployment
+# ===============================================
+
+# Deployment scripts output
+deploy/
+dist/
+
+# ===============================================
+# Important Files to Keep (Force Include)
+# ===============================================
+
+# Keep essential configuration templates
+!src/main/resources/application-dev.properties
+!src/main/resources/application-uat.properties
+!src/main/resources/application-prod.properties
+!src/main/resources/ESAPI.properties
+!src/main/resources/validation.properties
+!src/main/resources/logback-spring.xml
+
+# Keep Maven wrapper
+!.mvn/
+!mvnw
+!mvnw.cmd
+
+# Keep essential project files
+!pom.xml
+!README.md
+!settings.xml
+
+# Keep database schema files
+!Database/
+!Database/*.sql
+
+# Keep documentation images
+!Image/
+!Image/*.png
+!Image/*.jpg
+!Image/*.gif
+
+# ===============================================
+# Project Specific Exclusions
+# ===============================================
+
+# Exclude built JAR from root (keep template, ignore built ones)
+crs-mgmt-*.jar
+
+# Source file copies (if these are duplicates)
+SourceFile/
+
+# Work directories
+rs/
+
+# Archive directories
+archived/
 backup/
-dumps/
-data/
-test-data/
-sample-data/
-seed-data/
-*.csv
-*.xlsx
-*.xls
-
-# Temporary and Cache Files
-*.tmp
-*.temp
-*.cache
-cache/
-temp/
-tmp/
-.DS_Store
-Thumbs.db
-
-# Spring Boot Specific
-# Spring Boot sensitive files
-bootstrap-local.properties
-bootstrap-*.properties
-application-secrets.properties
-spring-boot-admin.properties
-management.properties
-
-# Security Token and Session Files
-# Authentication and session data
-token*
-session*
-jwt*
-auth*
-oauth*
-sso*
-saml*
-*.token
-*.session
-*.jwt
-
-# Oracle Database Specific
-# Oracle wallet and connection files
-wallet/
-cwallet.sso
-ewallet.p12
-sqlnet.ora
-tnsnames.ora
-listener.ora
-
-# Development and Test Files
-# Files containing test credentials or sensitive test data
-test-config/
-dev-config/
-local-config/
-demo-data/
-test-credentials*
-dev-credentials*
-local-credentials*
-
-# Documentation with Sensitive Info
-# Files that might contain credentials or sensitive information
-README-local.md
-NOTES.txt
-TODO.txt
-CREDENTIALS.md
-SETUP.md
-DEPLOYMENT.md
-api-keys.txt
-password-list.txt
-
-# Backup and Archive Files
-# Compressed files that might contain sensitive data
-*.zip
-*.tar.gz
-*.7z
-*.rar
-backup-*
-archive-*
-*.bak
-*.backup
-
-# Runtime and Process Files
-# Files created during runtime that might contain sensitive data
-pid*
-*.pid
-hs_err_pid*
-replay_pid*
-core.*
-
-# Email and Communication
-# Files containing email configurations or templates with sensitive data
-email-config*
-mail-config*
-smtp-config*
-email-templates-local/
-
-# Reports and Export Files
-# Generated reports that might contain sensitive customer data
-reports/
-exports/
-generated/
-output/
-downloads/
-*.report
-*.export
-
-# Custom Application Specific
-# CRS system specific sensitive files
-crs-config/
-serial-data/
-campaign-data/
-reward-data/
-customer-data/
-momo-config/
-sso-config/

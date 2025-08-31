@@ -1,0 +1,81 @@
+environment.name=DEV
+webApp.url=https://web.crsdev.taiwanmobile.com
+
+spring.main.allow-circular-references = true
+
+#icon
+spring.mvc.favicon.enabled=false
+
+#logging
+logging.config=classpath:logback-spring.xml
+logging.level.org.hibernate.SQL=DEBUG	
+logging.level.org.hibernate.type=TRACE
+
+
+#DB
+spring.modb.jdbc-url=jdbc:oracle:thin:@172.30.4.82:1521:momodb4d
+spring.modb.username=momoapi
+spring.modb.password=ENC(PRKiakWLSyeJlpfdZ+eMByi34RpBrPytO8WZr6yrUzA=)
+spring.modb.max-active=5
+spring.modb.initial-size=3
+spring.modb.min-idle=3
+spring.transaction.rollback-on-commit-failure=true
+
+#SERVER
+server.ssl.key-store-password=crsmgmt
+server.ssl.key-store=DevAP2KeyStore.jks
+server.port=443
+server.tomcat.basedir=./
+server.tomcat.accesslog.enabled=true
+server.tomcat.accesslog.buffered=false
+server.tomcat.accesslog.suffix=.log
+server.tomcat.accesslog.pattern=%t,%A,%p,%a,%U,%m,%q,%b,%s,%H,%D,%{User-Agent}i,%{X-Forwarded-For}i
+server.tomcat.accesslog.prefix=access_log
+server.tomcat.accesslog.file-date-format=.yyyy-MM-dd
+server.error.whitelabel.enabled=false
+server.servlet.session.tracking-modes=cookie
+server.servlet.session.timeout=120m
+
+#MAIL
+#spring.mail.host=127.0.0.1
+spring.mail.host=172.16.21.2
+crs.mail.from=crs@taiwanmobile.com
+
+#NTSSO
+nt.sso.url=https://ssouat.taiwanmobile.com/SSOUAT/SSOAPI.aspx
+nt.sso.sid=200348
+nt.sso.auth.type=Form
+
+#FILE
+spring.servlet.multipart.maxFileSize = -1
+spring.servlet.multipart.maxRequestSize = -1
+
+#KEY/IV
+ap.account.secrect.key=oJ9YTPTOEmDK1vhbXPEFRffeIRVhPi4a
+ap.account.secrect.iv=u2L0KebuHPcjSKeg
+rc.recieve.secrect.key=9bJHnMNKU5WS7OV5II9JXgUIAGhUZ0Ao
+rc.recieve.secrect.iv=9NkKmHvnTKw7ywC9
+
+#OTHER
+EPAPI.master=https://terpweb.taiwanmobile.com/ws_ep/j/getMobiPoInfo
+EPAPI.sms=http://172.30.4.112:8080/setMomoidChangeSms
+EPAPI.userId=U0003
+EPAPI.userPwd=1562533
+
+#MOGW
+MOGW.DomainName=https://mogwdev.taiwanmobile.com
+
+cron.alertFor90dayLogin=0 30 00 * * ?
+cron.serialCampaignWhileListExpired= 0 0 02 * * ?
+
+#REPORT
+#for windows
+#report.path=D:\\bitbucket\\tps-crs-mgmt\\
+#for linux
+report.path=/home/tpsacct/checkbillList/
+
+# ====================
+# jasypt Setting
+# ====================
+jasypt.encryptor.algorithm=PBEWithMD5AndDES
+jasypt.encryptor.iv-generator-classname=org.jasypt.iv.NoIvGenerator

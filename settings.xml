@@ -1,16 +1,14 @@
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                              http://maven.apache.org/xsd/settings-1.0.0.xsd">
-<mirrors>
-    <mirror>
-        <id>nexus</id>
-        <name>nexus name</name>
-        <mirrorOf>*</mirrorOf>
-        <url>http://172.16.24.142/repository/maven-public/</url>
-    </mirror>
-</mirrors>
-    <!-- 其他配置 -->
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <mirrors>
+        <mirror>
+            <id>nexus</id>
+            <name>nexus name</name>
+            <mirrorOf>*</mirrorOf>
+            <url>http://172.16.24.142/repository/maven-public/</url>
+        </mirror>
+    </mirrors>
 
     <profiles>
         <profile>
@@ -26,9 +24,7 @@
                         <enabled>true</enabled>
                     </snapshots>
                 </repository>
-
             </repositories>
-
             <pluginRepositories>
                 <pluginRepository>
                     <id>central</id>
@@ -42,10 +38,19 @@
                 </pluginRepository>
             </pluginRepositories>
         </profile>
+
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.host.url>http://172.16.24.142:9000</sonar.host.url>
+                <sonar.login>sqp_abcdefghijklmnopqrstuvwxyz1234567890</sonar.login>
+            </properties>
+        </profile>
     </profiles>
 
     <activeProfiles>
         <activeProfile>nexus-profile</activeProfile>
+        <activeProfile>sonar</activeProfile>
     </activeProfiles>
 
 </settings>

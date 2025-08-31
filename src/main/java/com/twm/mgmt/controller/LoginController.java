@@ -32,18 +32,18 @@ public class LoginController extends BaseController {
 
 	@Autowired
 	private LoginService service;
-	
-	private Encoder encode=ESAPI.encoder();
+
+	private Encoder encode = ESAPI.encoder();
 
 	@GetMapping(ROOT_URI)
 	public ModelAndView index(String showalert) {
 		ModelAndView mv = new ModelAndView("index");
 		ProgramEntity programEntity = service.getShowProgramName(showalert);
-		if (programEntity!= null) {
+		if (programEntity != null) {
 			String programName = programEntity.getProgramName();
 			mv.addObject("programName", programName);
 		}
-		
+
 		return mv;
 	}
 
@@ -69,37 +69,44 @@ public class LoginController extends BaseController {
 
 				String approvalId = receiveInfoVo.getId();
 
-//				ApprovalMainEntity entity = approvalservice.getApprovalMainEntity(approvalId);
-//
-//				if (entity != null) {
-//					Integer level = receiveInfoVo.getLevel();
-//
-//					Long accountId = approvalservice.getAccountId();
-//
-//					// 檢核能否簽核該單號
-//					if (!(level == 1 && accountId == entity.getL1Account()) && !(level == 2 && accountId == entity.getL2Account())) {
-//						log.debug("Not Has Approval Permission...");
-//
-//						attrs.addFlashAttribute("errorVo", MessageFormat.format(CrsErrorCode.APPROVAL_ACCOUNT_NOT_FOUND.getDesc(), approvalId));
-//
-//						return new RedirectView(fullUrl(CRS_ERROR_URI, request));
-//					}
-//
-//					ApprovalStatus status = ApprovalStatus.find(entity.getStatus());
-//
-//					if (status.isUnreceived() || status.isDecline()) {
-//						// 更新簽收
-//						if (status.isUnreceived()) {
-//							approvalservice.updateApprovalStatus(receiveInfoVo);
-//						}
-//
-//						return new RedirectView(fullUrl(String.format("%s%s", RedirectController.REDIRECT_URI, RedirectController.GO_APPRV_URI), request));
-//					} else {
-//						// 待簽核清單
-//
-//						//return new RedirectView(fullUrl(String.format("%s%s", ApprovalController.APPROVAL_URI, ApprovalController.FIND_WAIT_APPROVAL_LIST_URI), request));
-//					}
-//				}
+				// ApprovalMainEntity entity =
+				// approvalservice.getApprovalMainEntity(approvalId);
+				//
+				// if (entity != null) {
+				// Integer level = receiveInfoVo.getLevel();
+				//
+				// Long accountId = approvalservice.getAccountId();
+				//
+				// // 檢核能否簽核該單號
+				// if (!(level == 1 && accountId == entity.getL1Account()) && !(level == 2 &&
+				// accountId == entity.getL2Account())) {
+				// log.debug("Not Has Approval Permission...");
+				//
+				// attrs.addFlashAttribute("errorVo",
+				// MessageFormat.format(CrsErrorCode.APPROVAL_ACCOUNT_NOT_FOUND.getDesc(),
+				// approvalId));
+				//
+				// return new RedirectView(fullUrl(CRS_ERROR_URI, request));
+				// }
+				//
+				// ApprovalStatus status = ApprovalStatus.find(entity.getStatus());
+				//
+				// if (status.isUnreceived() || status.isDecline()) {
+				// // 更新簽收
+				// if (status.isUnreceived()) {
+				// approvalservice.updateApprovalStatus(receiveInfoVo);
+				// }
+				//
+				// return new RedirectView(fullUrl(String.format("%s%s",
+				// RedirectController.REDIRECT_URI, RedirectController.GO_APPRV_URI), request));
+				// } else {
+				// // 待簽核清單
+				//
+				// //return new RedirectView(fullUrl(String.format("%s%s",
+				// ApprovalController.APPROVAL_URI,
+				// ApprovalController.FIND_WAIT_APPROVAL_LIST_URI), request));
+				// }
+				// }
 			} catch (Exception e) {
 				log.error("LoginController loadInfo updateApprovalStatus Error: {}", e.getMessage(), e);
 
@@ -108,13 +115,12 @@ public class LoginController extends BaseController {
 
 		}
 
+		String redirectUrl = (String) request.getSession().getAttribute("redirectAfterLogin");
+		if (redirectUrl != null && !redirectUrl.isEmpty()) {
+			request.getSession().removeAttribute("redirectAfterLogin");
+			return new RedirectView(redirectUrl);
+		}
 
-	    String redirectUrl = (String) request.getSession().getAttribute("redirectAfterLogin");
-	    if (redirectUrl != null && !redirectUrl.isEmpty()) {
-	        request.getSession().removeAttribute("redirectAfterLogin");
-	        return new RedirectView(redirectUrl);
-	    }
-	    
 		return new RedirectView(fullUrl(ROOT_URI, request));
 	}
 
@@ -126,21 +132,16 @@ public class LoginController extends BaseController {
 	 */
 	@GetMapping(CRS_ERROR_URI)
 	public ModelAndView error(@ModelAttribute("errorVo") RespVo vo) {
-		
-		//checkmarx弱掃
-		vo =JsonUtil.jsonToPojo(ESAPI.encoder().decodeForHTML(ESAPI.encoder().encodeForHTML(JsonUtil.objectToJson(vo))), RespVo.class);
-		
-		
-		
+
+		// checkmarx弱掃
+		vo = JsonUtil.jsonToPojo(
+				ESAPI.encoder().decodeForHTML(ESAPI.encoder().encodeForHTML(JsonUtil.objectToJson(vo))), RespVo.class);
+
 		ModelAndView mv = new ModelAndView("error");
 
 		if (StringUtilsEx.isBlank(encode.encodeForHTML(vo.getCode()))) {
 			vo = getErrorResponse2().getBody();
 		}
-		
-
-		
-
 
 		mv.addObject("errorVo", vo);
 
@@ -154,8 +155,8 @@ public class LoginController extends BaseController {
 	 * @return
 	 */
 	@GetMapping(LOGOUT_URI)
-	public ModelAndView logout(HttpServletRequest request,HttpServletResponse response) {
-		//ModelAndView mv = new ModelAndView("logout");
+	public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
+		// ModelAndView mv = new ModelAndView("logout");
 
 		HttpSession session = request.getSession();
 
@@ -163,7 +164,7 @@ public class LoginController extends BaseController {
 			session.invalidate();
 		}
 
-		return new ModelAndView("redirect:" + SsoController.SSO_URI+SsoController.LOGIN_URI);
+		return new ModelAndView("redirect:" + SsoController.SSO_URI + SsoController.LOGIN_URI);
 	}
 
 }

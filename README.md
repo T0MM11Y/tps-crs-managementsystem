@@ -1,79 +1,58 @@
 # TPS CRS Management System
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [System Overview](#system-overview)
-- [CRS and RRA System Architecture](#crs-and-rra-system-architecture)
+- [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Installation & Setup](#installation--setup)
-- [Database Configuration](#database-configuration)
-- [Account Management](#account-management)
-- [SSO Integration](#sso-integration)
-- [User Sub ID Query](#user-sub-id-query)
-- [Database Tables](#database-tables)
-- [Development Guidelines](#development-guidelines)
-- [API Documentation](#api-documentation)
+- [Configuration](#configuration)
+- [Running the Application](#running-the-application)
+- [API Endpoints](#api-endpoints)
+- [Development](#development)
 - [Troubleshooting](#troubleshooting)
 
-## 🌟 System Overview
+## Overview
 
-The **TPS CRS Management System** is a comprehensive Spring Boot-based backend application that manages customer reward systems and regional reward alliances.
+The TPS CRS Management System is a Spring Boot-based web application designed for managing customer reward systems and regional reward alliances for Taiwan Mobile (TWM). The system provides comprehensive functionality for user account management, reward campaign administration, and system reporting.
 
 ### Key Features
 
-- 🔐 Single Sign-On (SSO) authentication with NT SSO integration
-- 👥 User account and role management
-- 🎯 Serial campaign management
-- 📊 Reporting and analytics
-- 🔄 MoMo ID change system
-- 📧 Email notification system
-- ⏰ Scheduled task management
+- Single Sign-On (SSO) authentication with NT SSO integration
+- User account and role-based access control management
+- Serial campaign management with approval workflows
+- Comprehensive reporting and analytics
+- MoMo ID change request processing
+- Email notification system
+- Scheduled task management
 
-## 🏗️ CRS and RRA System Architecture
+### System Screenshots
 
-### CRS (Coin Reward System)
+#### Account Management
 
-The CRS system generates reward coins (momo coins) for TWM customers through the following components:
+![Account Management](<Image/新增使用者帳號(Xīnzēng%20Shǐyòngzhě%20Zhànghào).png>)
 
-| Component   | Description                             |
-| ----------- | --------------------------------------- |
-| **Mogw**    | API Gateway for external communications |
-| **Batch**   | Reward list generator                   |
-| **Mors**    | Reward amount generator                 |
-| **Content** | SMS message generator                   |
-| **Util**    | Reward amount validator                 |
-| **Mgmt**    | Business web server (this application)  |
+#### User Sub ID Query
 
-### RRA (Regional Reward Alliance) / WanderJoy
+![User Sub ID Query](<Image/查詢需求單(Cháxún%20Xūqiú%20Dān).png>)
 
-RRA will clone the Mgmt system from CRS with these components:
+### Technology Stack
 
-| Component   | Description                                  |
-| ----------- | -------------------------------------------- |
-| **Torp**    | API Gateway                                  |
-| **Product** | Backend server for reward/product management |
+- **Framework**: Spring Boot 2.7.8
+- **Language**: Java 11
+- **Database**: Oracle Database 11g+
+- **Template Engine**: Thymeleaf
+- **Build Tool**: Maven
+- **Security**: OWASP ESAPI, Jasypt encryption
+- **Additional Libraries**: Lombok, Apache POI, Bouncy Castle
 
-### System Integration Flow
-
-```mermaid
-graph TB
-    A[External Client] --> B[API Gateway]
-    B --> C[Mgmt System]
-    C --> D[Database]
-    C --> E[SSO Service]
-    C --> F[Email Service]
-    C --> G[Batch Processing]
-    G --> H[Report Generation]
-```
-
-## 🔧 Prerequisites
+## Prerequisites
 
 ### Software Requirements
 
-- **Java 11** or higher
-- **Maven 3.6+**
-- **Oracle Database 11g** or higher
-- **IDE** (IntelliJ IDEA or Eclipse recommended)
+- Java 11 or higher
+- Maven 3.6+
+- Oracle Database 11g or higher
+- IDE (IntelliJ IDEA or Eclipse recommended)
 
 ### Environment Setup
 
@@ -82,7 +61,7 @@ graph TB
 3. Configure Oracle Database connection
 4. Set up SSL certificates (if required)
 
-## 🚀 Installation & Setup
+## Installation & Setup
 
 ### 1. Clone and Build
 
@@ -100,17 +79,14 @@ mvn clean install -DskipTests
 
 ### 2. Environment Configuration
 
-Copy and configure the appropriate properties file:
+**Note**: The `application-dev.properties` file is included as a template. Copy and modify it for your specific environment:
 
 ```bash
-# For development
-cp src/main/resources/application-dev.properties.template src/main/resources/application-dev.properties
+# Copy the template for development
+cp src/main/resources/application-dev.properties src/main/resources/application-dev-local.properties
 
-# For UAT
-cp src/main/resources/application-uat.properties.template src/main/resources/application-uat.properties
-
-# For production
-cp src/main/resources/application-prod.properties.template src/main/resources/application-prod.properties
+# Edit the copied file with your configuration
+# Then use: -Dspring.profiles.active=dev-local
 ```
 
 ### 3. Run the Application
@@ -119,18 +95,26 @@ cp src/main/resources/application-prod.properties.template src/main/resources/ap
 # Development mode
 mvn spring-boot:run -Dspring.profiles.active=dev
 
-# Or with specific profile
+# Or with JAR file
 java -jar target/crs-mgmt-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 ```
 
 ### 4. Access the Application
 
-- **Local Development**: http://localhost:8080
-- **Development Environment**: https://web.crsdev.taiwanmobile.com
+- Local Development: http://localhost:8080
+- Development Environment: https://web.crsdev.taiwanmobile.com
 
-## 🗄️ Database Configuration
+## Configuration
 
-### Oracle Database Setup
+### Environment Profiles
+
+The application supports three environment profiles:
+
+- **dev**: Development environment
+- **uat**: User Acceptance Testing environment
+- **prod**: Production environment
+
+### Database Configuration
 
 ```properties
 # Database Configuration (application-dev.properties)
@@ -142,40 +126,7 @@ spring.modb.initial-size=3
 spring.modb.min-idle=3
 ```
 
-### Key Database Schemas
-
-- **Account Schema**: User and role management
-- **Campaign Schema**: Reward campaign data
-- **Report Schema**: Analytics and reporting data
-
-## 👤 Account Management
-
-### Mgmt Account Development and Management
-
-#### Key Features
-
-- Internal TWM user accounts (NT account holders)
-- Account lifecycle management (minimum 3 months activity)
-- Role-based access control
-- Permission management
-- Account approval workflow
-
-#### Account Requirements
-
-- **Internal TWM Users**: Must have NT domain accounts
-- **Account Status**: Active for minimum 3 months
-- **Inactive Accounts**: Automatically disabled with email notifications
-- **Permissions**: Role-based menu and function access
-
-#### Account Creation Process
-
-1. Verify NT domain account
-2. Assign department and role
-3. Configure permissions
-4. Send activation email
-5. Monitor account activity
-
-#### SSO Configuration
+### SSO Configuration
 
 ```properties
 # NT SSO Configuration
@@ -184,131 +135,50 @@ nt.sso.sid=200348
 nt.sso.auth.type=Form
 ```
 
-#### Authentication Process
+### Security Configuration
 
-1. **Initial Request**: User accesses `/sso/login`
-2. **SSO Redirect**: Redirect to NT SSO service
-3. **Token Exchange**: Receive token from SSO service
-4. **User Validation**: Validate token and retrieve user info
-5. **Session Creation**: Create application session
-6. **Access Control**: Enforce role-based permissions
+```properties
+# Jasypt Encryption
+jasypt.encryptor.algorithm=PBEWithMD5AndDES
+jasypt.encryptor.password=your_master_key
 
-### Session Management
-
-- **Session Timeout**: 120 minutes
-- **Session Storage**: Server-side session management
-- **Session Validation**: Real-time session checking via interceptors
-
-## 🔍 User Sub ID Query
-
-### Purpose
-
-User Sub ID queries are essential for the RRA (Regional Reward Alliance) project to identify TWM customers using user tokens.
-
-#### Query Process
-
-1. **Token Reception**: Receive user token from client
-2. **Token Validation**: Validate token authenticity
-3. **Sub ID Lookup**: Query customer Sub ID from database
-4. **Response**: Return Sub ID for further processing
-
-#### Implementation Example
-
-```java
-@RestController
-public class SubIdQueryController {
-
-    @PostMapping("/api/subid/query")
-    public ResponseEntity<SubIdResponse> querySubId(@RequestBody TokenRequest request) {
-        // Validate token
-        // Query Sub ID from database
-        // Return Sub ID response
-    }
-}
+# Session Management
+server.servlet.session.timeout=120m
 ```
 
-### UI Development
+## Running the Application
 
-A simple UI will be developed for Sub ID user searches:
+### Development Mode
 
-- **Search Input**: User token or identifier
-- **Search Results**: Display user Sub ID and basic info
-- **Error Handling**: Clear error messages for invalid queries
+```bash
+# Using Maven
+mvn spring-boot:run -Dspring.profiles.active=dev
 
-## 📊 Database Tables
+# Using JAR file
+java -jar target/crs-mgmt-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
+```
 
-### Core Tables
+### Production Mode
 
-#### Account Management Tables
+```bash
+# Build for production
+mvn clean package -Dspring.profiles.active=prod
 
-| Table Name                   | Description                     |
-| ---------------------------- | ------------------------------- |
-| `ACCOUNT`                    | User account information        |
-| `ACCOUNT_ACTION_HISTORY`     | Account modification history    |
-| `ACCOUNT_APPROVAL_SETTING`   | Account approval workflow       |
-| `ACCOUNT_PERMISSION_PROGRAM` | User-specific permissions       |
-| `DEPARTMENT`                 | Organizational departments      |
-| `ROLE`                       | User roles and responsibilities |
-| `ROLE_PERMISSION_PROGRAM`    | Role-based permissions          |
-| `MENU`                       | System menu structure           |
-| `PROGRAM`                    | System programs and functions   |
-| `LOGIN_HISTORY`              | User login tracking             |
+# Run production build
+java -jar target/crs-mgmt-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+```
 
-#### AP (Application Program) Tables
+### Health Check
 
-| Table Name               | Description                |
-| ------------------------ | -------------------------- |
-| `AP_ACCOUNT`             | AP account management      |
-| `AP_ACCOUNT_MAP_ACCOUNT` | AP to user account mapping |
-| `AP_KEY_IV`              | Encryption keys and IVs    |
-| `AP_KEY_TABLE`           | Key management table       |
+Verify application status:
 
-#### Campaign Management Tables
+```bash
+curl http://localhost:8080/actuator/health
+```
 
-| Table Name                      | Description               |
-| ------------------------------- | ------------------------- |
-| `CAMPAIGN_MAIN`                 | Main campaign information |
-| `SERIAL_CAMPAIGN_DETAIL`        | Campaign details          |
-| `SERIAL_CAMPAIGN_FILE`          | Campaign file attachments |
-| `SERIAL_APPROVAL_BATCH`         | Approval batch processing |
-| `SERIAL_APPROVAL_DETAIL`        | Approval details          |
-| `SERIAL_APPROVAL_BATCH_HISTORY` | Approval history          |
+## Development
 
-#### Reporting Tables
-
-| Table Name                         | Description          |
-| ---------------------------------- | -------------------- |
-| `SERIAL_REWARD_REPORT`             | Reward reports       |
-| `SERIAL_REWARD_REPORT_DETAIL`      | Detailed reward data |
-| `SERIAL_DATA`                      | Serial number data   |
-| `SERIAL_TRANSACTION_OFFER_HISTORY` | Transaction history  |
-
-#### MoMo Integration Tables
-
-| Table Name                         | Description           |
-| ---------------------------------- | --------------------- |
-| `SERIAL_MOMO_CREATE_BATCH`         | MoMo batch creation   |
-| `SERIAL_MOMO_CREATE_DETAIL`        | MoMo creation details |
-| `SERIAL_MOMO_CREATE_BATCH_HISTORY` | MoMo batch history    |
-
-### Database Relationships
-
-- **Account → Role → Permission**: Role-based access control
-- **Campaign → Detail → File**: Campaign management hierarchy
-- **Approval → Batch → Detail**: Approval workflow
-- **Report → Detail → Data**: Reporting structure
-
-## 💻 Development Guidelines
-
-### Adding New Features
-
-1. **Menu Integration**: Add new menu items to system navigation
-2. **Permission Control**: Implement role-based access
-3. **Database Changes**: Follow naming conventions
-4. **Testing**: Include unit and integration tests
-5. **Documentation**: Update API documentation
-
-### Code Structure
+### Project Structure
 
 ```
 src/main/java/com/twm/mgmt/
@@ -324,92 +194,103 @@ src/main/java/com/twm/mgmt/
 └── validator/         # Input validation
 ```
 
-### Best Practices
+### Code Style Guidelines
 
 - Follow Spring Boot conventions
-- Use Lombok for boilerplate code reduction
-- Implement proper error handling
-- Add comprehensive logging
+- Use Lombok annotations to reduce boilerplate code
+- Implement proper error handling and logging
+- Add comprehensive input validation
 - Follow security best practices
 
-## 📡 API Documentation
+### Database Schema
 
-### Authentication Endpoints
+#### Core Tables
 
-- `GET /sso/login` - SSO login initiation
-- `GET /sso/callback` - SSO callback handler
-- `POST /session/validate` - Session validation
+| Table Name                   | Description                                       |
+| ---------------------------- | ------------------------------------------------- |
+| `ACCOUNT`                    | User account information with role and department |
+| `ROLE`                       | User roles and responsibilities (ROLE_XXX)        |
+| `DEPARTMENT`                 | Organizational departments with BU tags           |
+| `MENU`                       | System menu structure (parent titles)             |
+| `PROGRAM`                    | System programs and functions (child items)       |
+| `ACCOUNT_PERMISSION_PROGRAM` | User-specific permission overrides                |
+| `ROLE_PERMISSION_PROGRAM`    | Role-based permission assignments                 |
+| `ACCOUNT_APPROVAL_SETTING`   | Two-level approval workflow configuration         |
+| `ACCOUNT_ACTION_HISTORY`     | Account modification audit trail                  |
+| `LOGIN_HISTORY`              | User login tracking and session history           |
 
-### Account Management Endpoints
+#### AP (Application Program) Tables
 
-- `GET /api/accounts` - List accounts
-- `POST /api/accounts` - Create account
-- `PUT /api/accounts/{id}` - Update account
-- `DELETE /api/accounts/{id}` - Delete account
+| Table Name               | Description                                  |
+| ------------------------ | -------------------------------------------- |
+| `AP_ACCOUNT`             | External AP account management by department |
+| `AP_ACCOUNT_MAP_ACCOUNT` | Mapping between AP accounts and system users |
+| `AP_KEY_IV`              | Encryption key and IV management             |
+| `AP_KEY_TABLE`           | Additional key storage table                 |
 
-### Sub ID Query Endpoints
+#### Database Sequences
 
-- `POST /api/subid/query` - Query user Sub ID
-- `GET /api/subid/search` - Search Sub ID by criteria
+- `ACCOUNT_SEQ` - Account ID sequence
+- `ROLE_SEQ` - Role ID sequence
+- `MENU_SEQ` - Menu ID sequence
+- `PROGRAM_SEQ` - Program ID sequence
+- `ACCOUNT_PERMISSION_PROGRAM_SEQ` - Account permission sequence
+- `ROLE_PERMISSION_PROGRAM_SEQ` - Role permission sequence
+- `ACCOUNT_ACTION_HISTORY_SEQ` - Action history sequence
+- `AP_KEY_IV_SEQ` - AP key sequence
+- `LOGIN_HISTORY_ID` - Login history sequence
 
-### Campaign Management Endpoints
+#### Key Relationships
 
-- `GET /api/campaigns` - List campaigns
-- `POST /api/campaigns` - Create campaign
-- `PUT /api/campaigns/{id}` - Update campaign
+- **ACCOUNT** → **ROLE**: Each account has one role
+- **ACCOUNT** → **DEPARTMENT**: Each account belongs to one department
+- **PROGRAM** → **MENU**: Programs are grouped under menus
+- **ROLE_PERMISSION_PROGRAM**: Links roles to specific programs
+- **ACCOUNT_PERMISSION_PROGRAM**: Provides user-specific permission overrides
+- **ACCOUNT_APPROVAL_SETTING**: Configures L1/L2 approval chains per account
 
-## 🔧 Configuration
+#### Authentication Process
 
-### Application Profiles
+1. User accesses `/sso/login`
+2. System redirects to NT SSO service
+3. SSO service validates credentials and returns token
+4. Application validates token and retrieves user information
+5. Session is created with role-based permissions
+6. User gains access to authorized system functions
 
-- **dev**: Development environment
-- **uat**: User Acceptance Testing
-- **prod**: Production environment
+#### Session Management
 
-### Key Configuration Files
+- Session timeout: 120 minutes
+- Server-side session storage
+- Real-time session validation via interceptors
 
-- `application-{profile}.properties` - Environment-specific settings
-- `logback-spring.xml` - Logging configuration
-- `ESAPI.properties` - Security configuration
-
-### Security Configuration
-
-```properties
-# Encryption Settings
-ap.account.secrect.key=oJ9YTPTOEmDK1vhbXPEFRffeIRVhPi4a
-ap.account.secrect.iv=u2L0KebuHPcjSKeg
-
-# Jasypt Encryption
-jasypt.encryptor.algorithm=PBEWithMD5AndDES
-```
-
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
-#### Database Connection Issues
+#### Database Connection Problems
 
 ```bash
-# Check database connectivity
-telnet <db-host> <db-port>
+# Test database connectivity
+telnet <database-host> <database-port>
 
 # Verify JDBC URL format
 jdbc:oracle:thin:@//hostname:port/service_name
 ```
 
-#### SSO Authentication Problems
+#### SSO Authentication Issues
 
-1. Verify SSO URL configuration
-2. Check certificate validity
-3. Validate SID and auth type
-4. Review firewall settings
+1. Verify SSO URL configuration in properties file
+2. Check SSL certificate validity
+3. Validate SID and authentication type settings
+4. Review network firewall configurations
 
-#### Session Management Issues
+#### Session Management Problems
 
-1. Check session timeout settings
-2. Verify cookie configuration
-3. Review interceptor logic
-4. Monitor session storage
+1. Check session timeout configuration
+2. Verify cookie settings and domain
+3. Review interceptor logic implementation
+4. Monitor session storage mechanism
 
 ### Log Analysis
 
@@ -420,36 +301,19 @@ tail -f logs/application.log
 # Check access logs
 tail -f logs/access_log.yyyy-MM-dd.log
 
-# Monitor error logs
+# Filter error messages
 grep ERROR logs/application.log
 ```
 
-## 📞 Support
+### Performance Monitoring
 
-### Development Team Contact
-
-- **Email**: crs@taiwanmobile.com
-- **Environment**: Development/UAT/Production
-- **Monitoring**: Application health checks available at `/actuator/health`
-
-### External Dependencies
-
-- **NT SSO Service**: https://ssouat.taiwanmobile.com
-- **Database**: Oracle Database
-- **Mail Server**: Internal SMTP relay
+- Application health: `GET /actuator/health`
+- Application metrics: `GET /actuator/metrics`
+- Environment info: `GET /actuator/env`
 
 ---
 
-## 📝 License
-
-This project is proprietary software of Taiwan Mobile Co., Ltd.
-
-## 🔄 Version History
-
-- **v0.0.1-SNAPSHOT**: Initial development version
-- **Spring Boot**: 2.7.8
-- **Java**: 11
-
----
-
-_Last Updated: 2024_
+**Version**: 0.0.1-SNAPSHOT  
+**Spring Boot**: 2.7.8  
+**Java**: 11  
+**Last Updated**: 2024
